@@ -14,7 +14,10 @@
     "core-js": "^3.6.5",
     "vue": "^2.6.14",
     "vue-router": "^3.5.2",
-    "vuex": "^3.6.2"
+    "vuex": "^3.6.2",
+    "ansi-regex": ">=5.0.1",
+    "nth-check": ">=2.0.1",
+    "set-value": ">=4.0.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.0.0",
