@@ -28,17 +28,11 @@ export default {
     currentEpisode: {
       type: Object,
       required: true
-    }
+    },
   },
   computed: {
-    now() {
-      return new Date()
-    },
-    getEpisodeDateTime() {
-      return new Date(this.currentEpisode.releaseDate).getTime()
-    },
     timeSince() {
-      const seconds = Math.floor((this.now - this.getEpisodeDateTime) / 1000);
+      const seconds = Math.floor((new Date().getTime() - new Date(this.currentEpisode.releaseDate).getTime()) / 1000);
       let interval = seconds / 31536000;
       if (interval > 1) return Math.floor(interval) + " an" + (interval >= 2 ? "s" : "");
       interval = seconds / 2592000;

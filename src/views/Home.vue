@@ -6,9 +6,11 @@
       <p class="lead mt-0 mb-0 fw-bold">Un bot fana d'animés et de mangas</p>
       <p class="text mt-0 muted fw-bold">Les dernières sorties</p>
 
-      <BSpinner v-show="isLoaded" type="primary"></BSpinner>
+      <div v-show="data === undefined" class="spinner-border">
+        <span class="visually-hidden">Loading...</span>
+      </div>
 
-      <div v-show="!isLoaded && episodes.length !== 0" class="container-fluid row g-3">
+      <div v-show="data !== undefined" class="container-fluid row g-3">
         <Episode v-for="episode in episodes" :key="episode.eId" :episode="episode"/>
       </div>
 
@@ -29,7 +31,7 @@ import {mapActions, mapState} from "vuex";
 export default {
   components: {Episode},
   computed: {
-    ...mapState(['isLoaded', 'limit', 'episodes']),
+    ...mapState(['limit', 'episodes', 'data']),
   },
   methods: {
     ...mapActions(['getEpisodes']),
@@ -37,10 +39,6 @@ export default {
     fetchEpisodes() {
       this.getEpisodes(this.limit + 9)
     }
-  },
-  beforeMount() {
-    console.log('Before mount')
-    if (this.episodes.length === 0) this.getEpisodes()
   }
 }
 </script>

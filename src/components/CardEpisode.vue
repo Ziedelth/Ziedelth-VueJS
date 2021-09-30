@@ -24,6 +24,11 @@ export default {
       type: Object,
       required: true
     }
-  }
+  },
+  data() {
+    return {
+      interval: null,
+    }
+  },
 }
 </script>
