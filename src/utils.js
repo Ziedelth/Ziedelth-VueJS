@@ -3,6 +3,10 @@ export default class Utils {
         return window.location.protocol + "//" + window.location.hostname + "/" + path;
     }
 
+    static getFile(path) {
+        return window.location.protocol + "//" + window.location.host + "/" + path;
+    }
+
     static toHHMMSS(string) {
         const sec_num = parseInt(string, 10); // don't forget the second param
         let hours = Math.floor(sec_num / 3600);
@@ -20,5 +24,47 @@ export default class Utils {
         }
 
         return (hours >= 1 ? hours + ':' : '') + minutes + ':' + seconds;
+    }
+
+    static timeSince(time) {
+        const seconds = Math.floor((new Date().getTime() - time) / 1000);
+        let interval = seconds / 31536000;
+        if (interval > 1) return Math.floor(interval) + " an" + (interval >= 2 ? "s" : "");
+        interval = seconds / 2592000;
+        if (interval > 1) return Math.floor(interval) + " mois";
+        interval = seconds / 86400;
+        if (interval > 1) return Math.floor(interval) + " jour" + (interval >= 2 ? "s" : "");
+        interval = seconds / 3600;
+        if (interval > 1) return Math.floor(interval) + " heure" + (interval >= 2 ? "s" : "");
+        interval = seconds / 60;
+        if (interval > 1) return Math.floor(interval) + " minute" + (interval >= 2 ? "s" : "");
+        return Math.floor(seconds) + " seconde" + (seconds >= 2 ? "s" : "");
+    }
+
+    static timeSinceWithDot(time, fractionDigits = 2) {
+        const seconds = Math.floor(time);
+        let interval = seconds / 31536000;
+        if (interval > 1) return interval.toFixed(fractionDigits) + " an" + (interval >= 2 ? "s" : "");
+        interval = seconds / 2592000;
+        if (interval > 1) return interval.toFixed(fractionDigits) + " mois";
+        interval = seconds / 86400;
+        if (interval > 1) return interval.toFixed(fractionDigits) + " jour" + (interval >= 2 ? "s" : "");
+        interval = seconds / 3600;
+        if (interval > 1) return interval.toFixed(fractionDigits) + " heure" + (interval >= 2 ? "s" : "");
+        interval = seconds / 60;
+        if (interval > 1) return interval.toFixed(fractionDigits) + " minute" + (interval >= 2 ? "s" : "");
+        return seconds.toFixed(fractionDigits) + " seconde" + (seconds >= 2 ? "s" : "");
+    }
+
+    static isNull(payload) {
+        return payload === undefined || payload === null
+    }
+
+    static isNotNull(payload) {
+        return payload !== undefined && payload !== null
+    }
+
+    static getInData(object, key, defaultValue) {
+        return Utils.isNotNull(object) ? (Utils.isNotNull(object[key]) ? object[key] : defaultValue) : defaultValue
     }
 }

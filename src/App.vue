@@ -1,82 +1,50 @@
 <template>
   <div>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div class="container-fluid">
+    <b-navbar class="px-4" toggleable="lg" type="dark" variant="dark">
+      <b-container fluid>
         <router-link class="navbar-brand" to="/">
-          <img alt="" class="d-inline-block align-text-top me-2 rounded" height="30" src="images/favicon.png"
+          <img :src="getFavicon" alt="" class="d-inline-block align-text-top me-2 rounded" height="30"
                width="30">
           Ziedelth.fr
         </router-link>
 
-        <button aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"
-                class="navbar-toggler" data-bs-target="#navbarSupportedContent" data-bs-toggle="collapse" type="button">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+        <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
-        <div id="navbarSupportedContent" class="collapse navbar-collapse">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <router-link class="nav-link" to="/">Accueil</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link class="nav-link" to="about">Contact</router-link>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+        <b-collapse id="nav-collapse" is-nav>
+          <b-navbar-nav class="me-auto my-2 my-lg-0 navbar-nav-scroll">
+            <router-link class="nav-link" to="/">Accueil</router-link>
+          </b-navbar-nav>
 
-    <div class="container mt-3">
+          <div class="d-flex">
+            <router-link class="btn btn-outline-primary me-2" to="/">Inscription</router-link>
+            <router-link class="btn btn-outline-success" to="/">Connexion</router-link>
+          </div>
+        </b-collapse>
+      </b-container>
+    </b-navbar>
+
+    <b-container class="my-3">
       <router-view/>
-    </div>
+    </b-container>
 
-    <footer class="footer mt-auto py-3 bg-dark px-3 text-center mt-2">
-      <div class="container">
+    <footer>
+      <b-container class="mt-3 p-3 bg-dark text-center" fluid>
         <p class="text-white-50 fw-bold">&copy; {{ getCurrentYear }} Ziedelth.fr</p>
-        <p class="text-muted">Membres : <span class="fw-bold">{{ totalMembers }}</span></p>
-
-        <hr class="text-white-50">
-
-        <div class="row mt-0">
-          <div class="col-md-6">
-            <p class="text-muted mb-0">Pays pris en charge : <span class="fw-bold">{{ totalCountries }}</span></p>
-            <p class="text-muted mt-0 mb-0">Platformes prises en charge : <span class="fw-bold">{{
-                totalPlatforms
-              }}</span></p>
-            <p class="text-muted mt-0">Animés / Mangas reconnus : <span class="fw-bold">{{ totalAnimes }}</span></p>
-          </div>
-
-          <div class="col-md-6">
-            <p class="text-muted mb-0">Épisodes reconnus : <span class="fw-bold">{{ totalEpisodes }}</span></p>
-            <p class="text-muted mt-0">Total cumulés : <span class="fw-bold">{{ toHHMMSS }}</span></p>
-          </div>
-        </div>
-      </div>
+      </b-container>
     </footer>
   </div>
 </template>
 
 <script>
-import Utils from "@/utils";
-import {mapActions, mapGetters, mapState} from "vuex";
+import {mapGetters} from "vuex";
 
 export default {
   computed: {
-    ...mapState(['data', 'episodes', 'totalMembers', 'totalCountries', 'totalPlatforms', 'totalAnimes', 'totalEpisodes', 'totalDuration']),
-    ...mapGetters(['isEmpty']),
+    ...mapGetters(["getFavicon"]),
 
     getCurrentYear() {
       return new Date().getFullYear();
     },
-    toHHMMSS() {
-      return Utils.toHHMMSS(this.totalDuration)
-    }
   },
-  methods: {
-    ...mapActions(['getEpisodes']),
-  },
-  beforeMount() {
-    if (this.isEmpty) this.getEpisodes(9)
-  }
 }
 </script>
