@@ -41,21 +41,6 @@ export default class Utils {
         return Math.floor(seconds) + " seconde" + (seconds >= 2 ? "s" : "");
     }
 
-    static timeSinceWithDot(time, fractionDigits = 2) {
-        const seconds = Math.floor(time);
-        let interval = seconds / 31536000;
-        if (interval > 1) return interval.toFixed(fractionDigits) + " an" + (interval >= 2 ? "s" : "");
-        interval = seconds / 2592000;
-        if (interval > 1) return interval.toFixed(fractionDigits) + " mois";
-        interval = seconds / 86400;
-        if (interval > 1) return interval.toFixed(fractionDigits) + " jour" + (interval >= 2 ? "s" : "");
-        interval = seconds / 3600;
-        if (interval > 1) return interval.toFixed(fractionDigits) + " heure" + (interval >= 2 ? "s" : "");
-        interval = seconds / 60;
-        if (interval > 1) return interval.toFixed(fractionDigits) + " minute" + (interval >= 2 ? "s" : "");
-        return seconds.toFixed(fractionDigits) + " seconde" + (seconds >= 2 ? "s" : "");
-    }
-
     static isNull(payload) {
         return payload === undefined || payload === null
     }
