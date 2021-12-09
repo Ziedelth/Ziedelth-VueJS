@@ -3,10 +3,6 @@ export default class Utils {
         return window.location.protocol + "//" + window.location.hostname + "/" + path;
     }
 
-    static getFile(path) {
-        return window.location.protocol + "//" + window.location.host + "/" + path;
-    }
-
     static toHHMMSS(string) {
         const sec_num = parseInt(string, 10); // don't forget the second param
         let hours = Math.floor(sec_num / 3600);
