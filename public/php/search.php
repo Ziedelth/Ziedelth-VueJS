@@ -40,7 +40,7 @@ if (!empty($_GET['text'])) {
         echo json_encode($array);
     } catch (Exception $exception) {
         http_response_code(500);
-        echo '{"code":"' . http_response_code() . '","error":"' . $exception->getMessage() . '"}';
+        echo '{"error":"' . $exception->getMessage() . '"}';
     }
 } else {
     http_response_code(500);
