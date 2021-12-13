@@ -12,7 +12,7 @@ if (!empty($json['pseudo']) && !empty($json['password'])) {
 
         // Pseudo
         if (strlen($pseudo) >= 4 && strlen($pseudo) <= 16) {
-            $request = $database->prepare("SELECT * FROM users WHERE pseudo = :pseudo");
+            $request = $database->prepare("SELECT id, timestamp, pseudo, salt_password, token, image, role, bio FROM users WHERE pseudo = :pseudo");
             $request->execute(array('pseudo' => $pseudo));
             $rows = $request->rowCount();
 
@@ -45,8 +45,10 @@ if (!empty($json['pseudo']) && !empty($json['password'])) {
 
                     }
 
+                    unset($user['id']);
+                    unset($user['salt_password']);
                     http_response_code(201);
-                    echo '{"status":"Ok","pseudo":"' . $user['pseudo'] . '","token":"' . $user['token'] . '"}';
+                    echo json_encode($user);
                 } else {
                     http_response_code(500);
                     echo '{"error":"Bad credentials"}';

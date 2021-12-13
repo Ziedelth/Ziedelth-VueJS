@@ -8,7 +8,7 @@ if (!empty($_GET['pseudo'])) {
         $database = getPDO('ziedelth');
         $pseudo = htmlspecialchars(strip_tags($_GET['pseudo']));
 
-        $request = $database->prepare("SELECT pseudo, role, bio FROM users WHERE pseudo = :pseudo");
+        $request = $database->prepare("SELECT timestamp, pseudo, image, role, bio FROM users WHERE pseudo = :pseudo");
         $request->execute(array('pseudo' => $pseudo));
         $rows = $request->rowCount();
 

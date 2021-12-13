@@ -32,7 +32,7 @@ if (!empty($json['pseudo']) && !empty($json['email']) && !empty($json['salt_pass
                             // Generated token
                             $token = generateRandomString(50);
 
-                            $request = $database->prepare("INSERT INTO users (timestamp, pseudo, email, salt_password, token, role, bio) VALUES (CURRENT_TIME, :pseudo, :email, :salt_password, :token, 0, NULL)");
+                            $request = $database->prepare("INSERT INTO users (timestamp, pseudo, email, salt_password, image, token, role, bio) VALUES (CURRENT_TIME, :pseudo, :email, :salt_password, :token, NULL, 0, NULL)");
                             $request->execute(array('pseudo' => $pseudo, 'email' => $email, 'salt_password' => $saltPassword, 'token' => $token));
 
                             http_response_code(201);
