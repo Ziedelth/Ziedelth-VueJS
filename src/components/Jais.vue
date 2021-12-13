@@ -131,7 +131,7 @@ export default {
     getEpisodes() {
       if (this.show) {
         setTimeout(() => {
-          fetch(Utils.getLocalFile("php/latest_episodes.php"))
+          fetch(Utils.getLocalFile("php/jais/latest_episodes.php"))
               .then(response => response.json())
               .then(response => {
                 this.isLoading = false;

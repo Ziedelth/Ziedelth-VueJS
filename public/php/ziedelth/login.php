@@ -1,12 +1,12 @@
 <?php
 
-include_once 'database.php';
+include_once '../database.php';
 header('Access-Control-Allow-Origin: *');
 $json = json_decode(file_get_contents('php://input'), true);
 
 if (!empty($json['pseudo']) && !empty($json['password'])) {
     try {
-        $database = getPDO();
+        $database = getPDO('ziedelth');
         $pseudo = htmlspecialchars(strip_tags($json['pseudo']));
         $password = htmlspecialchars(strip_tags($json['password']));
 
@@ -35,15 +35,18 @@ if (!empty($json['pseudo']) && !empty($json['password'])) {
                         $rows = $request->rowCount();
 
                         if ($rows == 0) {
-                            $request = $database->prepare("INSERT INTO users_ip (user_id, ip) VALUES (:user_id, :ip)");
-                            $request->execute(array('user_id' => $userId, 'ip' => $ip));
+                            $request = $database->prepare("INSERT INTO users_ip (timestamp, user_id, ip) VALUES (CURRENT_TIMESTAMP(), :user_id, :ip)");
+                        } else {
+                            $request = $database->prepare("UPDATE users_ip SET timestamp = CURRENT_TIMESTAMP() WHERE user_id = :user_id AND ip = :ip");
                         }
+
+                        $request->execute(array('user_id' => $userId, 'ip' => $ip));
                     } catch (Exception $exception) {
 
                     }
 
                     http_response_code(201);
-                    echo '{"status":"Ok"}';
+                    echo '{"status":"Ok","pseudo":"' . $user['pseudo'] . '","token":"' . $user['token'] . '"}';
                 } else {
                     http_response_code(500);
                     echo '{"error":"Bad credentials"}';
