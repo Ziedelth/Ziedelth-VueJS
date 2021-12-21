@@ -5,10 +5,10 @@ header('Access-Control-Allow-Origin: *');
 
 if (!empty($_GET['pseudo'])) {
     try {
-        $database = getPDO('ziedelth');
+        $database = getPDO();
         $pseudo = htmlspecialchars(strip_tags($_GET['pseudo']));
 
-        $request = $database->prepare("SELECT timestamp, pseudo, image, role, bio FROM users WHERE pseudo = :pseudo");
+        $request = $database->prepare("SELECT timestamp, pseudo, image, role, bio FROM ziedelth.users WHERE pseudo = :pseudo");
         $request->execute(array('pseudo' => $pseudo));
         $rows = $request->rowCount();
 

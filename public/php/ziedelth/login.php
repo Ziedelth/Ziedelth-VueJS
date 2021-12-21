@@ -1,18 +1,20 @@
 <?php
 
 include_once '../database.php';
+include_once '../Utils.php';
 header('Access-Control-Allow-Origin: *');
 $json = json_decode(file_get_contents('php://input'), true);
 
 if (!empty($json['pseudo']) && !empty($json['password'])) {
+    $pseudo = htmlspecialchars(strip_tags($json['pseudo']));
+    $password = htmlspecialchars(strip_tags($json['password']));
+
     try {
-        $database = getPDO('ziedelth');
-        $pseudo = htmlspecialchars(strip_tags($json['pseudo']));
-        $password = htmlspecialchars(strip_tags($json['password']));
+        $database = getPDO();
 
         // Pseudo
         if (strlen($pseudo) >= 4 && strlen($pseudo) <= 16) {
-            $request = $database->prepare("SELECT id, timestamp, pseudo, salt_password, token, image, role, bio FROM users WHERE pseudo = :pseudo");
+            $request = $database->prepare("SELECT id, timestamp, pseudo, salt_password, token, image, role, bio FROM ziedelth.users WHERE pseudo = :pseudo");
             $request->execute(array('pseudo' => $pseudo));
             $rows = $request->rowCount();
 
@@ -25,30 +27,7 @@ if (!empty($json['pseudo']) && !empty($json['password'])) {
                 $hash = hash('sha512', $salt . '||YOU_WIN||' . $password);
 
                 if ($hash === $saltPassword) {
-                    // IP
-                    $userId = $user['id'];
-                    $ip = $_SERVER['REMOTE_ADDR'];
-
-                    try {
-                        $request = $database->prepare("SELECT * FROM users_ip WHERE user_id = :user_id AND ip = :ip");
-                        $request->execute(array('user_id' => $userId, 'ip' => $ip));
-                        $rows = $request->rowCount();
-
-                        if ($rows == 0) {
-                            $request = $database->prepare("INSERT INTO users_ip (timestamp, user_id, ip) VALUES (CURRENT_TIMESTAMP(), :user_id, :ip)");
-                        } else {
-                            $request = $database->prepare("UPDATE users_ip SET timestamp = CURRENT_TIMESTAMP() WHERE user_id = :user_id AND ip = :ip");
-                        }
-
-                        $request->execute(array('user_id' => $userId, 'ip' => $ip));
-                    } catch (Exception $exception) {
-
-                    }
-
-                    unset($user['id']);
-                    unset($user['salt_password']);
-                    http_response_code(201);
-                    echo json_encode($user);
+                    Utils::insertIP($user, $database);
                 } else {
                     http_response_code(500);
                     echo '{"error":"Bad credentials"}';
@@ -60,6 +39,22 @@ if (!empty($json['pseudo']) && !empty($json['password'])) {
         } else {
             http_response_code(500);
             echo '{"error":"Pseudo invalid format"}';
+        }
+    } catch (Exception $exception) {
+        http_response_code(500);
+        echo '{"error":"' . $exception->getMessage() . '"}';
+    }
+} else if (!empty($json['token'])) {
+    $token = htmlspecialchars(strip_tags($json['token']));
+
+    try {
+        $database = getPDO();
+
+        if (($user = Utils::isValidToken($database, $token)) != null) {
+            Utils::insertIP($user, $database);
+        } else {
+            http_response_code(500);
+            echo '{"error":"Invalid token"}';
         }
     } catch (Exception $exception) {
         http_response_code(500);

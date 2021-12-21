@@ -1,25 +1,23 @@
 <template>
   <div id="jais" class="text-center">
-    <img v-b-toggle.jais alt="Jaïs brand" class="img-fluid collapsed border rounded-circle shadow" height="120"
-         loading="lazy" src="images/jais.jpg" width="120" @click="imgClick"/>
+    <img alt="Jaïs brand" class="img-fluid collapsed border rounded-circle shadow" height="120"
+         loading="lazy" src="images/jais.jpg" width="120"/>
 
-    <div id="indicator" class="fw-bold my-3">
-      <b-icon-arrow-up-square-fill font-scale="1.25"/>
+    <h2 class="mt-2 mb-0 fw-bold">Jaïs</h2>
+    <p class="lead mt-0 mb-0 fw-bold">Un bot fana d'animés et de mangas</p>
+    <p class="text mt-0 muted fw-bold">Les dernières sorties</p>
+
+    <div v-if="isLoading" class="spinner-border my-2" role="status">
+      <span class="visually-hidden">Loading...</span>
     </div>
 
-    <b-collapse id="jais" visible>
-      <h2 class="mt-2 mb-0 fw-bold">Jaïs</h2>
-      <p class="lead mt-0 mb-0 fw-bold">Un bot fana d'animés et de mangas</p>
-      <p class="text mt-0 muted fw-bold">Les dernières sorties</p>
+    <div v-else class="row g-3">
+      <div class="col-lg-12">
+        <div class="container-fluid">
+          <p v-if="error !== null" class="alert-danger text-danger">{{ error }}</p>
 
-      <b-container fluid>
-        <b-icon v-show="isLoading" animation="cylon" class="my-2" font-scale="2" icon="three-dots"></b-icon>
-
-        <div v-show="!isLoading">
-          <p v-show="error !== null" class="alert-danger text-danger">{{ error }}</p>
-
-          <b-container class="row g-3" fluid>
-            <div v-for="episode in episodes" class="col-lg-4">
+          <div v-else class="container-fluid row g-3">
+            <div v-for="episode in episodes" class="col-lg-3">
               <div class="card">
                 <div class="card-body">
                   <div class="text-truncate">
@@ -40,7 +38,7 @@
                           episode.episode_type === "EPISODE" ? "Épisode" : episode.episode_type === "SPECIAL" ? "Spécial" : "Film"
                         }} {{ episode.number }} {{ episode.lang_type === "SUBTITLES" ? "VOSTFR" : "VF" }}
                         <br>
-                        <b-icon-camera-reels-fill/>
+                        <i class="bi bi-camera-reels-fill"></i>
                         {{ toHHMMSS(episode.duration) }}
                       </p>
                     </div>
@@ -57,23 +55,29 @@
 
                     <div class="m-0 ms-auto justify-content-end">
                       <div class="d-inline me-2">
-                        <b-icon-check2/>
-                        0
+                        <i class="bi bi-check2"></i>
+                        {{ episode.checks.length }}
                       </div>
 
                       <div class="d-inline ">
-                        <b-icon-heart-fill/>
-                        0
+                        <i class="bi bi-heart-fill"></i>
+                        {{ episode.loves.length }}
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </b-container>
+          </div>
         </div>
-      </b-container>
-    </b-collapse>
+      </div>
+
+      <!--      <div class="col-lg-6">
+              <div class="container-fluid">
+
+              </div>
+            </div>-->
+    </div>
   </div>
 </template>
 
@@ -84,19 +88,12 @@ export default {
   name: "Jais",
   data() {
     return {
-      show: true,
-
       isLoading: true,
       error: null,
       episodes: [],
     }
   },
   methods: {
-    imgClick() {
-      this.show = !this.show;
-
-      document.getElementById("indicator").classList.toggle('active');
-    },
     toHHMMSS(duration) {
       if (duration <= 0) {
         return '??:??';
@@ -129,22 +126,20 @@ export default {
       return Math.floor(seconds) + " seconde" + (seconds >= 2 ? "s" : "");
     },
     getEpisodes() {
-      if (this.show) {
-        setTimeout(() => {
-          fetch(Utils.getLocalFile("php/jais/latest_episodes.php"))
-              .then(response => response.json())
-              .then(response => {
-                this.isLoading = false;
-                this.episodes = response;
-                this.error = null;
-              })
-              .catch(error => {
-                this.isLoading = false;
-                this.episodes = [];
-                this.error = error;
-              });
-        }, 1000);
-      }
+      setTimeout(() => {
+        fetch(Utils.getLocalFile("php/jais/latest_episodes.php?limit=12"))
+            .then(response => response.json())
+            .then(response => {
+              this.isLoading = false;
+              this.episodes = response;
+              this.error = null;
+            })
+            .catch(error => {
+              this.isLoading = false;
+              this.episodes = [];
+              this.error = error;
+            });
+      }, 1000);
     }
   },
   mounted() {
@@ -156,26 +151,6 @@ export default {
 </script>
 
 <style scoped>
-#indicator {
-  -webkit-transition-duration: 0.5s;
-  -moz-transition-duration: 0.5s;
-  -o-transition-duration: 0.5s;
-  transition-duration: 0.5s;
-  -webkit-transition-property: -webkit-transform;
-  -moz-transition-property: -moz-transform;
-  -o-transition-property: -o-transform;
-  transition-property: transform;
-  outline: 0;
-}
-
-.active {
-  -webkit-transform: rotate(180deg);
-  -moz-transform: rotate(180deg);
-  -ms-transform: rotate(180deg);
-  -o-transform: rotate(180deg);
-  transform: rotate(180deg);
-}
-
 .platform-thumbnail {
   width: 3vh;
   height: 3vh;

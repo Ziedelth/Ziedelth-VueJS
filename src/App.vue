@@ -3,9 +3,9 @@
     <Navbar/>
 
     <main class="my-3">
-      <b-container>
+      <div class="container-fluid">
         <router-view/>
-      </b-container>
+      </div>
     </main>
 
     <Footer/>
@@ -13,8 +13,8 @@
 </template>
 
 <script>
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+const Navbar = () => import("@/components/Navbar");
+const Footer = () => import("@/components/Footer");
 
 export default {
   components: {Footer, Navbar}

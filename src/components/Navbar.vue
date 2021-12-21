@@ -1,21 +1,24 @@
 <template>
   <header>
-    <b-navbar class="px-4" toggleable="lg" type="dark" variant="dark">
-      <b-container fluid>
+    <div class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+      <div class="container-fluid">
         <router-link class="navbar-brand" to="/">
           <img alt="" class="d-inline-block align-text-top me-2 rounded" height="30" loading="lazy"
                src="images/favicon.jpg" width="30">
           Ziedelth.fr
         </router-link>
 
-        <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+        <button aria-controls="nav-collapse" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
+                data-bs-target="#nav-collapse" data-bs-toggle="collapse" type="button">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-        <b-collapse id="nav-collapse" is-nav>
-          <b-navbar-nav class="me-auto my-2 my-lg-0 navbar-nav-scroll">
+        <div id="nav-collapse" class="collapse navbar-collapse">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <router-link class="nav-link" to="/">Accueil</router-link>
-          </b-navbar-nav>
-        </b-collapse>
-      </b-container>
-    </b-navbar>
+          </ul>
+        </div>
+      </div>
+    </div>
   </header>
 </template>

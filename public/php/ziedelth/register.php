@@ -6,21 +6,21 @@ $json = json_decode(file_get_contents('php://input'), true);
 
 if (!empty($json['pseudo']) && !empty($json['email']) && !empty($json['salt_password'])) {
     try {
-        $database = getPDO('ziedelth');
+        $database = getPDO();
         $pseudo = htmlspecialchars(strip_tags($json['pseudo']));
         $email = htmlspecialchars(strip_tags($json['email']));
         $saltPassword = htmlspecialchars(strip_tags($json['salt_password']));
 
         // Pseudo
         if (strlen($pseudo) >= 4 && strlen($pseudo) <= 16) {
-            $request = $database->prepare("SELECT * FROM users WHERE pseudo = :pseudo");
+            $request = $database->prepare("SELECT * FROM ziedelth.users WHERE pseudo = :pseudo");
             $request->execute(array('pseudo' => $pseudo));
             $rows = $request->rowCount();
 
             if ($rows == 0) {
                 // Email
                 if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    $request = $database->prepare("SELECT * FROM users WHERE email = :email");
+                    $request = $database->prepare("SELECT * FROM ziedelth.users WHERE email = :email");
                     $request->execute(array('email' => $email));
                     $rows = $request->rowCount();
 
@@ -32,7 +32,7 @@ if (!empty($json['pseudo']) && !empty($json['email']) && !empty($json['salt_pass
                             // Generated token
                             $token = generateRandomString(50);
 
-                            $request = $database->prepare("INSERT INTO users (timestamp, pseudo, email, salt_password, image, token, role, bio) VALUES (CURRENT_TIME, :pseudo, :email, :salt_password, :token, NULL, 0, NULL)");
+                            $request = $database->prepare("INSERT INTO ziedelth.users (timestamp, pseudo, email, salt_password, image, token, role, bio) VALUES (CURRENT_TIME, :pseudo, :email, :salt_password, :token, NULL, 0, NULL)");
                             $request->execute(array('pseudo' => $pseudo, 'email' => $email, 'salt_password' => $saltPassword, 'token' => $token));
 
                             http_response_code(201);
