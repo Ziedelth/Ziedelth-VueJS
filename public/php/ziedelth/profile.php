@@ -1,6 +1,7 @@
 <?php
 
 include_once '../database.php';
+include_once '../Utils.php';
 header('Access-Control-Allow-Origin: *');
 
 if (!empty($_GET['pseudo'])) {
@@ -8,18 +9,7 @@ if (!empty($_GET['pseudo'])) {
         $database = getPDO();
         $pseudo = htmlspecialchars(strip_tags($_GET['pseudo']));
 
-        $request = $database->prepare("SELECT timestamp, pseudo, image, role, bio FROM ziedelth.users WHERE pseudo = :pseudo");
-        $request->execute(array('pseudo' => $pseudo));
-        $rows = $request->rowCount();
-
-        if ($rows == 1) {
-            $user = $request->fetch(PDO::FETCH_ASSOC);
-            http_response_code(201);
-            echo json_encode($user);
-        } else {
-            http_response_code(500);
-            echo '{"error":"Pseudo not used"}';
-        }
+        echo json_encode(Utils::getProfile($database, $pseudo));
     } catch (Exception $exception) {
         http_response_code(500);
         echo '{"error":"' . $exception->getMessage() . '"}';

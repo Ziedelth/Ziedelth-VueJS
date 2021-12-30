@@ -1,6 +1,7 @@
 <?php
 
 include_once '../database.php';
+include_once '../Utils.php';
 header('Access-Control-Allow-Origin: *');
 
 try {

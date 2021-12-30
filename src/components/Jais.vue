@@ -34,9 +34,9 @@
                       <p class="card-text">
                         <span class="fw-bold">{{ episode.title === null ? "＞﹏＜" : episode.title }}</span>
                         <br>
-                        Saison {{ episode.season }} • {{
-                          episode.episode_type === "EPISODE" ? "Épisode" : episode.episode_type === "SPECIAL" ? "Spécial" : "Film"
-                        }} {{ episode.number }} {{ episode.lang_type === "SUBTITLES" ? "VOSTFR" : "VF" }}
+                        {{ episode.country_season }}{{ episode.season }} • {{ episode.episode_type }} {{
+                          episode.number
+                        }} {{ episode.lang_type }}
                         <br>
                         <i class="bi bi-camera-reels-fill"></i>
                         {{ toHHMMSS(episode.duration) }}
@@ -71,12 +71,6 @@
           </div>
         </div>
       </div>
-
-      <!--      <div class="col-lg-6">
-              <div class="container-fluid">
-
-              </div>
-            </div>-->
     </div>
   </div>
 </template>
@@ -127,14 +121,18 @@ export default {
     },
     getEpisodes() {
       setTimeout(() => {
-        fetch(Utils.getLocalFile("php/jais/latest_episodes.php?limit=12"))
-            .then(response => response.json())
-            .then(response => {
+        fetch(Utils.getLocalFile("php/jais/latest_episodes.php?country=fr&limit=12"))
+            .then(async response => {
               this.isLoading = false;
-              this.episodes = response;
-              this.error = null;
-            })
-            .catch(error => {
+
+              if (response.status === 201) {
+                this.episodes = await response.json();
+                this.error = null;
+              } else {
+                this.episodes = [];
+                this.error = response.statusText;
+              }
+            }, error => {
               this.isLoading = false;
               this.episodes = [];
               this.error = error;

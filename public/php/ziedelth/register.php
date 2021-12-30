@@ -1,6 +1,7 @@
 <?php
 
 include_once '../database.php';
+include_once '../Utils.php';
 header('Access-Control-Allow-Origin: *');
 $json = json_decode(file_get_contents('php://input'), true);
 
