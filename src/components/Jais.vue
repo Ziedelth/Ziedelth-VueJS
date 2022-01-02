@@ -34,9 +34,7 @@
                       <p class="card-text">
                         <span class="fw-bold">{{ episode.title === null ? "＞﹏＜" : episode.title }}</span>
                         <br>
-                        {{ episode.country_season }}{{ episode.season }} • {{ episode.episode_type }} {{
-                          episode.number
-                        }} {{ episode.lang_type }}
+                        {{ episode.resume }}
                         <br>
                         <i class="bi bi-camera-reels-fill"></i>
                         {{ toHHMMSS(episode.duration) }}
@@ -120,24 +118,22 @@ export default {
       return Math.floor(seconds) + " seconde" + (seconds >= 2 ? "s" : "");
     },
     getEpisodes() {
-      setTimeout(() => {
-        fetch(Utils.getLocalFile("php/jais/latest_episodes.php?country=fr&limit=12"))
-            .then(async response => {
-              this.isLoading = false;
+      fetch(Utils.getLocalFile("php/jais/latest_episodes.php?country=fr&limit=12"))
+          .then(async response => {
+            this.isLoading = false;
 
-              if (response.status === 201) {
-                this.episodes = await response.json();
-                this.error = null;
-              } else {
-                this.episodes = [];
-                this.error = response.statusText;
-              }
-            }, error => {
-              this.isLoading = false;
+            if (response.status === 201) {
+              this.episodes = await response.json();
+              this.error = null;
+            } else {
               this.episodes = [];
-              this.error = error;
-            });
-      }, 1000);
+              this.error = response.statusText;
+            }
+          }, error => {
+            this.isLoading = false;
+            this.episodes = [];
+            this.error = error;
+          });
     }
   },
   mounted() {

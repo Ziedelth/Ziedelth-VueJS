@@ -11,11 +11,11 @@ if (!empty($_GET['country'])) {
         $database = getPDO();
 
         if (Utils::isValidCountry($database, $country)) {
-            $request = $database->prepare("SELECT * 
+            $request = $database->prepare("SELECT a.*
 FROM jais.animes a
-INNER JOIN countries c on a.country_id = c.id
+INNER JOIN jais.countries c on a.country_id = c.id
 WHERE c.tag = :country_tag
-ORDER BY name;");
+ORDER BY a.name;");
             $request->execute(array('country_tag' => $country));
             $animes = $request->fetchAll(PDO::FETCH_ASSOC);
 
@@ -28,17 +28,20 @@ ORDER BY name;");
                 $request->execute(array());
                 $anime['platforms'] = $request->fetchAll(PDO::FETCH_ASSOC);
 
-                $request = $database->prepare("SELECT DISTINCT season, number, lang_type, episode_type FROM jais.episodes WHERE anime_id = :anime_id ORDER BY episode_type, lang_type, season, number;");
+                $request = $database->prepare("SELECT DISTINCT id_episode_type, id_lang_type, season, number FROM jais.episodes WHERE anime_id = :anime_id ORDER BY id_episode_type, id_lang_type, season, number;");
                 $request->execute(array('anime_id' => $animeId));
                 $anime['episodes'] = $request->rowCount();
-                $request = $database->prepare("SELECT DISTINCT number, lang_type, episode_type FROM jais.scans WHERE anime_id = :anime_id ORDER BY episode_type, lang_type, number;");
+                $request = $database->prepare("SELECT DISTINCT id_episode_type, id_lang_type, number FROM jais.scans WHERE anime_id = :anime_id ORDER BY id_episode_type, id_lang_type, number;");
                 $request->execute(array('anime_id' => $animeId));
                 $anime['scans'] = $request->rowCount();
 
-                $request = $database->prepare("SELECT * FROM jais.genres WHERE id IN (SELECT genre_id FROM jais.anime_genres WHERE anime_id = :anime_id) ORDER BY name;");
+                $request = $database->prepare("SELECT $country FROM jais.genres WHERE id IN (SELECT genre_id FROM jais.anime_genres WHERE anime_id = :anime_id) ORDER BY name;");
                 $request->execute(array('anime_id' => $animeId));
 
-                $anime['genres'] = $request->fetchAll(PDO::FETCH_ASSOC);
+                $anime['genres'] = array_map(function ($array) use ($country) {
+                    return $array[$country];
+                }, $request->fetchAll(PDO::FETCH_ASSOC));
+
                 $array[] = $anime;
             }
 
@@ -50,7 +53,7 @@ ORDER BY name;");
         }
     } catch (Exception $exception) {
         http_response_code(500);
-        echo '{"error_message":"' . $exception->getMessage() . '","error_file":"' . $exception->getFile() . '","error_line":"' . $exception->getLine() . '"}';
+        echo '{"error":"' . $exception->getMessage() . '"}';
     }
 } else {
     http_response_code(500);

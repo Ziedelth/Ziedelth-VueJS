@@ -16,6 +16,7 @@
         <div id="nav-collapse" class="collapse navbar-collapse">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <router-link class="nav-link" to="/">Accueil</router-link>
+            <router-link class="nav-link" to="/animes">Animes</router-link>
           </ul>
         </div>
       </div>

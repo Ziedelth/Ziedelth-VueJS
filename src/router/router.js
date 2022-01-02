@@ -11,8 +11,16 @@ export default new VueRouter({
             component: () => import("@/views/Home")
         },
         {
+            path: '/animes',
+            component: () => import("@/views/Animes")
+        },
+        {
+            path: '/cgu',
+            component: () => import("@/views/CGU")
+        },
+        {
             path: '/:catchAll(.*)',
             component: () => import("@/views/NotFound")
-        }
+        },
     ]
 })
