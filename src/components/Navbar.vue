@@ -4,7 +4,7 @@
       <div class="container-fluid">
         <router-link class="navbar-brand" to="/">
           <img alt="" class="d-inline-block align-text-top me-2 rounded" height="30" loading="lazy"
-               src="images/favicon.jpg" width="30">
+               :src="getFavicon()" width="30">
           Ziedelth.fr
         </router-link>
 
@@ -18,8 +18,59 @@
             <router-link class="nav-link" to="/">Accueil</router-link>
             <router-link class="nav-link" to="/animes">Animes</router-link>
           </ul>
+
+          <ul class="navbar-nav">
+            <div v-if="isConnected" class="dropdown dropstart">
+              <button aria-expanded="false" class="btn" data-bs-toggle="dropdown">
+                <img :src="getUserProfile()" alt="User image" class="d-inline-block align-text-top rounded" height="30"
+                     loading="lazy" width="30">
+              </button>
+
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <router-link :to="`/profile/${user.pseudo}`" class="dropdown-item" href="#">Mon profil</router-link>
+                </li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="#" @click="logout">Déconnexion</a></li>
+              </ul>
+            </div>
+            <div v-else>
+              <router-link class="btn btn-outline-success me-2" to="/login">Connexion</router-link>
+              <router-link class="btn btn-outline-primary" to="/register">Inscription</router-link>
+            </div>
+          </ul>
         </div>
       </div>
     </div>
   </header>
 </template>
+
+<script>
+import {mapActions, mapGetters, mapState} from "vuex";
+import Utils from "@/utils";
+
+export default {
+  computed: {
+    ...mapGetters(['isConnected']),
+    ...mapState(['user'])
+  },
+  methods: {
+    ...mapActions(['setUser']),
+
+    getFavicon() {
+      return Utils.getFile("images/favicon.jpg")
+    },
+
+    getUserProfile() {
+      return Utils.getUserProfile(this.user)
+    },
+
+    logout() {
+      this.$session.destroy()
+      this.setUser(null)
+    }
+  }
+}
+</script>

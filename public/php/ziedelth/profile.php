@@ -9,6 +9,7 @@ if (!empty($_GET['pseudo'])) {
         $database = getPDO();
         $pseudo = htmlspecialchars(strip_tags($_GET['pseudo']));
 
+        http_response_code(201);
         echo json_encode(Utils::getProfile($database, $pseudo));
     } catch (Exception $exception) {
         http_response_code(500);

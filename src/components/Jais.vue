@@ -81,65 +81,51 @@ export default {
   data() {
     return {
       isLoading: true,
+      limit: 12,
       error: null,
       episodes: [],
     }
   },
   methods: {
     toHHMMSS(duration) {
-      if (duration <= 0) {
-        return '??:??';
-      }
-
-      const sec_num = parseInt(duration.toString(), 10); // don't forget the second param
-      let hours = Math.floor(sec_num / 3600);
-      hours = hours < 10 ? '0' + hours : hours;
-      let minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-      minutes = minutes < 10 ? '0' + minutes : minutes;
-      let seconds = sec_num - (hours * 3600) - (minutes * 60);
-      seconds = seconds < 10 ? '0' + seconds : seconds;
-      return (hours >= 1 ? hours + ':' : '') + minutes + ':' + seconds;
-    },
-    getDateTime(releaseDate) {
-      return new Date(releaseDate).getTime()
+      return Utils.toHHMMSS(duration.toString())
     },
     timeSince(releaseDate) {
-      const seconds = Math.floor((new Date() - this.getDateTime(releaseDate)) / 1000);
-      let interval = seconds / 31536000;
-      if (interval > 1) return Math.floor(interval) + " an" + (interval >= 2 ? "s" : "");
-      interval = seconds / 2592000;
-      if (interval > 1) return Math.floor(interval) + " mois";
-      interval = seconds / 86400;
-      if (interval > 1) return Math.floor(interval) + " jour" + (interval >= 2 ? "s" : "");
-      interval = seconds / 3600;
-      if (interval > 1) return Math.floor(interval) + " heure" + (interval >= 2 ? "s" : "");
-      interval = seconds / 60;
-      if (interval > 1) return Math.floor(interval) + " minute" + (interval >= 2 ? "s" : "");
-      return Math.floor(seconds) + " seconde" + (seconds >= 2 ? "s" : "");
+      return Utils.timeSince(new Date(releaseDate).getTime())
     },
-    getEpisodes() {
-      fetch(Utils.getLocalFile("php/jais/latest_episodes.php?country=fr&limit=12"))
-          .then(async response => {
-            this.isLoading = false;
+    async getEpisodes(add = false) {
+      if (add)
+        this.limit += 12;
 
-            if (response.status === 201) {
-              this.episodes = await response.json();
-              this.error = null;
-            } else {
-              this.episodes = [];
-              this.error = response.statusText;
-            }
-          }, error => {
-            this.isLoading = false;
-            this.episodes = [];
-            this.error = error;
-          });
+      try {
+        const response = await fetch(Utils.getLocalFile("php/jais/latest_episodes.php?country=fr&limit=" + this.limit))
+
+        if (response.status === 201) {
+          this.episodes = await response.json();
+          this.error = null;
+        } else {
+          this.episodes = [];
+          this.error = response.statusText;
+        }
+      } catch (exception) {
+        this.episodes = [];
+        this.error = exception;
+      }
+
+      this.isLoading = false;
     }
   },
-  mounted() {
+  async mounted() {
     this.isLoading = true;
-    this.getEpisodes();
-    setInterval(() => this.getEpisodes(), 60 * 1000);
+    await this.getEpisodes();
+    setInterval(async () => await this.getEpisodes(), 60 * 1000);
+
+    window.onscroll = async () => {
+      let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
+      if (bottomOfWindow && !this.isLoading) {
+        await this.getEpisodes(true)
+      }
+    }
   }
 }
 </script>

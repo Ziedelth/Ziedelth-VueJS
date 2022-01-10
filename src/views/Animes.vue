@@ -56,25 +56,25 @@ export default {
       animes: [],
     }
   },
-  mounted() {
+  async mounted() {
     this.isLoading = true;
 
-    fetch(Utils.getLocalFile("php/jais/animes.php?country=fr"))
-        .then(async response => {
-          this.isLoading = false;
+    try {
+      const response = await fetch(Utils.getLocalFile("php/jais/animes.php?country=fr"))
 
-          if (response.status === 201) {
-            this.animes = await response.json();
-            this.error = null;
-          } else {
-            this.animes = [];
-            this.error = response.statusText;
-          }
-        }, error => {
-          this.isLoading = false;
-          this.animes = [];
-          this.error = error;
-        });
+      if (response.status === 201) {
+        this.animes = await response.json();
+        this.error = null;
+      } else {
+        this.animes = [];
+        this.error = response.statusText;
+      }
+    } catch (exception) {
+      this.animes = [];
+      this.error = exception;
+    }
+
+    this.isLoading = false;
   }
 }
 </script>

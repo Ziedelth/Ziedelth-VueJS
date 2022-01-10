@@ -1,18 +1,13 @@
 <?php
 
-function getPDO(): PDO
-{
-    return newPDO("root", "");
-}
+require_once 'config.php';
 
 /**
- * @param string $dbuser
- * @param string $dbpass
  * @return PDO
  */
-function newPDO(string $dbuser, string $dbpass): PDO
+function getPDO(): PDO
 {
-    $pdo = new PDO("mysql:host=127.0.0.1", $dbuser, $dbpass);
+    $pdo = new PDO("mysql:host=" . DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     $pdo->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);

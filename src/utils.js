@@ -3,8 +3,17 @@ export default class Utils {
         return window.location.protocol + "//" + window.location.hostname + "/" + path;
     }
 
+    static getFile(path) {
+        return window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/" + path;
+    }
+
     static toHHMMSS(string) {
         const sec_num = parseInt(string, 10); // don't forget the second param
+
+        if (sec_num <= 0) {
+            return '??:??';
+        }
+
         let hours = Math.floor(sec_num / 3600);
         let minutes = Math.floor((sec_num - (hours * 3600)) / 60);
         let seconds = sec_num - (hours * 3600) - (minutes * 60);
@@ -47,5 +56,9 @@ export default class Utils {
 
     static getInData(object, key, defaultValue) {
         return Utils.isNotNull(object) ? (Utils.isNotNull(object[key]) ? object[key] : defaultValue) : defaultValue
+    }
+
+    static getUserProfile(user) {
+        return (user.image == null || user.image.length <= 0) ? this.getFile('images/members/default_member.jpg') : this.getFile(user.image)
     }
 }

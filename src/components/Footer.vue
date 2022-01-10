@@ -6,7 +6,8 @@
           <p class="text-white-50 fw-bold">&copy; 2021 Ziedelth.fr</p>
         </div>
         <div class="col-6 text-end">
-          <router-link class="text-white fw-bold" to="/cgu">CGU - Mentions légales</router-link>
+          <router-link class="text-white fw-bold text-decoration-none" to="/privacy">CGU - Mentions légales
+          </router-link>
         </div>
       </div>
     </div>

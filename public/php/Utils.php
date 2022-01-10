@@ -62,32 +62,6 @@ class Utils
         }
     }
 
-    static /**
-     * @param $user
-     * @param PDO|null $database
-     */
-    function insertIP($user, ?PDO $database)
-    {
-        $userId = $user['id'];
-        $ip = $_SERVER['REMOTE_ADDR'];
-
-        try {
-            $request = $database->prepare("SELECT * FROM ziedelth.users_ip WHERE user_id = :user_id AND ip = :ip");
-            $request->execute(array('user_id' => $userId, 'ip' => $ip));
-            $rows = $request->rowCount();
-
-            if ($rows == 0)
-                $request = $database->prepare("INSERT INTO ziedelth.users_ip (timestamp, user_id, ip) VALUES (CURRENT_TIMESTAMP(), :user_id, :ip)");
-            else
-                $request = $database->prepare("UPDATE ziedelth.users_ip SET timestamp = CURRENT_TIMESTAMP() WHERE user_id = :user_id AND ip = :ip");
-            $request->execute(array('user_id' => $userId, 'ip' => $ip));
-        } catch (Exception $exception) {
-
-        }
-        http_response_code(201);
-        echo json_encode(self::getProfile($database, $user['pseudo'], true));
-    }
-
     static function getProfile(?PDO $database, $pseudo, bool $token = false)
     {
         if ($token)
@@ -116,5 +90,31 @@ class Utils
 //        }
 
         return $user;
+    }
+
+    static function checkEpisode(?PDO $database, $user, $episode)
+    {
+        $request = $database->prepare("SELECT * FROM ziedelth.checks WHERE user_id = :user_id AND episode_id = :episode_id");
+        $request->execute(array('user_id' => $user['id'], 'episode_id' => $episode['id']));
+        $rows = $request->rowCount();
+
+        if ($rows >= 1)
+            $request = $database->prepare("DELETE FROM ziedelth.checks WHERE user_id = :user_id AND episode_id = :episode_id");
+        else
+            $request = $database->prepare("INSERT INTO ziedelth.checks (id, timestamp, user_id, episode_id) VALUES (NULL, CURRENT_TIMESTAMP(), :user_id, :episode_id)");
+        $request->execute(array('user_id' => $user['id'], 'episode_id' => $episode['id']));
+    }
+
+    static function loveAnime(?PDO $database, $user, $anime)
+    {
+        $request = $database->prepare("SELECT * FROM ziedelth.loves WHERE user_id = :user_id AND anime_id = :anime_id");
+        $request->execute(array('user_id' => $user['id'], 'anime_id' => $anime['id']));
+        $rows = $request->rowCount();
+
+        if ($rows >= 1)
+            $request = $database->prepare("DELETE FROM ziedelth.loves WHERE user_id = :user_id AND anime_id = :anime_id");
+        else
+            $request = $database->prepare("INSERT INTO ziedelth.loves (id, timestamp, user_id, anime_id) VALUES (NULL, CURRENT_TIMESTAMP(), :user_id, :anime_id)");
+        $request->execute(array('user_id' => $user['id'], 'anime_id' => $anime['id']));
     }
 }

@@ -15,7 +15,15 @@ export default new VueRouter({
             component: () => import("@/views/Animes")
         },
         {
-            path: '/cgu',
+            path: '/login',
+            component: () => import("@/views/Login")
+        },
+        {
+            path: '/profile/:pseudo',
+            component: () => import("@/views/Profile")
+        },
+        {
+            path: '/privacy',
             component: () => import("@/views/CGU")
         },
         {

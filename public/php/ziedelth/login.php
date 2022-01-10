@@ -27,7 +27,8 @@ if (!empty($json['pseudo']) && !empty($json['password'])) {
                 $hash = hash('sha512', $salt . '||YOU_WIN||' . $password);
 
                 if ($hash === $saltPassword) {
-                    Utils::insertIP($user, $database);
+                    http_response_code(201);
+                    echo json_encode(Utils::getProfile($database, $user['pseudo'], true));
                 } else {
                     http_response_code(500);
                     echo '{"error":"Bad credentials"}';
@@ -51,7 +52,8 @@ if (!empty($json['pseudo']) && !empty($json['password'])) {
         $database = getPDO();
 
         if (($user = Utils::isValidToken($database, $token)) != null) {
-            Utils::insertIP($user, $database);
+            http_response_code(201);
+            echo json_encode(Utils::getProfile($database, $user['pseudo'], true));
         } else {
             http_response_code(500);
             echo '{"error":"Invalid token"}';
