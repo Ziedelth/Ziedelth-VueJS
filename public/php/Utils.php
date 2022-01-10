@@ -117,4 +117,40 @@ class Utils
             $request = $database->prepare("INSERT INTO ziedelth.loves (id, timestamp, user_id, anime_id) VALUES (NULL, CURRENT_TIMESTAMP(), :user_id, :anime_id)");
         $request->execute(array('user_id' => $user['id'], 'anime_id' => $anime['id']));
     }
+
+    static function editBio(?PDO $database, $user, $newBio)
+    {
+        $request = $database->prepare("UPDATE ziedelth.users SET bio = :bio WHERE id = :user_id");
+        $request->execute(array('user_id' => $user['id'], 'bio' => $newBio));
+    }
+
+    static function editImage(?PDO $database, $user, $newImage)
+    {
+        $request = $database->prepare("UPDATE ziedelth.users SET image = :image WHERE id = :user_id");
+        $request->execute(array('user_id' => $user['id'], 'image' => $newImage));
+    }
+
+    static function generateRandomString($length = 25): string
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+
+        return $randomString;
+    }
+
+    static function isFileExists($file): bool
+    {
+        return file_exists($file);
+    }
+
+    static function createFolder($folder)
+    {
+        if (!self::isFileExists($folder))
+            mkdir($folder);
+    }
 }

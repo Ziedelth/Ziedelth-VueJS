@@ -23,7 +23,7 @@ if (!empty($json['pseudo']) && !empty($json['salt_password'])) {
                     $salt = explode('$', $saltPassword)[0];
                     $password = explode('$', $saltPassword)[1];
                     // Generated token
-                    $token = generateRandomString(50);
+                    $token = Utils::generateRandomString(50);
 
                     $request = $database->prepare("INSERT INTO ziedelth.users (timestamp, pseudo, salt_password, token, image, role, bio) VALUES (CURRENT_TIME, :pseudo, :salt_password, :token, NULL, 0, NULL)");
                     $request->execute(array('pseudo' => $pseudo, 'salt_password' => $saltPassword, 'token' => $token));
@@ -49,17 +49,4 @@ if (!empty($json['pseudo']) && !empty($json['salt_password'])) {
 } else {
     http_response_code(500);
     echo '{"error":"Invalid format"}';
-}
-
-function generateRandomString($length = 25): string
-{
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $charactersLength = strlen($characters);
-    $randomString = '';
-
-    for ($i = 0; $i < $length; $i++) {
-        $randomString .= $characters[rand(0, $charactersLength - 1)];
-    }
-
-    return $randomString;
 }

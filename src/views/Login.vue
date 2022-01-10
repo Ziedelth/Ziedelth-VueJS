@@ -8,11 +8,9 @@
 
     <hr>
 
-    <div class="mb-3 row">
-      <label class="col-sm-2 col-form-label" for="inputPassword">Mot de passe</label>
-      <div class="col-sm-10">
-        <input id="inputPassword" ref="password" class="form-control" type="password">
-      </div>
+    <div class="form-floating mb-3">
+      <input id="floatingPassword" ref="password" class="form-control" type="password">
+      <label for="floatingPassword">Mot de passe</label>
     </div>
 
     <div class="text-center">

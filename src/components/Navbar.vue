@@ -28,7 +28,10 @@
 
               <ul class="dropdown-menu dropdown-menu-dark">
                 <li>
-                  <router-link :to="`/profile/${user.pseudo}`" class="dropdown-item" href="#">Mon profil</router-link>
+                  <router-link :to="`/profile/${user.pseudo}`" class="dropdown-item">Mon profil</router-link>
+                </li>
+                <li v-if="user.role === 100">
+                  <router-link class="dropdown-item" to="/">Ajouter des fichiers</router-link>
                 </li>
                 <li>
                   <hr class="dropdown-divider">

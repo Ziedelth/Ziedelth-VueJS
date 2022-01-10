@@ -59,6 +59,6 @@ export default class Utils {
     }
 
     static getUserProfile(user) {
-        return (user.image == null || user.image.length <= 0) ? this.getFile('images/members/default_member.jpg') : this.getFile(user.image)
+        return (user == null || user.image == null || user.image.length <= 0) ? this.getFile('images/members/default_member.jpg') : this.getLocalFile(user.image)
     }
 }
