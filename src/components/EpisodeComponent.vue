@@ -2,7 +2,7 @@
   <div class="border-color rounded p-3 bg-dark">
     <div class="d-flex align-items-center align-content-center fw-bold">
       <a :href="episode.platform.url" target="_blank">
-        <img :src="getPlatformImage()" alt="Platform image" class="platform-thumbnail me-2"/>
+        <img :src="episode.platform.image" alt="Platform image" class="platform-thumbnail me-2"/>
       </a>
       {{ episode.platform.name }}
     </div>
@@ -25,7 +25,7 @@
     </div>
 
     <a :href="episode.url" target="_blank">
-      <img :src="getEpisodeImage()" alt="Episode image" class="mb-2 rounded img-fluid w-100 mt-2">
+      <img :src="episode.image" alt="Episode image" class="mb-2 rounded img-fluid w-100 mt-2">
     </a>
 
     <div class="d-flex">
@@ -44,12 +44,6 @@ export default {
     episode: {},
   },
   methods: {
-    getPlatformImage() {
-      return Utils.getFile(this.episode.platform.image)
-    },
-    getEpisodeImage() {
-      return Utils.getFile(this.episode.image)
-    },
     toHHMMSS(duration) {
       return Utils.toHHMMSS(duration.toString())
     },

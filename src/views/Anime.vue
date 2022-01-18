@@ -10,7 +10,7 @@
 
       <div v-else class="container">
         <div>
-          <img :src="getAnimeImage()" alt="Anime image" class="img-fluid rounded mb-3">
+          <img :src="anime.image" alt="Anime image" class="img-fluid rounded mb-3">
           <h3>{{ anime.name }}</h3>
           <p>{{ anime.genres.map((e) => e.fr).join(' - ') }}</p>
           <hr>
@@ -58,9 +58,6 @@ export default {
   methods: {
     getAnimeDescription() {
       return (this.anime.description === null || this.anime.description.length <= 0) ? 'Aucune description pour le moment...' : this.anime.description;
-    },
-    getAnimeImage() {
-      return (this.anime.image === null || this.anime.image.length <= 0) ? 'images/jais.jpg' : Utils.getFile(this.anime.image);
     }
   },
   async mounted() {

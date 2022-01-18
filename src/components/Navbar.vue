@@ -4,7 +4,7 @@
       <div class="container-fluid">
         <router-link class="navbar-brand" to="/">
           <img alt="" class="d-inline-block align-text-top me-2 rounded" height="30" loading="lazy"
-               :src="getFavicon()" width="30">
+               src="images/favicon.jpg" width="30">
           Ziedelth.fr
         </router-link>
 
@@ -23,15 +23,3 @@
     </div>
   </header>
 </template>
-
-<script>
-import Utils from "@/utils";
-
-export default {
-  methods: {
-    getFavicon() {
-      return Utils.getFile("images/favicon.jpg")
-    }
-  }
-}
-</script>

@@ -4,7 +4,7 @@
       <div class="col-lg-9 text-start">
         <div>
           <a :href="scan.platform.url" target="_blank">
-            <img :src="getPlatformImage()" alt="Platform image" class="platform-thumbnail me-2"/>
+            <img :src="scan.platform.image" alt="Platform image" class="platform-thumbnail me-2"/>
           </a>
 
           {{ scan.platform.name }}
@@ -27,7 +27,7 @@
       </div>
 
       <div class="col-lg-3">
-        <img :src="getAnimeImage()" alt="Anime image" class="img-fluid rounded"/>
+        <img :src="scan.anime.image" alt="Anime image" class="img-fluid rounded"/>
       </div>
     </div>
   </div>
@@ -41,12 +41,6 @@ export default {
     scan: {},
   },
   methods: {
-    getPlatformImage() {
-      return Utils.getFile(this.scan.platform.image)
-    },
-    getAnimeImage() {
-      return Utils.getFile(this.scan.anime.image)
-    },
     toHHMMSS(duration) {
       return Utils.toHHMMSS(duration.toString())
     },

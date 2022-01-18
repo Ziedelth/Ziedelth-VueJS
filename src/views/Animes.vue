@@ -18,7 +18,7 @@
               </div>
 
               <div class="col-3 p-2">
-                <img :src="getAnimeImage(anime)" alt="Anime image" class="img-fluid rounded"/>
+                <img :src="anime.image" alt="Anime image" class="img-fluid rounded"/>
               </div>
             </div>
           </div>
@@ -43,9 +43,6 @@ export default {
     getAnimeDescription(anime) {
       return (anime.description === null || anime.description.length <= 0) ? 'Aucune description pour le moment...' : anime.description;
     },
-    getAnimeImage(anime) {
-      return (anime.image === null || anime.image.length <= 0) ? 'images/jais.jpg' : anime.image;
-    }
   },
   async mounted() {
     this.isLoading = true;
