@@ -1,6 +1,6 @@
 <template>
   <div id="jais" class="text-center">
-    <img alt="Jaïs brand" class="img-fluid collapsed border rounded-circle shadow" height="120"
+    <img alt="Jaïs brand" class="img-fluid collapsed border-color rounded-circle shadow" height="120"
          loading="lazy" src="images/jais.jpg" width="120"/>
 
     <h2 class="mt-2 mb-0 fw-bold">Jaïs</h2>
@@ -11,62 +11,29 @@
       <span class="visually-hidden">Loading...</span>
     </div>
 
-    <div v-else class="row g-3">
-      <div class="col-lg-12">
-        <div class="container-fluid">
-          <p v-if="error !== null" class="alert-danger text-danger">{{ error }}</p>
+    <div v-else class="container-fluid">
+      <div class="d-inline-flex mb-3">
+        <div class="form-check me-3">
+          <input id="flexRadioDefault1" v-model="showType" class="form-check-input" name="flexRadioDefault" type="radio"
+                 value="episodes">
+          <label class="form-check-label" for="flexRadioDefault1">Épisodes</label>
+        </div>
+        <div class="form-check">
+          <input id="flexRadioDefault2" v-model="showType" class="form-check-input" name="flexRadioDefault" type="radio"
+                 value="scans">
+          <label class="form-check-label" for="flexRadioDefault2">Scans</label>
+        </div>
+      </div>
 
-          <div v-else class="container-fluid row g-3">
-            <div v-for="episode in episodes" class="col-lg-3">
-              <div class="card">
-                <div class="card-body">
-                  <div class="text-truncate">
-                    <div class="d-flex align-items-center align-content-center fw-bold">
-                      <a :href="episode.platform_url" target="_blank">
-                        <img :src="episode.platform_image" alt="Platform image" class="platform-thumbnail me-2"/>
-                      </a>
-                      {{ episode.platform }}
-                    </div>
+      <p v-if="error !== null" class="alert-danger text-danger">{{ error }}</p>
 
-                    <div class="text-start">
-                      <p class="card-title fw-bold mb-1">{{ episode.anime }}</p>
+      <div v-else class="row g-3">
+        <div v-for="episode in episodes" v-if="showType === 'episodes'" class="col-lg-4">
+          <EpisodeComponent :episode="episode"/>
+        </div>
 
-                      <p class="card-text">
-                        <span class="fw-bold">{{ episode.title === null ? "＞﹏＜" : episode.title }}</span>
-                        <br>
-                        {{ episode.resume }}
-                        <br>
-                        <i class="bi bi-camera-reels-fill"></i>
-                        {{ toHHMMSS(episode.duration) }}
-                      </p>
-                    </div>
-                  </div>
-
-                  <a :href="episode.episode_url" target="_blank">
-                    <img :src="episode.episode_image" alt="Episode image" class="mb-2 rounded img-fluid w-100 mt-2">
-                  </a>
-
-                  <div class="d-flex">
-                    <div class="m-0 me-auto justify-content-start">
-                      Il y a {{ timeSince(episode.release_date) }}
-                    </div>
-
-                    <div class="m-0 ms-auto justify-content-end">
-                      <div class="d-inline me-2">
-                        <i class="bi bi-check2"></i>
-                        {{ episode.checks.length }}
-                      </div>
-
-                      <div class="d-inline ">
-                        <i class="bi bi-heart-fill"></i>
-                        {{ episode.loves.length }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div v-for="scan in scans" v-if="showType === 'scans'" class="col-lg-4">
+          <ScanComponent :scan="scan"/>
         </div>
       </div>
     </div>
@@ -74,31 +41,32 @@
 </template>
 
 <script>
-import Utils from "../utils";
+import Utils from "@/utils";
+
+const EpisodeComponent = () => import("@/components/EpisodeComponent");
+const ScanComponent = () => import("@/components/ScanComponent");
 
 export default {
   name: "Jais",
+  components: {EpisodeComponent, ScanComponent},
   data() {
     return {
+      showType: 'episodes',
       isLoading: true,
-      limit: 12,
+      limitEpisodes: 9,
+      limitScans: 9,
       error: null,
       episodes: [],
+      scans: [],
     }
   },
   methods: {
-    toHHMMSS(duration) {
-      return Utils.toHHMMSS(duration.toString())
-    },
-    timeSince(releaseDate) {
-      return Utils.timeSince(new Date(releaseDate).getTime())
-    },
     async getEpisodes(add = false) {
       if (add)
-        this.limit += 12;
+        this.limitEpisodes += 9;
 
       try {
-        const response = await fetch(Utils.getLocalFile("php/jais/latest_episodes.php?country=fr&limit=" + this.limit))
+        const response = await fetch(Utils.getLocalFile("php/v1/episodes.php?limit=" + this.limitEpisodes))
 
         if (response.status === 201) {
           this.episodes = await response.json();
@@ -111,30 +79,51 @@ export default {
         this.episodes = [];
         this.error = exception;
       }
+    },
+    async getScans(add = false) {
+      if (add)
+        this.limitScans += 9;
 
-      this.isLoading = false;
-    }
+      try {
+        const response = await fetch(Utils.getLocalFile("php/v1/scans.php?limit=" + this.limitScans))
+
+        if (response.status === 201) {
+          this.scans = await response.json();
+          this.error = null;
+        } else {
+          this.scans = [];
+          this.error = response.statusText;
+        }
+      } catch (exception) {
+        this.scans = [];
+        this.error = exception;
+      }
+    },
   },
   async mounted() {
-    this.isLoading = true;
-    await this.getEpisodes();
-    setInterval(async () => await this.getEpisodes(), 60 * 1000);
+    this.isLoading = true
+    await this.getEpisodes()
+    await this.getScans()
+    this.isLoading = false
+
+    setInterval(async () => {
+      if (this.showType === 'episodes')
+        await this.getEpisodes()
+      else if (this.showType === 'scans')
+        await this.getScans()
+    }, 60 * 1000);
 
     window.onscroll = async () => {
       let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
+
       if (bottomOfWindow && !this.isLoading) {
-        await this.getEpisodes(true)
+        if (this.showType === 'episodes')
+          await this.getEpisodes(true)
+        else if (this.showType === 'scans')
+          await this.getScans(true)
       }
     }
   }
 }
 </script>
 
-<style scoped>
-.platform-thumbnail {
-  width: 3vh;
-  height: 3vh;
-  border-radius: 50%;
-  margin: .25rem;
-}
-</style>

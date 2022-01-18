@@ -28,7 +28,7 @@ if (!empty($json['pseudo']) && !empty($json['password'])) {
 
                 if ($hash === $saltPassword) {
                     http_response_code(201);
-                    echo json_encode(Utils::getProfile($database, $user['pseudo'], true));
+                    echo json_encode(Utils::getProfile($database, 'fr', $user['pseudo'], true));
                 } else {
                     http_response_code(500);
                     echo '{"error":"Bad credentials"}';

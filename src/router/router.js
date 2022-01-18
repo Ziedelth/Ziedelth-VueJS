@@ -15,12 +15,8 @@ export default new VueRouter({
             component: () => import("@/views/Animes")
         },
         {
-            path: '/login',
-            component: () => import("@/views/Login")
-        },
-        {
-            path: '/profile/:pseudo',
-            component: () => import("@/views/Profile")
+            path: '/anime/:id',
+            component: () => import("@/views/Anime")
         },
         {
             path: '/privacy',
@@ -30,5 +26,8 @@ export default new VueRouter({
             path: '/:catchAll(.*)',
             component: () => import("@/views/NotFound")
         },
-    ]
+    ],
+    scrollBehavior() {
+        return {x: 0, y: 0};
+    }
 })

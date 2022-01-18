@@ -20,23 +20,11 @@ if (($type == 1 && !empty($_POST['token'])) || !empty($json['token'])) {
             if ($type == 1) {
                 if ($_FILES['file']['error'] == UPLOAD_ERR_OK) {
                     $extension = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
+                    $path = 'images/members/' . Utils::generateRandomString(100) . '.' . $extension;
 
-                    if (in_array($extension, array('jpg', 'png', 'gif'))) {
-                        Utils::createFolder('../../images');
-                        Utils::createFolder('../../images/members');
-
-                        if ($user['image'] !== null && Utils::isFileExists('../../' . $user['image']))
-                            unlink('../../' . $user['image']);
-
-                        $file = 'images/members/' . Utils::generateRandomString(100) . '.' . $extension;
-                        $path = '../../' . $file;
-
-                        if (move_uploaded_file($_FILES['file']['tmp_name'], $path)) {
-                            Utils::editImage($database, $user, $file);
-                        }
-                    }
+                    if (in_array($extension, array('jpg', 'png', 'gif')) && Utils::uploadFile($user['image'], $path))
+                        Utils::editImage($database, $user, $path);
                 }
-//                Utils::editBio($database, $user, htmlspecialchars(strip_tags($json['bio'])));
             }
 
             http_response_code(201);

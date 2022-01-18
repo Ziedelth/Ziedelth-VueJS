@@ -1,41 +1,24 @@
 <template>
-  <div class="text-center">
-    <div v-if="isLoading" class="spinner-border my-2" role="status">
-      <span class="visually-hidden">Loading...</span>
+  <div>
+    <div v-if="isLoading">
+      <div class="spinner-border my-2" role="status"/>
+      <p class="fw-bold">Chargement...</p>
     </div>
 
-    <div v-else class="row g-3">
-      <div class="col-lg-12">
-        <div class="container-fluid">
-          <p v-if="error !== null" class="alert-danger text-danger">{{ error }}</p>
+    <div v-else>
+      <p v-if="error !== null" class="alert-danger text-danger">{{ error }}</p>
 
-          <div v-else class="container-fluid row g-3">
-            <div v-for="anime in animes" class="col-lg-12">
-              <div class="card">
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col-1">
-                      <img :src="anime.image" alt="Anime image" class="img-fluid"/>
-                    </div>
+      <div v-else class="row g-3">
+        <div v-for="anime in animes" class="col-lg-4">
+          <div class="p-2 border-color rounded bg-dark">
+            <div class="row">
+              <div class="col-9">
+                <router-link :to="`/anime/${anime.id}`" class="link-color">{{ anime.name }}</router-link>
+                <p class="anime-description">{{ getAnimeDescription(anime) }}</p>
+              </div>
 
-                    <div class="col-11">
-                      <div class="d-flex align-items-center align-content-center fw-bold">
-                        <a v-for="platform in anime.platforms" :href="platform.url" target="_blank">
-                          <img :src="platform.image" alt="Platform image" class="platform-thumbnail me-2"/>
-                        </a>
-                      </div>
-
-                      <div class="text-start">
-                        <p class="card-title fw-bold mb-0">{{ anime.name }}</p>
-                        <p v-if="anime.episodes > 0" class="mb-0 text-muted">Épisodes : {{ anime.episodes }}</p>
-                        <p v-if="anime.scans > 0" class="mb-0 text-muted">Scans : {{ anime.scans }}</p>
-                        <p>{{ anime.genres.join(', ') }}</p>
-                        <hr>
-                        <p class="text-muted">{{ anime.description }}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div class="col-3 p-2">
+                <img :src="getAnimeImage(anime)" alt="Anime image" class="img-fluid rounded"/>
               </div>
             </div>
           </div>
@@ -56,11 +39,19 @@ export default {
       animes: [],
     }
   },
+  methods: {
+    getAnimeDescription(anime) {
+      return (anime.description === null || anime.description.length <= 0) ? 'Aucune description pour le moment...' : anime.description;
+    },
+    getAnimeImage(anime) {
+      return (anime.image === null || anime.image.length <= 0) ? 'images/jais.jpg' : anime.image;
+    }
+  },
   async mounted() {
     this.isLoading = true;
 
     try {
-      const response = await fetch(Utils.getLocalFile("php/jais/animes.php?country=fr"))
+      const response = await fetch(Utils.getLocalFile("php/v1/animes.php"))
 
       if (response.status === 201) {
         this.animes = await response.json();
@@ -80,10 +71,10 @@ export default {
 </script>
 
 <style scoped>
-.platform-thumbnail {
-  width: 3vh;
-  height: 3vh;
-  border-radius: 50%;
-  margin: .25rem;
+.anime-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 7;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>

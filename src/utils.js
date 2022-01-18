@@ -33,6 +33,10 @@ export default class Utils {
 
     static timeSince(time) {
         const seconds = Math.floor((new Date().getTime() - time) / 1000);
+        return Utils.getTimeFormat(seconds)
+    }
+
+    static getTimeFormat(seconds) {
         let interval = seconds / 31536000;
         if (interval > 1) return Math.floor(interval) + " an" + (interval >= 2 ? "s" : "");
         interval = seconds / 2592000;
@@ -56,9 +60,5 @@ export default class Utils {
 
     static getInData(object, key, defaultValue) {
         return Utils.isNotNull(object) ? (Utils.isNotNull(object[key]) ? object[key] : defaultValue) : defaultValue
-    }
-
-    static getUserProfile(user) {
-        return (user == null || user.image == null || user.image.length <= 0) ? this.getFile('images/members/default_member.jpg') : this.getLocalFile(user.image)
     }
 }

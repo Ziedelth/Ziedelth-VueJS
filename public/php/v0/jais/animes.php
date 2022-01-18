@@ -10,7 +10,7 @@ if (!empty($_GET['country'])) {
     try {
         $database = getPDO();
 
-        if (Utils::isValidCountry($database, $country)) {
+        if (($oCountry = Utils::isValidCountry($database, $country)) != null) {
             $request = $database->prepare("SELECT a.*
 FROM jais.animes a
 INNER JOIN jais.countries c on a.country_id = c.id
@@ -28,12 +28,35 @@ ORDER BY a.name;");
                 $request->execute(array());
                 $anime['platforms'] = $request->fetchAll(PDO::FETCH_ASSOC);
 
-                $request = $database->prepare("SELECT DISTINCT id_episode_type, id_lang_type, season, number FROM jais.episodes WHERE anime_id = :anime_id ORDER BY id_episode_type, id_lang_type, season, number;");
+                $request = $database->prepare("SELECT DISTINCT e.id_episode_type, e.id_lang_type, e.season, e.number, CONCAT(et.$country, ' ', e.number, ' ', lt.$country) as short_resume
+FROM jais.episodes e
+INNER JOIN jais.animes a on e.anime_id = a.id INNER JOIN jais.countries c on a.country_id = c.id INNER JOIN jais.episode_types et ON e.id_episode_type = et.id INNER JOIN jais.lang_types lt ON e.id_lang_type = lt.id
+WHERE e.anime_id = :anime_id
+ORDER BY e.id_episode_type, e.season, e.number, e.id_lang_type;");
                 $request->execute(array('anime_id' => $animeId));
-                $anime['episodes'] = $request->rowCount();
-                $request = $database->prepare("SELECT DISTINCT id_episode_type, id_lang_type, number FROM jais.scans WHERE anime_id = :anime_id ORDER BY id_episode_type, id_lang_type, number;");
+                $count = $request->rowCount();
+                $episodes = $request->fetchAll(PDO::FETCH_ASSOC);
+                $aEpisodes = [];
+
+                $anime['episodesSize'] = $count;
+
+                foreach ($episodes as $episode) {
+                    $aEpisodes[$episode['season']][] = $episode;
+                }
+
+                $anime['episodes'] = $aEpisodes;
+
+                $request = $database->prepare("SELECT DISTINCT s.id_episode_type, s.id_lang_type, s.number,  CONCAT(et.$country, ' ', s.number, ' ', lt.$country) as short_resume
+FROM jais.scans s
+INNER JOIN jais.animes a on s.anime_id = a.id INNER JOIN jais.countries c on a.country_id = c.id INNER JOIN jais.platforms p on s.platform_id = p.id INNER JOIN jais.episode_types et on s.id_episode_type = et.id INNER JOIN jais.lang_types lt on s.id_lang_type = lt.id 
+WHERE s.anime_id = :anime_id 
+ORDER BY s.id_episode_type, s.id_lang_type, s.number;");
                 $request->execute(array('anime_id' => $animeId));
-                $anime['scans'] = $request->rowCount();
+                $count = $request->rowCount();
+                $scans = $request->fetchAll(PDO::FETCH_ASSOC);
+
+                $anime['scansSize'] = $count;
+                $anime['scans'] = $scans;
 
                 $request = $database->prepare("SELECT $country FROM jais.genres WHERE id IN (SELECT genre_id FROM jais.anime_genres WHERE anime_id = :anime_id) ORDER BY name;");
                 $request->execute(array('anime_id' => $animeId));
