@@ -24,6 +24,9 @@
     "@vue/cli-service": "^4.0.0",
     "sass": "^1.19.0",
     "sass-loader": "^8.0.0",
-    "vue-template-compiler": "^2.6.10"
+    "vue-template-compiler": "^2.6.10",
+    "follow-redirects": ">=1.14.7",
+    "node-forge": ">=1.0.0",
+    "postcss": ">=8.2.13"
   }
 }
