@@ -8,10 +8,12 @@
     </div>
 
     <div class="text-start">
-      <router-link :to="`/anime/${episode.anime.id}`" class="card-title fw-bold link-color">{{
-          episode.anime.name
-        }}
-      </router-link>
+      <div class="text-truncate">
+        <router-link :to="`/anime/${episode.anime.id}`" class="card-title fw-bold link-color">{{
+            episode.anime.name
+          }}
+        </router-link>
+      </div>
 
       <p class="card-text">
         <span class="fw-bold">{{ episode.title === null ? "＞﹏＜" : episode.title }}</span>

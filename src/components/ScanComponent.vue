@@ -10,10 +10,12 @@
           {{ scan.platform.name }}
         </div>
 
-        <router-link :to="`/anime/${scan.anime.id}`" class="card-title fw-bold link-color">{{
-            scan.anime.name
-          }}
-        </router-link>
+        <div class="text-truncate">
+          <router-link :to="`/anime/${scan.anime.id}`" class="card-title fw-bold link-color text-truncate">{{
+              scan.anime.name
+            }}
+          </router-link>
+        </div>
 
         <p class="card-text">
           {{ scan.episodeType[scan.anime.country.tag] }} {{ scan.number }} {{ scan.langType[scan.anime.country.tag] }}

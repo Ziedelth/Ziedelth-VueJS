@@ -25,3 +25,4 @@ pnpm-debug.log*
 /public/php/v0/config.php
 /public/images/animes/
 /public/images/episodes/
+/public/php/v1/config.php
