@@ -10,12 +10,12 @@ require_once 'mappers/EpisodeMapper.php';
 header('Access-Control-Allow-Origin: *');
 
 try {
-    $limit = 9;
-    if (!empty($_GET['limit'])) $limit = intval(htmlspecialchars(strip_tags($_GET['limit'])));
+    $limit = empty($_GET['limit']) ? 9 : intval(htmlspecialchars(strip_tags($_GET['limit'])));
+    $page = empty($_GET['page']) ? 1 : intval(htmlspecialchars(strip_tags($_GET['page'])));
 
     $pdo = getPDO();
     $episodeMapper = new EpisodeMapper();
-    $episodes = $episodeMapper->getLatestEpisodes($pdo, $limit, new PlatformMapper(), new AnimeMapper(), new CountryMapper(), new EpisodeTypeMapper(), new LangTypeMapper());
+    $episodes = $episodeMapper->getLatestEpisodesPage($pdo, $limit, $page, new PlatformMapper(), new AnimeMapper(), new CountryMapper(), new EpisodeTypeMapper(), new LangTypeMapper());
 
     http_response_code(201);
 //    var_dump($episodes);

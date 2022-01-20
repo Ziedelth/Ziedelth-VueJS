@@ -53,8 +53,9 @@ export default {
     return {
       showType: 'episodes',
       isLoading: true,
-      limitEpisodes: 9,
-      limitScans: 9,
+      limit: 9,
+      pageEpisodes: 1,
+      pageScans: 1,
       error: null,
       episodes: [],
       scans: [],
@@ -63,13 +64,13 @@ export default {
   methods: {
     async getEpisodes(add = false) {
       if (add)
-        this.limitEpisodes += 9;
+        this.pageEpisodes++;
 
       try {
-        const response = await fetch(Utils.getLocalFile("php/v1/episodes.php?limit=" + this.limitEpisodes))
+        const response = await fetch(Utils.getLocalFile("php/v1/episodes.php?limit=" + this.limit + "&page=" + this.pageEpisodes))
 
         if (response.status === 201) {
-          this.episodes = await response.json();
+          this.episodes.push(...(await response.json()));
           this.error = null;
         } else {
           this.episodes = [];
@@ -82,13 +83,13 @@ export default {
     },
     async getScans(add = false) {
       if (add)
-        this.limitScans += 9;
+        this.pageScans++;
 
       try {
-        const response = await fetch(Utils.getLocalFile("php/v1/scans.php?limit=" + this.limitScans))
+        const response = await fetch(Utils.getLocalFile("php/v1/scans.php?limit=" + this.limit + "&page=" + this.pageScans))
 
         if (response.status === 201) {
-          this.scans = await response.json();
+          this.scans.push(...(await response.json()));
           this.error = null;
         } else {
           this.scans = [];

@@ -50,14 +50,22 @@ class ScanMapper extends Mapper
         return $request->fetchAll(PDO::FETCH_CLASS, $this->className);
     }
 
+    function getLatestScansPage(?PDO $pdo, int $limit, int $page, PlatformMapper $platformMapper, AnimeMapper $animeMapper, CountryMapper $countryMapper, EpisodeTypeMapper $episodeTypeMapper, LangTypeMapper $langTypeMapper): array
+    {
+        $request = $pdo->prepare("SELECT id FROM $this->tableName ORDER BY release_date DESC, anime_id DESC, number DESC, id_episode_type DESC, id_lang_type DESC");
+        $request->execute(array());
+        $array = $request->fetchAll(PDO::FETCH_COLUMN);
+        $ids = join(', ', array_slice($array, ($page - 1) * $limit, $limit));
+
+        $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE id IN ($ids) ORDER BY release_date DESC, anime_id DESC, number DESC, id_episode_type DESC, id_lang_type DESC");
+        $request->execute(array());
+        return $request->fetchAll(PDO::FETCH_CLASS, $this->className, [$pdo, $platformMapper, $animeMapper, $countryMapper, $episodeTypeMapper, $langTypeMapper]);
+    }
+
     function getLatestScans(?PDO $pdo, int $limit, PlatformMapper $platformMapper, AnimeMapper $animeMapper, CountryMapper $countryMapper, EpisodeTypeMapper $episodeTypeMapper, LangTypeMapper $langTypeMapper): array
     {
-        $request = $pdo->prepare("SELECT * FROM $this->tableName ORDER BY release_date DESC LIMIT $limit");
+        $request = $pdo->prepare("SELECT * FROM $this->tableName ORDER BY release_date DESC, anime_id DESC, number DESC, id_episode_type DESC, id_lang_type DESC LIMIT $limit");
         $request->execute(array());
-        $array = $request->fetchAll(PDO::FETCH_CLASS, $this->className, [$pdo, $platformMapper, $animeMapper, $countryMapper, $episodeTypeMapper, $langTypeMapper]);
-        usort($array, function (Scan $a, Scan $b) {
-            return $b->releaseDate <=> $a->releaseDate;
-        });
-        return $array;
+        return $request->fetchAll(PDO::FETCH_CLASS, $this->className, [$pdo, $platformMapper, $animeMapper, $countryMapper, $episodeTypeMapper, $langTypeMapper]);
     }
 }
