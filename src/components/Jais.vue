@@ -3,15 +3,24 @@
     <img alt="Jaïs brand" class="img-fluid collapsed border-color rounded-circle shadow" height="120"
          loading="lazy" src="images/jais.jpg" width="120"/>
 
-    <h2 class="mt-2 mb-0 fw-bold">Jaïs</h2>
-    <p class="lead mt-0 mb-0 fw-bold">Un bot fana d'animés et de mangas</p>
-    <p class="text mt-0 muted fw-bold">Les dernières sorties</p>
+    <div class="container-fluid">
+      <h2 class="mt-2 mb-0 fw-bold">Jaïs</h2>
+      <p class="lead mt-0 mb-0 fw-bold">Un bot fana d'animés et de mangas</p>
 
-    <div v-if="isLoading" class="spinner-border my-2" role="status">
-      <span class="visually-hidden">Loading...</span>
+      <div class="d-inline w-100">
+        <a class="link-color" href="https://twitter.com/Jaiss___" target="_blank"><i class="bi bi-twitter mx-2"></i></a>
+        <a class="link-color" href="https://www.instagram.com/jais_zie/" target="_blank"><i
+            class="bi bi-instagram mx-2"></i></a>
+        <a class="link-color" href="https://github.com/Ziedelth/Jais" target="_blank"><i class="bi bi-github mx-2"></i></a>
+        <a class="link-color" href="#"><i class="bi bi-discord mx-2"></i></a>
+      </div>
+
+      <p class="text mt-0 muted fw-bold">Les dernières sorties</p>
     </div>
 
-    <div v-else class="container-fluid">
+    <LoadingComponent :is-loading="isLoading"/>
+
+    <div v-if="!isLoading" class="container-fluid">
       <div class="d-inline-flex mb-3">
         <div class="form-check me-3">
           <input id="flexRadioDefault1" v-model="showType" class="form-check-input" name="flexRadioDefault" type="radio"
@@ -43,12 +52,13 @@
 <script>
 import Utils from "@/utils";
 
+const LoadingComponent = () => import("@/components/LoadingComponent");
 const EpisodeComponent = () => import("@/components/EpisodeComponent");
 const ScanComponent = () => import("@/components/ScanComponent");
 
 export default {
   name: "Jais",
-  components: {EpisodeComponent, ScanComponent},
+  components: {LoadingComponent, EpisodeComponent, ScanComponent},
   data() {
     return {
       showType: 'episodes',

@@ -1,11 +1,8 @@
 <template>
   <div>
-    <div v-if="isLoading">
-      <div class="spinner-border my-2" role="status"/>
-      <p class="fw-bold">Chargement...</p>
-    </div>
+    <LoadingComponent :is-loading="isLoading"/>
 
-    <div v-else>
+    <div v-if="!isLoading">
       <p v-if="error !== null" class="alert-danger text-danger">{{ error }}</p>
 
       <div v-else class="row g-3">
@@ -31,7 +28,10 @@
 <script>
 import Utils from "@/utils";
 
+const LoadingComponent = () => import("@/components/LoadingComponent");
+
 export default {
+  components: {LoadingComponent},
   data() {
     return {
       isLoading: true,

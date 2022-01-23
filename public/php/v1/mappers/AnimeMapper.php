@@ -38,17 +38,8 @@ class Anime extends AnimeEpisode
             $request->execute(array('anime_id' => $this->id));
 
             foreach ($request->fetchAll(PDO::FETCH_COLUMN) as $season) {
-                $request = $pdo->prepare("SELECT DISTINCT CONCAT(et.fr, ' ', number, ' ', lt.fr) AS resume, id_episode_type, number, id_lang_type FROM " . $episodeMapper->tableName . " JOIN jais.episode_types et ON et.id = id_episode_type JOIN jais.lang_types lt ON lt.id = id_lang_type WHERE anime_id = :anime_id AND season = :season ORDER BY id_episode_type, number, id_lang_type");
-                $request->execute(array('anime_id' => $this->id, 'season' => $season));
-                $array = [];
                 $array['season'] = $season;
-
-                foreach ($request->fetchAll(PDO::FETCH_ASSOC) as $item) {
-                    $object = $item;
-                    $object['list'] = $episodeMapper->getEpisodesBy($pdo, $this->id, $season, $item['id_episode_type'], $item['number'], $item['id_lang_type'], new PlatformMapper(), new AnimeMapper(), $countryMapper, new EpisodeTypeMapper(), new LangTypeMapper());
-                    $array['episodes'][] = $object;
-                }
-
+                $array['episodes'] = $episodeMapper->getEpisodesBy($pdo, $this->id, $season, new PlatformMapper(), new AnimeMapper(), $countryMapper, new EpisodeTypeMapper(), new LangTypeMapper());
                 $this->seasons[] = $array;
             }
 

@@ -13,11 +13,16 @@
 </template>
 
 <script>
+import Utils from "@/utils";
+
 const Navbar = () => import("@/components/Navbar");
 const Footer = () => import("@/components/Footer");
 
 export default {
   components: {Footer, Navbar},
+  created() {
+    console.log(Utils.getLocalFile("php/v0/login.php"));
+  }
 }
 </script>
 
