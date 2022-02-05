@@ -80,7 +80,7 @@ export default {
     try {
       const response = await fetch(Utils.getLocalFile("php/v1/get_anime.php?id=" + this.id))
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         this.anime = await response.json();
         this.selectedSeason = this.anime.seasons[0].season;
         console.log(this.selectedSeason)

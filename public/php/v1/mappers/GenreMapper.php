@@ -17,7 +17,7 @@ class GenreMapper extends Mapper
         parent::__construct('jais.genres', 'Genre');
     }
 
-    function getGenresByIds(?PDO $pdo, $ids): array
+    function getGenresByIds(?PDO $pdo, string $ids): array
     {
         $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE id IN ($ids)");
         $request->execute(array());

@@ -1,14 +1,6 @@
 <?php
 
-require_once 'config.php';
-require_once 'mappers/PlatformMapper.php';
-require_once 'mappers/CountryMapper.php';
-require_once 'mappers/AnimeGenresMapper.php';
-require_once 'mappers/GenreMapper.php';
-require_once 'mappers/AnimeMapper.php';
-require_once 'mappers/EpisodeTypeMapper.php';
-require_once 'mappers/LangTypeMapper.php';
-require_once 'mappers/EpisodeMapper.php';
+require_once "autoload.php";
 header('Access-Control-Allow-Origin: *');
 
 try {
@@ -16,16 +8,10 @@ try {
         $id = intval(htmlspecialchars(strip_tags($_GET['id'])));
         $pdo = getPDO();
         $animeMapper = new AnimeMapper();
-        $anime = $animeMapper->getAnimeById($pdo, $id, new CountryMapper(), new AnimeGenresMapper(), new GenreMapper());
-
-        http_response_code(201);
-//    var_dump($anime);
-        echo json_encode($anime);
+        Utils::printResponse($animeMapper->getAnimeById($pdo, $id, new CountryMapper(), new AnimeGenresMapper(), new GenreMapper()));
     } else {
-        http_response_code(500);
-        echo "{\"error\":\"Invalid format\"}";
+        Utils::printResponse(new JSONResponse(400, array('error' => 'Bad request')));
     }
 } catch (Exception $exception) {
-    http_response_code(500);
-    echo "{\"error\":\"$exception\"}";
+    Utils::printResponse(new JSONResponse(500, $exception));
 }

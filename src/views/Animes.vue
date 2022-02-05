@@ -5,8 +5,12 @@
     <div v-if="!isLoading">
       <p v-if="error !== null" class="alert-danger text-danger">{{ error }}</p>
 
-      <div v-else class="row g-3">
-        <div v-for="anime in animes" class="col-lg-4">
+      <div class="container w-25 mb-3">
+        <input type="text" class="form-control" placeholder="Recherchez un anime..." v-model="filter">
+      </div>
+
+      <div v-if="error === null" class="row g-3">
+        <div v-for="anime in filtered" class="col-lg-4">
           <div class="p-2 border-color rounded bg-dark">
             <div class="row">
               <div class="col-9">
@@ -37,6 +41,8 @@ export default {
       isLoading: true,
       error: null,
       animes: [],
+      filter: '',
+      filtered: [],
     }
   },
   methods: {
@@ -44,21 +50,29 @@ export default {
       return (anime.description === null || anime.description.length <= 0) ? 'Aucune description pour le moment...' : anime.description;
     },
   },
+  watch: {
+    filter: function (val) {
+      if (val == null || val.length <= 0)
+        this.filtered = Object.assign({}, this.animes)
+      else
+        this.filtered = this.animes.filter(value => value.name.toLowerCase().includes(val.toLowerCase()))
+    }
+  },
   async mounted() {
     this.isLoading = true;
 
     try {
       const response = await fetch(Utils.getLocalFile("php/v1/animes.php"))
 
-      if (response.status === 201) {
-        this.animes = await response.json();
+      if (response.status === 200) {
+        this.animes = this.filtered = await response.json();
         this.error = null;
       } else {
-        this.animes = [];
+        this.animes = this.filtered = [];
         this.error = response.statusText;
       }
     } catch (exception) {
-      this.animes = [];
+      this.animes = this.filtered = [];
       this.error = exception;
     }
 

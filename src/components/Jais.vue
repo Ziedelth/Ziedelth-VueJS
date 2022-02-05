@@ -79,7 +79,7 @@ export default {
       try {
         const response = await fetch(Utils.getLocalFile("php/v1/episodes.php?limit=" + this.limit + "&page=" + this.pageEpisodes))
 
-        if (response.status === 201) {
+        if (response.status === 200) {
           this.episodes.push(...(await response.json()));
           this.error = null;
         } else {
@@ -98,7 +98,7 @@ export default {
       try {
         const response = await fetch(Utils.getLocalFile("php/v1/scans.php?limit=" + this.limit + "&page=" + this.pageScans))
 
-        if (response.status === 201) {
+        if (response.status === 200) {
           this.scans.push(...(await response.json()));
           this.error = null;
         } else {
@@ -116,13 +116,6 @@ export default {
     await this.getEpisodes()
     await this.getScans()
     this.isLoading = false
-
-    setInterval(async () => {
-      if (this.showType === 'episodes')
-        await this.getEpisodes()
-      else if (this.showType === 'scans')
-        await this.getScans()
-    }, 60 * 1000);
 
     window.onscroll = async () => {
       let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;

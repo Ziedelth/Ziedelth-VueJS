@@ -17,7 +17,7 @@ class LangTypeMapper extends Mapper
         parent::__construct('jais.lang_types', 'LangType');
     }
 
-    function getLangTypeById(?PDO $pdo, $id): ?LangType
+    function getLangTypeById(?PDO $pdo, int $id): ?LangType
     {
         $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE id = :id");
         $request->execute(array('id' => $id));

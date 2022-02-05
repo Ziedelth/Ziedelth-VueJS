@@ -25,4 +25,7 @@ pnpm-debug.log*
 /public/php/v0/config.php
 /public/images/animes/
 /public/images/episodes/
-/public/php/v1/config.php
+/public/php/v1/configurations/config.php
+/public/php/v1/composer.lock
+/public/php/v1/vendor/
+/package-lock.json

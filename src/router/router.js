@@ -18,6 +18,14 @@ export default new VueRouter({
             path: '/anime/:id',
             component: () => import("@/views/Anime")
         },
+        // {
+        //     path: '/login',
+        //     component: () => import("@/views/Login")
+        // },
+        {
+            path: '/register',
+            component: () => import("@/views/Register")
+        },
         {
             path: '/privacy',
             component: () => import("@/views/CGU")

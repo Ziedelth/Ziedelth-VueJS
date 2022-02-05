@@ -18,6 +18,11 @@
             <router-link class="nav-link" to="/">Accueil</router-link>
             <router-link class="nav-link" to="/animes">Animes</router-link>
           </ul>
+
+          <ul class="navbar-nav mb-2 mb-lg-0">
+            <router-link class="nav-link" to="/register">Inscription</router-link>
+            <router-link class="nav-link" to="/login">Connexion</router-link>
+          </ul>
         </div>
       </div>
     </div>

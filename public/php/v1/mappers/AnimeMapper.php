@@ -1,8 +1,5 @@
 <?php
 
-require_once 'JObject.php';
-require_once 'Mapper.php';
-
 class AnimeEpisode extends JObject
 {
     public int $id;
@@ -60,15 +57,17 @@ class AnimeMapper extends Mapper
         parent::__construct('jais.animes');
     }
 
-    function getAllAnimes(?PDO $pdo, ?CountryMapper $countryMapper = null): array
+    function getAllAnimes(?PDO $pdo, ?CountryMapper $countryMapper = null): JSONResponse
     {
         $request = $pdo->prepare("SELECT * FROM $this->tableName");
         $request->execute(array());
         $array = $request->fetchAll(PDO::FETCH_CLASS, 'AnimeEpisode', [$pdo, $countryMapper]);
+
         usort($array, function (AnimeEpisode $a, AnimeEpisode $b) {
             return strtolower($a->name) <=> strtolower($b->name);
         });
-        return $array;
+
+        return new JSONResponse(200, $array);
     }
 
     function getAnimeEpisodeById(?PDO $pdo, $id, ?CountryMapper $countryMapper = null): ?AnimeEpisode
@@ -78,10 +77,10 @@ class AnimeMapper extends Mapper
         return $request->fetchObject('AnimeEpisode', [$pdo, $countryMapper]);
     }
 
-    function getAnimeById(?PDO $pdo, $id, ?CountryMapper $countryMapper = null, ?AnimeGenresMapper $animeGenresMapper = null, ?GenreMapper $genreMapper = null): ?Anime
+    function getAnimeById(?PDO $pdo, $id, ?CountryMapper $countryMapper = null, ?AnimeGenresMapper $animeGenresMapper = null, ?GenreMapper $genreMapper = null): JSONResponse
     {
         $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE id = :id");
         $request->execute(array('id' => $id));
-        return $request->fetchObject('Anime', [$pdo, $countryMapper, $animeGenresMapper, $genreMapper]);
+        return new JSONResponse(200, $request->fetchObject('Anime', [$pdo, $countryMapper, $animeGenresMapper, $genreMapper]));
     }
 }

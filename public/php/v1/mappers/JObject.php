@@ -15,7 +15,7 @@ class JObject
         $reflectionProperty->setValue($this, $value);
     }
 
-    function toCamelCase(string $input): string
+    private function toCamelCase(string $input): string
     {
         return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $input))));
     }
