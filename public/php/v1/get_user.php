@@ -6,7 +6,7 @@ $json = json_decode(file_get_contents('php://input'), true);
 
 try {
     $userMapper = new UserMapper();
-    $pdo = getPDO();
+    $pdo = Utils::getPDO();
 
     if (!empty($json['token']))
         Utils::printResponse($userMapper->getUserByToken($pdo, htmlspecialchars(strip_tags($json['token']))));

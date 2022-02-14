@@ -6,15 +6,24 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
+        token: null,
         user: null,
     },
     mutations: {
+        SET_TOKEN(state, payload) {
+            state.token = payload
+        },
+
         SET_USER(state, payload) {
             state.user = payload
         }
     },
     actions: {
-        setUser({ commit }, user) {
+        setToken({commit}, token) {
+            commit('SET_TOKEN', token)
+        },
+
+        setUser({commit}, user) {
             commit('SET_USER', user)
         }
     },

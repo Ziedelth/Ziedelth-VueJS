@@ -7,7 +7,7 @@ try {
     $limit = empty($_GET['limit']) ? 9 : intval(htmlspecialchars(strip_tags($_GET['limit'])));
     $page = empty($_GET['page']) ? 1 : intval(htmlspecialchars(strip_tags($_GET['page'])));
 
-    $pdo = getPDO();
+    $pdo = Utils::getPDO();
     $episodeMapper = new EpisodeMapper();
     Utils::printResponse($episodeMapper->getLatestEpisodesPage($pdo, $limit, $page, new PlatformMapper(), new AnimeMapper(), new CountryMapper(), new EpisodeTypeMapper(), new LangTypeMapper()));
 } catch (Exception $exception) {

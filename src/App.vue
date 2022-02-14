@@ -1,10 +1,10 @@
 <template>
   <div class="bg-full-dark text-white">
-    <Navbar />
+    <Navbar/>
 
     <main class="my-3 vertical-center text-center w-100">
       <div class="container-fluid">
-        <router-view/>
+        <router-view :key="$route.fullPath"/>
       </div>
     </main>
 
@@ -36,24 +36,11 @@ export default {
     if (!this.$session.has('token'))
       return
 
-    try {
-      const response = await fetch(Utils.getLocalFile("php/v1/get_user.php"), {
-        method: "POST",
-        body: JSON.stringify({ token: this.$session.get('token') })
-      })
-
-      const json = await response.json()
-      console.log(response.statusText)
-
-      if (response.status !== 200) {
-        this.error = `${json.error}`
-        return
-      }
-
-      await this.$store.dispatch('setUser', json)
-    } catch (exception) {
-      // this.error = `${exception}`
-    }
+    await Utils.post(`php/v1/get_user.php`, JSON.stringify({token: this.$session.get('token')}), 200, (success) => {
+      this.$store.dispatch('setToken', this.$session.get('token'))
+      this.$store.dispatch('setUser', success)
+    }, (failed) => {
+    })
   }
 }
 </script>

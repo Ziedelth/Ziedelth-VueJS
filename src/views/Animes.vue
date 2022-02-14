@@ -6,7 +6,7 @@
       <p v-if="error !== null" class="alert-danger text-danger">{{ error }}</p>
 
       <div class="container w-25 mb-3">
-        <input type="text" class="form-control" placeholder="Recherchez un anime..." v-model="filter">
+        <input v-model="filter" class="form-control" placeholder="Recherchez un anime..." type="text">
       </div>
 
       <div v-if="error === null" class="row g-3">
@@ -61,21 +61,11 @@ export default {
   async mounted() {
     this.isLoading = true
 
-    try {
-      const response = await fetch(Utils.getLocalFile("php/v1/animes.php"))
-
-      if (response.status !== 200) {
-        this.animes = this.filtered = []
-        this.error = response.statusText
-        return
-      }
-
-      this.animes = this.filtered = await response.json()
-      this.error = null
-    } catch (exception) {
-      this.animes = this.filtered = []
-      this.error = exception
-    }
+    await Utils.get(`php/v1/animes.php`, 200, (animes) => {
+      this.animes = this.filtered = animes
+    }, (failed) => {
+      this.error = failed
+    })
 
     this.isLoading = false
   }

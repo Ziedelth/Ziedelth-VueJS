@@ -26,13 +26,21 @@
             </div>
             <div v-else class="d-flex">
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a id="navbarDropdown" aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"
+                   href="#"
+                   role="button">
                   {{ user.pseudo }}
                 </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><router-link class="dropdown-item" :to="`/member/${user.pseudo}`">Mon profil</router-link></li>
-                  <li><router-link class="dropdown-item" to="/settings">Paramètres</router-link></li>
-                  <li><hr class="dropdown-divider"></li>
+                <ul aria-labelledby="navbarDropdown" class="dropdown-menu">
+                  <li>
+                    <router-link :to="`/member/${user.pseudo}`" class="dropdown-item">Mon profil</router-link>
+                  </li>
+                  <li>
+                    <router-link class="dropdown-item" to="/settings">Paramètres</router-link>
+                  </li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
                   <li><a class="dropdown-item" @click="logout">Déconnexion</a></li>
                 </ul>
               </li>
@@ -59,6 +67,7 @@ export default {
         return
 
       this.$session.destroy()
+      this.$store.dispatch('setToken', null)
       this.$store.dispatch('setUser', null)
       this.$router.push('/')
     }

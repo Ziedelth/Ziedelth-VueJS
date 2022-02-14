@@ -51,4 +51,37 @@ export default class Utils {
     static getInData(object, key, defaultValue) {
         return Utils.isNotNull(object) ? (Utils.isNotNull(object[key]) ? object[key] : defaultValue) : defaultValue
     }
+
+    static async get(url, goodCode, onSuccess, onFailed) {
+        try {
+            const response = await fetch(Utils.getLocalFile(url))
+
+            if (response.status !== goodCode) {
+                onFailed(await response.json())
+                return
+            }
+
+            onSuccess(await response.json())
+        } catch (exception) {
+            onFailed(exception)
+        }
+    }
+
+    static async post(url, body, goodCode, onSuccess, onFailed) {
+        try {
+            const response = await fetch(Utils.getLocalFile(url), {
+                method: 'POST',
+                body: body
+            })
+
+            if (response.status !== goodCode) {
+                onFailed(await response.json())
+                return
+            }
+
+            onSuccess(await response.json())
+        } catch (exception) {
+            onFailed(exception)
+        }
+    }
 }

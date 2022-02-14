@@ -1,12 +1,19 @@
 <template>
   <div class="container">
-    <p v-if="member == null && error != null" class="alert-danger fw-bold p-2 rounded">{{ error }}</p>
+    <LoadingComponent :is-loading="isLoading"/>
 
-    <div v-else>
-      <img :src="getImage()" alt="Member image" class="img-fluid rounded-circle mb-3 w-10">
-      <h3 class="fw-bold"><i v-if="isAdmin()" class="bi bi-patch-check-fill me-1 text-danger"></i> {{ member.pseudo }}</h3>
-      <p class="mb-1">Inscription il y a {{ timeSince() }}</p>
-      <p class="fw-light">{{ member.about }}</p>
+    <div v-if="!isLoading">
+      <p v-if="member == null && error != null" class="alert-danger fw-bold p-2 rounded">{{ error }}</p>
+
+      <div v-else>
+        <img :src="getImage()" alt="Member image" class="w-25 img-fluid rounded mb-3">
+        <h3 class="fw-bold">
+          <i v-if="isAdmin() " class="bi bi-patch-check-fill text-danger" title="Administrateur"></i>
+          {{ member.pseudo }}
+        </h3>
+        <p class="mb-1">Inscription il y a {{ timeSince() }}</p>
+        <p class="fw-light">{{ member.about }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -14,10 +21,15 @@
 <script>
 import Utils from "@/utils";
 
+const LoadingComponent = () => import("@/components/LoadingComponent");
+
 export default {
+  components: {
+    LoadingComponent
+  },
   data() {
     return {
-      pseudo: this.$route.params.pseudo,
+      isLoading: true,
       error: null,
       member: null,
     }
@@ -37,27 +49,15 @@ export default {
     },
   },
   async mounted() {
-    try {
-      const response = await fetch(Utils.getLocalFile(`php/v1/get_user.php?pseudo=${this.pseudo}`))
+    this.isLoading = true
 
-      const json = await response.json()
-      console.log(response.statusText)
+    await Utils.get(`php/v1/get_user.php?pseudo=${this.$route.params.pseudo}`, 200, (success) => {
+      this.member = success
+    }, (failed) => {
+      this.error = failed
+    })
 
-      if (response.status !== 200) {
-        this.error = `${json.error}`
-        return
-      }
-
-      this.member = json
-    } catch (exception) {
-      this.error = `${exception}`
-    }
+    this.isLoading = false
   }
 }
 </script>
-
-<style scoped>
-.w-10 {
-  width: 10% !important
-}
-</style>

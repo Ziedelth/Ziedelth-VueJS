@@ -1,5 +1,6 @@
 <?php
 
+require_once 'vendor/autoload.php';
 require_once 'mappers/JObject.php';
 require_once 'mappers/Mapper.php';
 require_once 'configurations/config.php';

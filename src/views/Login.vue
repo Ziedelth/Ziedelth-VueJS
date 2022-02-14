@@ -3,19 +3,25 @@
     <div class="row g-3 mb-3">
       <div class="col-lg-12">
         <div class="input-group mb-3">
-          <span class="input-group-text" id="basic-addon1">@</span>
-          <input type="text" class="form-control" placeholder="Pseudonyme" ref="pseudoInput">
+          <span id="basic-addon1" class="input-group-text">@</span>
+          <input ref="pseudoInput" class="form-control" placeholder="Pseudonyme" type="text">
         </div>
       </div>
 
       <div class="col-lg-12">
-        <input type="password" class="form-control" placeholder="Mot de passe" ref="passwordInput">
+        <input ref="passwordInput" class="form-control" placeholder="Mot de passe" type="password">
         <div id="emailHelp" class="form-text">Ne partagez jamais votre mot de passe.</div>
       </div>
     </div>
 
     <div class="w-100 text-center mb-3">
       <button class="btn btn-primary" @click="submitUser">Connexion</button>
+
+      <div class="mt-3 mb-3">
+        <router-link class="btn btn-outline-secondary" to="/password_reset">Mot de passe oublié ?</router-link>
+      </div>
+
+      <span>Vous n'avez pas encore de compte ? <router-link to="/register">Inscrivez-vous ici</router-link></span>
     </div>
 
     <div v-if="error != null && error.length > 0" class="alert-danger p-3 text-center rounded fw-bold">{{ error }}</div>
@@ -25,7 +31,7 @@
 <script>
 import {sha512} from "js-sha512";
 import Utils from "@/utils";
-import {mapGetters, mapState} from "vuex";
+import {mapGetters} from "vuex";
 
 export default {
   data() {
@@ -57,45 +63,20 @@ export default {
         return
       }
 
-      try {
-        const response = await fetch(Utils.getLocalFile("php/v1/login.php"), {
-          method: "POST",
-          body: JSON.stringify({ pseudo: pseudo, password: password })
-        })
-
-        const json = await response.json()
-        console.log(response.statusText)
-
-        if (response.status !== 200) {
-          this.error = `${json.error}`
-          return
-        }
-
+      await Utils.post(`php/v1/login.php`, JSON.stringify({pseudo: pseudo, password: password}), 200, (success) => {
         this.$session.start()
-        this.$session.set('token', json.token)
-      } catch (exception) {
-        this.error = `${exception}`
-      }
+        this.$session.set('token', success.token)
+        this.$store.dispatch('setToken', success.token)
 
-      try {
-        const response = await fetch(Utils.getLocalFile("php/v1/get_user.php"), {
-          method: "POST",
-          body: JSON.stringify({ token: this.$session.get('token') })
+        Utils.post(`php/v1/get_user.php`, JSON.stringify({token: success.token}), 200, (success) => {
+          this.$store.dispatch('setUser', success)
+          this.$router.push('/')
+        }, (failed) => {
+          this.error = failed
         })
-
-        const json = await response.json()
-        console.log(response.statusText)
-
-        if (response.status !== 200) {
-          this.error = `${json.error}`
-          return
-        }
-
-        await this.$store.dispatch('setUser', json)
-        await this.$router.push('/')
-      } catch (exception) {
-        this.error = `${exception}`
-      }
+      }, (failed) => {
+        this.error = failed
+      })
     }
   }
 }

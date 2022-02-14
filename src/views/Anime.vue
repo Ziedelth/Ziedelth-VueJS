@@ -17,12 +17,14 @@
 
         <div class="d-inline-flex mb-3">
           <div class="form-check me-3">
-            <input id="flexRadioDefault1" v-model="showType" class="form-check-input" name="flexRadioDefault" type="radio"
+            <input id="flexRadioDefault1" v-model="showType" class="form-check-input" name="flexRadioDefault"
+                   type="radio"
                    value="episodes">
             <label class="form-check-label" for="flexRadioDefault1">Épisodes</label>
           </div>
           <div class="form-check">
-            <input id="flexRadioDefault2" v-model="showType" class="form-check-input" name="flexRadioDefault" type="radio"
+            <input id="flexRadioDefault2" v-model="showType" class="form-check-input" name="flexRadioDefault"
+                   type="radio"
                    value="scans">
             <label class="form-check-label" for="flexRadioDefault2">Scans</label>
           </div>
@@ -66,7 +68,6 @@ export default {
   data() {
     return {
       showType: 'episodes',
-      id: this.$route.params.id,
       isLoading: true,
       error: null,
       anime: [],
@@ -97,24 +98,14 @@ export default {
   async mounted() {
     this.isLoading = true
 
-    try {
-      const response = await fetch(Utils.getLocalFile("php/v1/get_anime.php?id=" + this.id))
-
-      if (response.status !== 200) {
-        this.anime = []
-        this.error = response.statusText
-        return
-      }
-
-      this.anime = await response.json()
-      const a = this.anime.seasons.length > 0
-      this.selectedSeason = a ? this.anime.seasons[0].season : null
+    await Utils.get(`php/v1/get_anime.php?id=${this.$route.params.id}`, 200, (anime) => {
+      this.anime = anime
+      const a = anime.seasons.length > 0
+      this.selectedSeason = a ? anime.seasons[0].season : null
       this.showType = a ? 'episodes' : 'scans'
-      this.error = null
-    } catch (exception) {
-      this.anime = []
-      this.error = exception
-    }
+    }, (failed) => {
+      this.error = failed
+    })
 
     this.isLoading = false
   }

@@ -27,6 +27,14 @@ export default new VueRouter({
             component: () => import("@/views/Register")
         },
         {
+            path: '/confirm/:hash',
+            component: () => import("@/views/Confirm")
+        },
+        {
+            path: '/password_reset',
+            component: () => import("@/views/PasswordReset")
+        },
+        {
             path: '/member/:pseudo',
             component: () => import("@/views/Member")
         },

@@ -4,7 +4,7 @@ require_once "autoload.php";
 header('Access-Control-Allow-Origin: *');
 
 try {
-    $pdo = getPDO();
+    $pdo = Utils::getPDO();
     $animeMapper = new AnimeMapper();
     Utils::printResponse($animeMapper->getAllAnimes($pdo, new CountryMapper()));
 } catch (Exception $exception) {

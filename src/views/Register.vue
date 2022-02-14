@@ -2,30 +2,38 @@
   <div class="container text-start">
     <div class="row g-3 mb-3">
       <div class="col-lg-6">
-        <input type="email" class="form-control" placeholder="Adresse mail" ref="mailInput">
+        <input ref="mailInput" class="form-control" placeholder="Adresse mail" type="email">
       </div>
 
       <div class="col-lg-6">
         <div class="input-group mb-3">
-          <span class="input-group-text" id="basic-addon1">@</span>
-          <input type="text" class="form-control" placeholder="Pseudonyme" ref="pseudoInput">
+          <span id="basic-addon1" class="input-group-text">@</span>
+          <input ref="pseudoInput" class="form-control" placeholder="Pseudonyme" type="text">
         </div>
       </div>
 
       <div class="col-lg-12">
-        <input type="password" class="form-control" placeholder="Mot de passe" ref="passwordInput">
+        <input ref="passwordInput" class="form-control" placeholder="Mot de passe" type="password">
         <div id="emailHelp" class="form-text">Ne partagez jamais votre mot de passe.</div>
       </div>
 
       <div class="col-lg-12">
-        <input type="password" class="form-control" placeholder="Confirmation du mot de passe" ref="confirmPasswordInput">
+        <input ref="confirmPasswordInput" class="form-control" placeholder="Confirmation du mot de passe"
+               type="password">
       </div>
     </div>
 
     <div class="w-100 text-center mb-3">
       <button class="btn btn-primary" @click="submitUser">Inscription</button>
+
+      <br><br>
+      <span>Vous avez déjà un compte ? <router-link to="/login">Connectez-vous ici</router-link></span>
     </div>
 
+    <div v-if="success != null && success.length > 0" class="alert-success p-3 text-center rounded fw-bold">{{
+        success
+      }}
+    </div>
     <div v-if="error != null && error.length > 0" class="alert-danger p-3 text-center rounded fw-bold">{{ error }}</div>
   </div>
 </template>
@@ -33,11 +41,12 @@
 <script>
 import {sha512} from "js-sha512";
 import Utils from "@/utils";
-import {mapGetters, mapState} from "vuex";
+import {mapGetters} from "vuex";
 
 export default {
   data() {
     return {
+      success: ``,
       error: ``
     }
   },
@@ -79,23 +88,16 @@ export default {
         return
       }
 
-      try {
-        const response = await fetch(Utils.getLocalFile("php/v1/register.php"), {
-          method: "POST",
-          body: JSON.stringify({ email: email, pseudo: pseudo, password: password })
-        })
-
-        console.log(response.statusText)
-
-        if (response.status !== 201) {
-          this.error = `${response.statusText}`
-          return
-        }
-
-        await this.$router.push('/')
-      } catch (exception) {
-        this.error = `${exception}`
-      }
+      await Utils.post(`php/v1/register.php`, JSON.stringify({
+        email: email,
+        pseudo: pseudo,
+        password: password
+      }), 201, (success) => {
+        this.success = `Un mail de confirmation vous a été envoyé à l'adresse mail suivante : ${email}. Veuillez le confirmer, vérifier aussi vos courriers indésirables.<br/>Vous ne pourrez pas vous connecter tant que celle-ci ne sera pas valider.`
+        setTimeout(() => this.$router.push('/login'), 10000)
+      }, (failed) => {
+        this.error = failed
+      })
     }
   }
 }

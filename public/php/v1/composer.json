@@ -1,0 +1,17 @@
+{
+  "name": "ziedelth.fr/v1",
+  "description": "Composer for Ziedelth.fr",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Ziedelth",
+      "email": "contact@ziedelth.fr"
+    }
+  ],
+  "require": {
+    "phpmailer/phpmailer": "v6.5.3",
+    "ext-pdo": "*",
+    "ext-json": "*"
+  }
+}
