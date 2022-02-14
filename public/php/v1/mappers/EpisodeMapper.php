@@ -54,8 +54,13 @@ class EpisodeMapper extends Mapper
 
     function getLatestEpisodesPage(?PDO $pdo, int $limit, int $page, PlatformMapper $platformMapper, AnimeMapper $animeMapper, CountryMapper $countryMapper, EpisodeTypeMapper $episodeTypeMapper, LangTypeMapper $langTypeMapper): JSONResponse
     {
-        $request = $pdo->prepare("SELECT * FROM $this->tableName ORDER BY release_date DESC, anime_id DESC, season DESC, number DESC, id_episode_type DESC, id_lang_type DESC");
+        $request = $pdo->prepare("SELECT id FROM $this->tableName ORDER BY release_date DESC, anime_id DESC, season DESC, number DESC, id_episode_type DESC, id_lang_type DESC");
         $request->execute(array());
-        return new JSONResponse(200, array_slice($request->fetchAll(PDO::FETCH_CLASS, $this->className, [$pdo, $platformMapper, $animeMapper, $countryMapper, $episodeTypeMapper, $langTypeMapper]), ($page - 1) * $limit, $limit));
+        $array = $request->fetchAll(PDO::FETCH_COLUMN);
+        $ids = join(', ', array_slice($array, ($page - 1) * $limit, $limit));
+
+        $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE id IN ($ids) ORDER BY release_date DESC, anime_id DESC, season DESC, number DESC, id_episode_type DESC, id_lang_type DESC");
+        $request->execute(array());
+        return new JSONResponse(200, $request->fetchAll(PDO::FETCH_CLASS, $this->className, [$pdo, $platformMapper, $animeMapper, $countryMapper, $episodeTypeMapper, $langTypeMapper]));
     }
 }
