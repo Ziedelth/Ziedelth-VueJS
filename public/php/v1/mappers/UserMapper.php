@@ -7,8 +7,7 @@ class User extends JObject
     protected string $email;
     public string $pseudo;
     protected string $saltPassword;
-    protected string $tokenTimestamp;
-    protected string $token;
+    public int $emailVerified = 0;
 
     public int $role = 0;
     public ?string $image;
@@ -38,7 +37,7 @@ class UserMapper extends Mapper
 
     function isTokenExists(?PDO $pdo, string $token): bool
     {
-        $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE token = :token");
+        $request = $pdo->prepare("SELECT * FROM tokens WHERE token = :token");
         $request->execute(array('token' => $token));
         return $request->rowCount() > 0;
     }
@@ -57,12 +56,11 @@ class UserMapper extends Mapper
         if ($this->isPseudoExists($pdo, $pseudo))
             return new JSONResponse(409, array('error' => 'Pseudo already exists'));
 
-        $request = $pdo->prepare("INSERT INTO $this->tableName VALUES (NULL, CURRENT_TIMESTAMP, :email, :pseudo, :password, CURRENT_TIMESTAMP, :token, 0, NULL, NULL)");
-        $salt = Utils::generateRandomString(10);
-        $token = Utils::generateRandomString(50);
+        $salt = Utils::generateRandomString();
+        $request = $pdo->prepare("INSERT INTO $this->tableName VALUES (NULL, CURRENT_TIMESTAMP, :email, :pseudo, :password, 0, 0, NULL, NULL)");
+        $request->execute(array('email' => $email, 'pseudo' => $pseudo, 'password' => "$salt|" . hash('sha512', "$salt$password")));
 
-        if (!$request->execute(array('email' => $email, 'pseudo' => $pseudo, 'password' => "$salt|" . hash('sha512', "$salt$password"), 'token' => $token)))
-            return new JSONResponse(409, array('error' => 'User already exists'));
+        // TODO: SEND EMAIL
 
         return new JSONResponse(201, array('success' => 'OK'));
     }
@@ -90,10 +88,16 @@ class UserMapper extends Mapper
         if ($saltPassword != $exploded[1])
             return new JSONResponse(400, array('error' => 'Invalid credentials'));
 
-        $reflectionProperty = $reflectionClass->getProperty('token');
-        $reflectionProperty->setAccessible(true);
+        if ($user->emailVerified != 1)
+            return new JSONResponse(400, array('error' => 'Email is not verified'));
 
-        return new JSONResponse(200, array('token' => $reflectionProperty->getValue($user)));
+        $token = Utils::generateRandomString(100);
+        $request = $pdo->prepare("DELETE FROM tokens WHERE user_id = :user_id");
+        $request->execute(array('userId' => $user->id));
+        $request = $pdo->prepare("INSERT INTO tokens VALUES (NULL, CURRENT_TIMESTAMP, :userId, :token)");
+        $request->execute(array('userId' => $user->id, 'token' => $token));
+
+        return new JSONResponse(200, array('token' => $token));
     }
 
     function getUserByToken(?PDO $pdo, string $token): JSONResponse
@@ -101,9 +105,14 @@ class UserMapper extends Mapper
         if (!$this->isTokenExists($pdo, $token))
             return new JSONResponse(404, array('error' => 'Token doesn\'t exists'));
 
-        $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE token = :token");
+        $request = $pdo->prepare("SELECT u.* FROM $this->tableName u INNER JOIN tokens t ON t.user_id = u.id WHERE token = :token");
         $request->execute(array('token' => $token));
-        return new JSONResponse(200, $request->fetchObject($this->className));
+        $user = $request->fetchObject($this->className);
+
+        if ($user->emailVerified != 1)
+            return new JSONResponse(400, array('error' => 'Email is not verified'));
+
+        return new JSONResponse(200, $user);
     }
 
     function getUserByPseudo(?PDO $pdo, string $pseudo): JSONResponse
@@ -113,6 +122,11 @@ class UserMapper extends Mapper
 
         $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE pseudo = :pseudo");
         $request->execute(array('pseudo' => $pseudo));
-        return new JSONResponse(200, $request->fetchObject($this->className));
+        $user = $request->fetchObject($this->className);
+
+        if ($user->emailVerified != 1)
+            return new JSONResponse(400, array('error' => 'Email is not verified'));
+
+        return new JSONResponse(200, $user);
     }
 }

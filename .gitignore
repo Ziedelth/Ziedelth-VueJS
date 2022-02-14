@@ -27,3 +27,4 @@ pnpm-debug.log*
 /public/php/v1/composer.lock
 /public/php/v1/vendor/
 /package-lock.json
+/public/php/v1/example.php
