@@ -19,21 +19,21 @@ class CountryMapper extends Mapper
         parent::__construct('jais.countries', 'Country');
     }
 
-    function getCountryById(?PDO $pdo, $id): ?Country
+    function getCountryById(?PDO $pdo, int $id): ?Country
     {
         $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE id = :id");
         $request->execute(array('id' => $id));
         return $request->fetchObject($this->className);
     }
 
-    function getCountryByName(?PDO $pdo, $name): ?Country
+    function getCountryByName(?PDO $pdo, string $name): ?Country
     {
         $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE name = :name");
         $request->execute(array('name' => $name));
         return $request->fetchObject($this->className);
     }
 
-    function getCountryByTag(?PDO $pdo, $tag): ?Country
+    function getCountryByTag(?PDO $pdo, string $tag): ?Country
     {
         $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE tag = :tag");
         $request->execute(array('tag' => $tag));

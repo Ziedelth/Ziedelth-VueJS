@@ -17,7 +17,7 @@ class EpisodeTypeMapper extends Mapper
         parent::__construct('jais.episode_types', 'EpisodeType');
     }
 
-    function getEpisodeTypeById(?PDO $pdo, $id): ?EpisodeType
+    function getEpisodeTypeById(?PDO $pdo, int $id): ?EpisodeType
     {
         $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE id = :id");
         $request->execute(array('id' => $id));

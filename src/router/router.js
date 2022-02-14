@@ -19,6 +19,22 @@ export default new VueRouter({
             component: () => import("@/views/Anime")
         },
         {
+            path: '/login',
+            component: () => import("@/views/Login")
+        },
+        {
+            path: '/register',
+            component: () => import("@/views/Register")
+        },
+        {
+            path: '/member/:pseudo',
+            component: () => import("@/views/Member")
+        },
+        {
+            path: '/settings',
+            component: () => import("@/views/Settings")
+        },
+        {
             path: '/privacy',
             component: () => import("@/views/CGU")
         },

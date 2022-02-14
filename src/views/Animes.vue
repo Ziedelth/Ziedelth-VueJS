@@ -1,15 +1,16 @@
 <template>
   <div>
-    <div v-if="isLoading">
-      <div class="spinner-border my-2" role="status"/>
-      <p class="fw-bold">Chargement...</p>
-    </div>
+    <LoadingComponent :is-loading="isLoading"/>
 
-    <div v-else>
+    <div v-if="!isLoading">
       <p v-if="error !== null" class="alert-danger text-danger">{{ error }}</p>
 
-      <div v-else class="row g-3">
-        <div v-for="anime in animes" class="col-lg-4">
+      <div class="container w-25 mb-3">
+        <input type="text" class="form-control" placeholder="Recherchez un anime..." v-model="filter">
+      </div>
+
+      <div v-if="error === null" class="row g-3">
+        <div v-for="anime in filtered" class="col-lg-4">
           <div class="p-2 border-color rounded bg-dark">
             <div class="row">
               <div class="col-9">
@@ -18,7 +19,7 @@
               </div>
 
               <div class="col-3 p-2">
-                <img :src="getAnimeImage(anime)" alt="Anime image" class="img-fluid rounded"/>
+                <img :src="anime.image" alt="Anime image" class="img-fluid rounded"/>
               </div>
             </div>
           </div>
@@ -31,41 +32,52 @@
 <script>
 import Utils from "@/utils";
 
+const LoadingComponent = () => import("@/components/LoadingComponent");
+
 export default {
+  components: {LoadingComponent},
   data() {
     return {
       isLoading: true,
       error: null,
       animes: [],
+      filter: '',
+      filtered: [],
     }
   },
   methods: {
     getAnimeDescription(anime) {
-      return (anime.description === null || anime.description.length <= 0) ? 'Aucune description pour le moment...' : anime.description;
+      return Utils.isNullOrEmpty(anime.description) ? 'Aucune description pour le moment...' : anime.description
     },
-    getAnimeImage(anime) {
-      return (anime.image === null || anime.image.length <= 0) ? 'images/jais.jpg' : anime.image;
+  },
+  watch: {
+    filter: function (val) {
+      if (Utils.isNullOrEmpty(val))
+        this.filtered = Object.assign({}, this.animes)
+      else
+        this.filtered = this.animes.filter(value => value.name.toLowerCase().includes(val.toLowerCase()))
     }
   },
   async mounted() {
-    this.isLoading = true;
+    this.isLoading = true
 
     try {
       const response = await fetch(Utils.getLocalFile("php/v1/animes.php"))
 
-      if (response.status === 201) {
-        this.animes = await response.json();
-        this.error = null;
-      } else {
-        this.animes = [];
-        this.error = response.statusText;
+      if (response.status !== 200) {
+        this.animes = this.filtered = []
+        this.error = response.statusText
+        return
       }
+
+      this.animes = this.filtered = await response.json()
+      this.error = null
     } catch (exception) {
-      this.animes = [];
-      this.error = exception;
+      this.animes = this.filtered = []
+      this.error = exception
     }
 
-    this.isLoading = false;
+    this.isLoading = false
   }
 }
 </script>

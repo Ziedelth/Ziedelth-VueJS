@@ -10,7 +10,7 @@ class AnimeGenresMapper extends Mapper
         parent::__construct('jais.anime_genres');
     }
 
-    function getGenresByAnimeId(?PDO $pdo, $id): array
+    function getGenresByAnimeId(?PDO $pdo, int $id): array
     {
         $request = $pdo->prepare("SELECT genre_id FROM $this->tableName WHERE anime_id = :id");
         $request->execute(array('id' => $id));

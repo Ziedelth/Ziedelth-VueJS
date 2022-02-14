@@ -1,8 +1,5 @@
 <?php
 
-require_once 'JObject.php';
-require_once 'Mapper.php';
-
 class Episode extends JObject
 {
     public ?Platform $platform;
@@ -48,21 +45,17 @@ class EpisodeMapper extends Mapper
         return $request->fetchAll(PDO::FETCH_CLASS, $this->className);
     }
 
-    function getEpisodesBy(?PDO $pdo, $animeId, $season, $idEpisodeType, $number, $idLangType, PlatformMapper $platformMapper, AnimeMapper $animeMapper, CountryMapper $countryMapper, EpisodeTypeMapper $episodeTypeMapper, LangTypeMapper $langTypeMapper): ?array
+    function getEpisodesBy(?PDO $pdo, int $animeId, int $season, PlatformMapper $platformMapper, AnimeMapper $animeMapper, CountryMapper $countryMapper, EpisodeTypeMapper $episodeTypeMapper, LangTypeMapper $langTypeMapper): ?array
     {
-        $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE anime_id = :animeId AND season = :season AND id_episode_type = :idEpisodeType AND number = :number AND id_lang_type = :idLangType");
-        $request->execute(array('animeId' => $animeId, 'season' => $season, 'idEpisodeType' => $idEpisodeType, 'number' => $number, 'idLangType' => $idLangType));
+        $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE anime_id = :animeId AND season = :season ORDER BY id_episode_type, number, id_lang_type");
+        $request->execute(array('animeId' => $animeId, 'season' => $season));
         return $request->fetchAll(PDO::FETCH_CLASS, $this->className, [$pdo, $platformMapper, $animeMapper, $countryMapper, $episodeTypeMapper, $langTypeMapper]);
     }
 
-    function getLatestEpisodes(?PDO $pdo, int $limit, PlatformMapper $platformMapper, AnimeMapper $animeMapper, CountryMapper $countryMapper, EpisodeTypeMapper $episodeTypeMapper, LangTypeMapper $langTypeMapper): array
+    function getLatestEpisodesPage(?PDO $pdo, int $limit, int $page, PlatformMapper $platformMapper, AnimeMapper $animeMapper, CountryMapper $countryMapper, EpisodeTypeMapper $episodeTypeMapper, LangTypeMapper $langTypeMapper): JSONResponse
     {
-        $request = $pdo->prepare("SELECT * FROM $this->tableName ORDER BY release_date DESC LIMIT $limit");
+        $request = $pdo->prepare("SELECT * FROM $this->tableName ORDER BY release_date DESC, anime_id DESC, season DESC, number DESC, id_episode_type DESC, id_lang_type DESC");
         $request->execute(array());
-        $array = $request->fetchAll(PDO::FETCH_CLASS, $this->className, [$pdo, $platformMapper, $animeMapper, $countryMapper, $episodeTypeMapper, $langTypeMapper]);
-        usort($array, function (Episode $a, Episode $b) {
-            return $b->releaseDate <=> $a->releaseDate;
-        });
-        return $array;
+        return new JSONResponse(200, array_slice($request->fetchAll(PDO::FETCH_CLASS, $this->className, [$pdo, $platformMapper, $animeMapper, $countryMapper, $episodeTypeMapper, $langTypeMapper]), ($page - 1) * $limit, $limit));
     }
 }

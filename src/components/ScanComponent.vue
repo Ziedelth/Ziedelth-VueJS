@@ -4,16 +4,18 @@
       <div class="col-lg-9 text-start">
         <div>
           <a :href="scan.platform.url" target="_blank">
-            <img :src="getPlatformImage()" alt="Platform image" class="platform-thumbnail me-2"/>
+            <img :src="scan.platform.image" alt="Platform image" class="platform-thumbnail me-2"/>
           </a>
 
           {{ scan.platform.name }}
         </div>
 
-        <router-link :to="`/anime/${scan.anime.id}`" class="card-title fw-bold link-color">{{
-            scan.anime.name
-          }}
-        </router-link>
+        <div class="text-truncate">
+          <router-link :to="`/anime/${scan.anime.id}`" class="card-title fw-bold link-color text-truncate">{{
+              scan.anime.name
+            }}
+          </router-link>
+        </div>
 
         <p class="card-text">
           {{ scan.episodeType[scan.anime.country.tag] }} {{ scan.number }} {{ scan.langType[scan.anime.country.tag] }}
@@ -27,7 +29,7 @@
       </div>
 
       <div class="col-lg-3">
-        <img :src="getAnimeImage()" alt="Anime image" class="img-fluid rounded"/>
+        <img :src="scan.anime.image" alt="Anime image" class="img-fluid rounded"/>
       </div>
     </div>
   </div>
@@ -41,12 +43,6 @@ export default {
     scan: {},
   },
   methods: {
-    getPlatformImage() {
-      return Utils.getFile(this.scan.platform.image)
-    },
-    getAnimeImage() {
-      return Utils.getFile(this.scan.anime.image)
-    },
     toHHMMSS(duration) {
       return Utils.toHHMMSS(duration.toString())
     },
