@@ -22,6 +22,7 @@ class AnimeEpisode extends JObject
 class Anime extends AnimeEpisode
 {
     public array $seasons = [];
+    public array $scans = [];
     public ?array $genres;
 
     public function __construct(?PDO $pdo = null, ?CountryMapper $countryMapper = null, ?AnimeGenresMapper $animeGenresMapper = null, ?GenreMapper $genreMapper = null)
@@ -30,6 +31,7 @@ class Anime extends AnimeEpisode
 
         if ($pdo != null && $countryMapper != null && $animeGenresMapper != null && $genreMapper != null) {
             $episodeMapper = new EpisodeMapper();
+            $scanMapper = new ScanMapper();
 
             $request = $pdo->prepare("SELECT DISTINCT season FROM " . $episodeMapper->tableName . " WHERE anime_id = :anime_id");
             $request->execute(array('anime_id' => $this->id));
@@ -40,6 +42,7 @@ class Anime extends AnimeEpisode
                 $this->seasons[] = $array;
             }
 
+            $this->scans = $scanMapper->getScansBy($pdo, $this->id, new PlatformMapper(), new AnimeMapper(), $countryMapper, new EpisodeTypeMapper(), new LangTypeMapper());
             $animeGenres = $animeGenresMapper->getGenresByAnimeId($pdo, $this->id);
 
             if (!empty($animeGenres))

@@ -1,11 +1,7 @@
 <template>
   <div class="container text-start">
     <div class="row g-3 mb-3">
-      <div class="col-lg-6">
-        <input type="email" class="form-control" placeholder="Adresse mail" ref="mailInput">
-      </div>
-
-      <div class="col-lg-6">
+      <div class="col-lg-12">
         <div class="input-group mb-3">
           <span class="input-group-text" id="basic-addon1">@</span>
           <input type="text" class="form-control" placeholder="Pseudonyme" ref="pseudoInput">
@@ -16,14 +12,10 @@
         <input type="password" class="form-control" placeholder="Mot de passe" ref="passwordInput">
         <div id="emailHelp" class="form-text">Ne partagez jamais votre mot de passe.</div>
       </div>
-
-      <div class="col-lg-12">
-        <input type="password" class="form-control" placeholder="Confirmation du mot de passe" ref="confirmPasswordInput">
-      </div>
     </div>
 
     <div class="w-100 text-center mb-3">
-      <button class="btn btn-primary" @click="submitUser">Inscription</button>
+      <button class="btn btn-primary" @click="submitUser">Connexion</button>
     </div>
 
     <div v-if="error != null && error.length > 0" class="alert-danger p-3 text-center rounded fw-bold">{{ error }}</div>
@@ -50,16 +42,8 @@ export default {
     ...mapGetters(['isLogin']),
 
     async submitUser() {
-      const email = this.$refs.mailInput.value
       const pseudo = this.$refs.pseudoInput.value
       const password = sha512(this.$refs.passwordInput.value)
-      const confirmPassword = sha512(this.$refs.confirmPasswordInput.value)
-
-      if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))) {
-        console.log('Invalid email')
-        this.error = `Invalid email`
-        return
-      }
 
       if (pseudo.length < 4 || pseudo.length > 16) {
         console.log('Invalid pseudo')
@@ -73,25 +57,41 @@ export default {
         return
       }
 
-      if (password !== confirmPassword) {
-        console.log('Invalid password or confirm password')
-        this.error = `Invalid password or confirm password`
-        return
-      }
-
       try {
-        const response = await fetch(Utils.getLocalFile("php/v1/register.php"), {
+        const response = await fetch(Utils.getLocalFile("php/v1/login.php"), {
           method: "POST",
-          body: JSON.stringify({ email: email, pseudo: pseudo, password: password })
+          body: JSON.stringify({ pseudo: pseudo, password: password })
         })
 
+        const json = await response.json()
         console.log(response.statusText)
 
-        if (response.status !== 201) {
-          this.error = `${response.statusText}`
+        if (response.status !== 200) {
+          this.error = `${json.error}`
           return
         }
 
+        this.$session.start()
+        this.$session.set('token', json.token)
+      } catch (exception) {
+        this.error = `${exception}`
+      }
+
+      try {
+        const response = await fetch(Utils.getLocalFile("php/v1/get_user.php"), {
+          method: "POST",
+          body: JSON.stringify({ token: this.$session.get('token') })
+        })
+
+        const json = await response.json()
+        console.log(response.statusText)
+
+        if (response.status !== 200) {
+          this.error = `${json.error}`
+          return
+        }
+
+        await this.$store.dispatch('setUser', json)
         await this.$router.push('/')
       } catch (exception) {
         this.error = `${exception}`

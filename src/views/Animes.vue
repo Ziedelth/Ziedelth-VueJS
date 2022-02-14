@@ -47,36 +47,37 @@ export default {
   },
   methods: {
     getAnimeDescription(anime) {
-      return (anime.description === null || anime.description.length <= 0) ? 'Aucune description pour le moment...' : anime.description;
+      return Utils.isNullOrEmpty(anime.description) ? 'Aucune description pour le moment...' : anime.description
     },
   },
   watch: {
     filter: function (val) {
-      if (val == null || val.length <= 0)
+      if (Utils.isNullOrEmpty(val))
         this.filtered = Object.assign({}, this.animes)
       else
         this.filtered = this.animes.filter(value => value.name.toLowerCase().includes(val.toLowerCase()))
     }
   },
   async mounted() {
-    this.isLoading = true;
+    this.isLoading = true
 
     try {
       const response = await fetch(Utils.getLocalFile("php/v1/animes.php"))
 
-      if (response.status === 200) {
-        this.animes = this.filtered = await response.json();
-        this.error = null;
-      } else {
-        this.animes = this.filtered = [];
-        this.error = response.statusText;
+      if (response.status !== 200) {
+        this.animes = this.filtered = []
+        this.error = response.statusText
+        return
       }
+
+      this.animes = this.filtered = await response.json()
+      this.error = null
     } catch (exception) {
-      this.animes = this.filtered = [];
-      this.error = exception;
+      this.animes = this.filtered = []
+      this.error = exception
     }
 
-    this.isLoading = false;
+    this.isLoading = false
   }
 }
 </script>

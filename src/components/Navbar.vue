@@ -20,11 +20,48 @@
           </ul>
 
           <ul class="navbar-nav mb-2 mb-lg-0">
-            <router-link class="nav-link" to="/register">Inscription</router-link>
-            <router-link class="nav-link" to="/login">Connexion</router-link>
+            <div v-if="!isLogin()" class="d-flex">
+              <router-link class="nav-link" to="/register">Inscription</router-link>
+              <router-link class="nav-link" to="/login">Connexion</router-link>
+            </div>
+            <div v-else class="d-flex">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  {{ user.pseudo }}
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <li><router-link class="dropdown-item" :to="`/member/${user.pseudo}`">Mon profil</router-link></li>
+                  <li><router-link class="dropdown-item" to="/settings">Paramètres</router-link></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" @click="logout">Déconnexion</a></li>
+                </ul>
+              </li>
+            </div>
           </ul>
         </div>
       </div>
     </div>
   </header>
 </template>
+
+<script>
+import {mapGetters, mapState} from "vuex";
+
+export default {
+  computed: {
+    ...mapState(['user'])
+  },
+  methods: {
+    ...mapGetters(['isLogin']),
+
+    logout() {
+      if (!this.isLogin())
+        return
+
+      this.$session.destroy()
+      this.$store.dispatch('setUser', null)
+      this.$router.push('/')
+    }
+  }
+}
+</script>

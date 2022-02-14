@@ -72,42 +72,37 @@ export default {
     }
   },
   methods: {
-    async getEpisodes(add = false) {
-      if (add)
-        this.pageEpisodes++;
-
+    async getEpisodes() {
       try {
         const response = await fetch(Utils.getLocalFile("php/v1/episodes.php?limit=" + this.limit + "&page=" + this.pageEpisodes))
 
-        if (response.status === 200) {
-          this.episodes.push(...(await response.json()));
-          this.error = null;
-        } else {
-          this.episodes = [];
-          this.error = response.statusText;
+        if (response.status !== 200) {
+          this.episodes = []
+          this.error = response.statusText
+          return
         }
+
+        this.episodes.push(...(await response.json()))
+        this.error = null
       } catch (exception) {
-        this.episodes = [];
-        this.error = exception;
+        this.episodes = []
+        this.error = exception
       }
     },
-    async getScans(add = false) {
-      if (add)
-        this.pageScans++;
-
+    async getScans() {
       try {
         const response = await fetch(Utils.getLocalFile("php/v1/scans.php?limit=" + this.limit + "&page=" + this.pageScans))
 
-        if (response.status === 200) {
-          this.scans.push(...(await response.json()));
-          this.error = null;
-        } else {
-          this.scans = [];
-          this.error = response.statusText;
+        if (response.status !== 200) {
+          this.scans = []
+          this.error = response.statusText
         }
+
+        this.scans.push(...(await response.json()))
+        this.error = null
       } catch (exception) {
-        this.scans = [];
-        this.error = exception;
+        this.scans = []
+        this.error = exception
       }
     },
   },
@@ -116,17 +111,6 @@ export default {
     await this.getEpisodes()
     await this.getScans()
     this.isLoading = false
-
-    window.onscroll = async () => {
-      let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
-
-      if (bottomOfWindow && !this.isLoading) {
-        if (this.showType === 'episodes')
-          await this.getEpisodes(true)
-        else if (this.showType === 'scans')
-          await this.getScans(true)
-      }
-    }
   }
 }
 </script>

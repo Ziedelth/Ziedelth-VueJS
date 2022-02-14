@@ -21,8 +21,6 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
-/public/googlea1ee9278b0902588.html
-/public/php/v0/config.php
 /public/images/animes/
 /public/images/episodes/
 /public/php/v1/configurations/config.php
