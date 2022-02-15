@@ -5,12 +5,12 @@
     <div v-if="!isLoading">
       <p v-if="error !== null" class="alert-danger text-danger">{{ error }}</p>
 
-      <div class="container w-25 mb-3">
+      <div class="container mb-3">
         <input v-model="filter" class="form-control" placeholder="Recherchez un anime..." type="text">
       </div>
 
-      <div v-if="error === null" class="row g-3">
-        <div v-for="anime in filtered" class="col-lg-4">
+      <div v-if="error === null" class="row g-3 row-cols-lg-3 row-cols-1">
+        <div v-for="anime in filtered" class="col">
           <div class="p-2 border-color rounded bg-dark mh">
             <div class="row">
               <div class="col-9">
@@ -75,12 +75,13 @@ export default {
 <style scoped>
 .anime-description {
   display: -webkit-box;
-  -webkit-line-clamp: 6;
+  -webkit-line-clamp: 7;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 .mh {
   height: 22.5vh;
+  overflow: hidden;
 }
 </style>
