@@ -81,7 +81,7 @@ export default {
 }
 
 .mh {
-  height: 22.5vh;
+  height: 24vh;
   overflow: hidden;
 }
 </style>
