@@ -40,9 +40,12 @@ class ScanMapper extends Mapper
         return $request->fetchAll(PDO::FETCH_CLASS, $this->className);
     }
 
-    function getScansBy(?PDO $pdo, int $animeId, PlatformMapper $platformMapper, AnimeMapper $animeMapper, CountryMapper $countryMapper, EpisodeTypeMapper $episodeTypeMapper, LangTypeMapper $langTypeMapper): ?array
+    function getScansBy(?PDO $pdo, int $animeId, string $sort, PlatformMapper $platformMapper, AnimeMapper $animeMapper, CountryMapper $countryMapper, EpisodeTypeMapper $episodeTypeMapper, LangTypeMapper $langTypeMapper): ?array
     {
-        $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE anime_id = :animeId ORDER BY id_episode_type, number, id_lang_type");
+        if ($sort == 'asc')
+            $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE anime_id = :animeId ORDER BY id_episode_type, number, id_lang_type");
+        else
+            $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE anime_id = :animeId ORDER BY id_episode_type, number DESC, id_lang_type");
         $request->execute(array('animeId' => $animeId));
         return $request->fetchAll(PDO::FETCH_CLASS, $this->className, [$pdo, $platformMapper, $animeMapper, $countryMapper, $episodeTypeMapper, $langTypeMapper]);
     }

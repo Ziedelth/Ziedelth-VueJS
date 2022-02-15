@@ -63,19 +63,22 @@ export default {
         return
       }
 
-      await Utils.post(`php/v1/login.php`, JSON.stringify({pseudo: pseudo, password: password}), 200, (success) => {
+      await Utils.post(`php/v1/member/login.php`, JSON.stringify({
+        pseudo: pseudo,
+        password: password
+      }), 200, (success) => {
         this.$session.start()
         this.$session.set('token', success.token)
         this.$store.dispatch('setToken', success.token)
 
-        Utils.post(`php/v1/get_user.php`, JSON.stringify({token: success.token}), 200, (success) => {
+        Utils.post(`php/v1/member/get_user.php`, JSON.stringify({token: success.token}), 200, (success) => {
           this.$store.dispatch('setUser', success)
           this.$router.push('/')
         }, (failed) => {
-          this.error = failed
+          this.error = `${failed}`
         })
       }, (failed) => {
-        this.error = failed
+        this.error = `${failed}`
       })
     }
   }

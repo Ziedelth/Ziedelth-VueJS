@@ -2,14 +2,11 @@
   <div class="container text-start">
     <div class="row g-3 mb-3">
       <div class="col-lg-6">
-        <input ref="mailInput" class="form-control" placeholder="Adresse mail" type="email">
+        <input id="pseudo" ref="pseudoInput" class="form-control" placeholder="Pseudonyme" type="text">
       </div>
 
       <div class="col-lg-6">
-        <div class="input-group mb-3">
-          <span id="basic-addon1" class="input-group-text">@</span>
-          <input ref="pseudoInput" class="form-control" placeholder="Pseudonyme" type="text">
-        </div>
+        <input ref="mailInput" class="form-control" placeholder="Adresse mail" type="email">
       </div>
 
       <div class="col-lg-12">
@@ -88,7 +85,7 @@ export default {
         return
       }
 
-      await Utils.post(`php/v1/register.php`, JSON.stringify({
+      await Utils.post(`php/v1/member/register.php`, JSON.stringify({
         email: email,
         pseudo: pseudo,
         password: password
@@ -96,7 +93,7 @@ export default {
         this.success = `Un mail de confirmation vous a été envoyé à l'adresse mail suivante : ${email}. Veuillez le confirmer, vérifier aussi vos courriers indésirables.<br/>Vous ne pourrez pas vous connecter tant que celle-ci ne sera pas valider.`
         setTimeout(() => this.$router.push('/login'), 10000)
       }, (failed) => {
-        this.error = failed
+        this.error = `${failed}`
       })
     }
   }

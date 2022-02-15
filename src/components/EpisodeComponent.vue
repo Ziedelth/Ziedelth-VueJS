@@ -55,6 +55,7 @@ export default {
   }
 }
 </script>
+
 <style scoped>
 .platform-thumbnail {
   width: 3vh;

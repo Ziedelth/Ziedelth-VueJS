@@ -11,7 +11,7 @@
 
       <div v-if="error === null" class="row g-3">
         <div v-for="anime in filtered" class="col-lg-4">
-          <div class="p-2 border-color rounded bg-dark">
+          <div class="p-2 border-color rounded bg-dark mh">
             <div class="row">
               <div class="col-9">
                 <router-link :to="`/anime/${anime.id}`" class="link-color">{{ anime.name }}</router-link>
@@ -61,10 +61,10 @@ export default {
   async mounted() {
     this.isLoading = true
 
-    await Utils.get(`php/v1/animes.php`, 200, (animes) => {
+    await Utils.get(`php/v1/jais/animes.php`, 200, (animes) => {
       this.animes = this.filtered = animes
     }, (failed) => {
-      this.error = failed
+      this.error = `${failed}`
     })
 
     this.isLoading = false
@@ -75,8 +75,12 @@ export default {
 <style scoped>
 .anime-description {
   display: -webkit-box;
-  -webkit-line-clamp: 7;
+  -webkit-line-clamp: 6;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.mh {
+  height: 22.5vh;
 }
 </style>

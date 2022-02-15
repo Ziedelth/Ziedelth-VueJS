@@ -25,11 +25,11 @@ class Anime extends AnimeEpisode
     public array $scans = [];
     public ?array $genres;
 
-    public function __construct(?PDO $pdo = null, ?CountryMapper $countryMapper = null, ?AnimeGenresMapper $animeGenresMapper = null, ?GenreMapper $genreMapper = null)
+    public function __construct(?PDO $pdo = null, ?string $sort = null, ?CountryMapper $countryMapper = null, ?AnimeGenresMapper $animeGenresMapper = null, ?GenreMapper $genreMapper = null)
     {
         parent::__construct($pdo, $countryMapper);
 
-        if ($pdo != null && $countryMapper != null && $animeGenresMapper != null && $genreMapper != null) {
+        if ($pdo != null && $sort != null && $countryMapper != null && $animeGenresMapper != null && $genreMapper != null) {
             $episodeMapper = new EpisodeMapper();
             $scanMapper = new ScanMapper();
 
@@ -38,11 +38,11 @@ class Anime extends AnimeEpisode
 
             foreach ($request->fetchAll(PDO::FETCH_COLUMN) as $season) {
                 $array['season'] = $season;
-                $array['episodes'] = $episodeMapper->getEpisodesBy($pdo, $this->id, $season, new PlatformMapper(), new AnimeMapper(), $countryMapper, new EpisodeTypeMapper(), new LangTypeMapper());
+                $array['episodes'] = $episodeMapper->getEpisodesBy($pdo, $this->id, $season, $sort, new PlatformMapper(), new AnimeMapper(), $countryMapper, new EpisodeTypeMapper(), new LangTypeMapper());
                 $this->seasons[] = $array;
             }
 
-            $this->scans = $scanMapper->getScansBy($pdo, $this->id, new PlatformMapper(), new AnimeMapper(), $countryMapper, new EpisodeTypeMapper(), new LangTypeMapper());
+            $this->scans = $scanMapper->getScansBy($pdo, $this->id, $sort, new PlatformMapper(), new AnimeMapper(), $countryMapper, new EpisodeTypeMapper(), new LangTypeMapper());
             $animeGenres = $animeGenresMapper->getGenresByAnimeId($pdo, $this->id);
 
             if (!empty($animeGenres))
@@ -80,10 +80,10 @@ class AnimeMapper extends Mapper
         return $request->fetchObject('AnimeEpisode', [$pdo, $countryMapper]);
     }
 
-    function getAnimeById(?PDO $pdo, $id, ?CountryMapper $countryMapper = null, ?AnimeGenresMapper $animeGenresMapper = null, ?GenreMapper $genreMapper = null): JSONResponse
+    function getAnimeById(?PDO $pdo, $id, ?string $sort = null, ?CountryMapper $countryMapper = null, ?AnimeGenresMapper $animeGenresMapper = null, ?GenreMapper $genreMapper = null): JSONResponse
     {
         $request = $pdo->prepare("SELECT * FROM $this->tableName WHERE id = :id");
         $request->execute(array('id' => $id));
-        return new JSONResponse(200, $request->fetchObject('Anime', [$pdo, $countryMapper, $animeGenresMapper, $genreMapper]));
+        return new JSONResponse(200, $request->fetchObject('Anime', [$pdo, $sort, $countryMapper, $animeGenresMapper, $genreMapper]));
     }
 }

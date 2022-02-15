@@ -37,7 +37,7 @@ export default {
   methods: {
     getImage() {
       if (Utils.isNullOrEmpty(this.member.image))
-        return 'images/members/default_member.jpg'
+        return 'images/default_member.jpg'
 
       return this.member.image
     },
@@ -51,10 +51,10 @@ export default {
   async mounted() {
     this.isLoading = true
 
-    await Utils.get(`php/v1/get_user.php?pseudo=${this.$route.params.pseudo}`, 200, (success) => {
+    await Utils.get(`php/v1/member/get_user.php?pseudo=${this.$route.params.pseudo}`, 200, (success) => {
       this.member = success
     }, (failed) => {
-      this.error = failed
+      this.error = `${failed}`
     })
 
     this.isLoading = false

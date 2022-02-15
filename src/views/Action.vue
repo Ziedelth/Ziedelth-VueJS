@@ -14,16 +14,21 @@ export default {
   data() {
     return {
       isLoading: true,
+      action: ``,
       error: ``
     }
   },
   async mounted() {
+    this.isLoading = true
     const hash = this.$route.params.hash
 
-    await Utils.post(`php/v1/confirm.php`, JSON.stringify({hash: hash}), 200, (json) => {
-      this.$router.push('/login')
+    await Utils.post(`php/v1/member/action.php`, JSON.stringify({hash: hash}), 200, (json) => {
+      if (json.object.action === 'VERIFY_EMAIL')
+        this.$router.push('/login')
+      else if (json.object.action === 'PASSWORD_RESET')
+        this.action = `PASSWORD_RESET`
     }, (failed) => {
-      this.error = failed
+      this.error = `${failed}`
     })
 
     this.isLoading = false

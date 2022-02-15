@@ -74,7 +74,7 @@ export default {
   methods: {
     async getEpisodes() {
       try {
-        const response = await fetch(Utils.getLocalFile("php/v1/episodes.php?limit=" + this.limit + "&page=" + this.pageEpisodes))
+        const response = await fetch(Utils.getLocalFile("php/v1/jais/episodes.php?limit=" + this.limit + "&page=" + this.pageEpisodes))
 
         if (response.status !== 200) {
           this.episodes = []
@@ -91,7 +91,7 @@ export default {
     },
     async getScans() {
       try {
-        const response = await fetch(Utils.getLocalFile("php/v1/scans.php?limit=" + this.limit + "&page=" + this.pageScans))
+        const response = await fetch(Utils.getLocalFile("php/v1/jais/scans.php?limit=" + this.limit + "&page=" + this.pageScans))
 
         if (response.status !== 200) {
           this.scans = []

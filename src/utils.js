@@ -55,13 +55,14 @@ export default class Utils {
     static async get(url, goodCode, onSuccess, onFailed) {
         try {
             const response = await fetch(Utils.getLocalFile(url))
+            const json = await response.json()
 
             if (response.status !== goodCode) {
-                onFailed(await response.json())
+                onFailed(json.error)
                 return
             }
 
-            onSuccess(await response.json())
+            onSuccess(json)
         } catch (exception) {
             onFailed(exception)
         }
@@ -74,12 +75,14 @@ export default class Utils {
                 body: body
             })
 
+            const json = await response.json()
+
             if (response.status !== goodCode) {
-                onFailed(await response.json())
+                onFailed(json.error)
                 return
             }
 
-            onSuccess(await response.json())
+            onSuccess(json)
         } catch (exception) {
             onFailed(exception)
         }

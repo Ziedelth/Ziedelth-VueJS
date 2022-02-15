@@ -36,7 +36,7 @@ export default {
     if (!this.$session.has('token'))
       return
 
-    await Utils.post(`php/v1/get_user.php`, JSON.stringify({token: this.$session.get('token')}), 200, (success) => {
+    await Utils.post(`php/v1/member/get_user.php`, JSON.stringify({token: this.$session.get('token')}), 200, (success) => {
       this.$store.dispatch('setToken', this.$session.get('token'))
       this.$store.dispatch('setUser', success)
     }, (failed) => {
@@ -52,16 +52,16 @@ export default {
 
 .link-color {
   text-decoration: none;
-  color: #ad090a;
+  color: #f6a65f;
   font-weight: 700;
 }
 
 .link-color:hover {
-  color: #5a1221;
+  color: #f1a60b;
 }
 
 .border-color {
-  border: #ad090a 1px solid;
+  border: #f6a65f 1px solid;
 }
 
 .vertical-center {

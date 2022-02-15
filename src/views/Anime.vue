@@ -30,6 +30,13 @@
           </div>
         </div>
 
+        <div class="mb-3">
+          <button :class="{'active': sort === 'asc'}" class="btn btn-outline-secondary mx-1"
+                  @click="sort = 'asc'; update()"><i class="bi bi-sort-numeric-down"></i></button>
+          <button :class="{'active': sort === 'desc'}" class="btn btn-outline-secondary mx-1"
+                  @click="sort = 'desc'; update()"><i class="bi bi-sort-numeric-up"></i></button>
+        </div>
+
         <div v-if="anime.seasons.length > 0 && showType === 'episodes'">
           <select v-model="selectedSeason" class="form-select-sm px-3 mb-3">
             <option v-for="season in anime.seasons" :value="season.season">{{ anime.country.season }} {{
@@ -67,6 +74,7 @@ export default {
   components: {ScanComponent, EpisodeComponent, LoadingComponent},
   data() {
     return {
+      sort: 'asc',
       showType: 'episodes',
       isLoading: true,
       error: null,
@@ -75,6 +83,20 @@ export default {
     }
   },
   methods: {
+    async update() {
+      this.isLoading = true
+
+      await Utils.get(`php/v1/jais/get_anime.php?id=${this.$route.params.id}&sort=${this.sort}`, 200, (anime) => {
+        this.anime = anime
+        const a = anime.seasons.length > 0
+        this.selectedSeason = a ? anime.seasons[0].season : null
+        this.showType = a ? 'episodes' : 'scans'
+      }, (failed) => {
+        this.error = `${failed}`
+      })
+
+      this.isLoading = false
+    },
     getAnimeDescription() {
       return Utils.isNullOrEmpty(this.anime.description) ? 'Aucune description pour le moment...' : this.anime.description
     },
@@ -96,18 +118,7 @@ export default {
     }
   },
   async mounted() {
-    this.isLoading = true
-
-    await Utils.get(`php/v1/get_anime.php?id=${this.$route.params.id}`, 200, (anime) => {
-      this.anime = anime
-      const a = anime.seasons.length > 0
-      this.selectedSeason = a ? anime.seasons[0].season : null
-      this.showType = a ? 'episodes' : 'scans'
-    }, (failed) => {
-      this.error = failed
-    })
-
-    this.isLoading = false
+    await this.update()
   }
 }
 </script>

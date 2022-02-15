@@ -15,8 +15,12 @@
       <input id="inputAbout" ref="inputAbout" class="form-control" type="text">
     </div>
 
-    <div class="mb-3"><button class="btn btn-primary" @click="submitNew()">Modifier</button></div>
-    <div class="mb-3"><button class="btn btn-outline-danger"><i class="bi bi-trash-fill me-2"></i>Supprimer mon compte</button></div>
+    <div class="mb-3">
+      <button class="btn btn-primary" @click="submitNew()">Modifier</button>
+    </div>
+    <div class="mb-3">
+      <button class="btn btn-outline-danger"><i class="bi bi-trash-fill me-2"></i>Supprimer mon compte</button>
+    </div>
 
     <br>
     <label v-if="error != null && error.length > 0" class="mt-3 alert-danger p-3 text-center rounded fw-bold">{{
@@ -43,7 +47,7 @@ export default {
 
     getImage() {
       if (Utils.isNullOrEmpty(this.user.image))
-        return 'images/members/default_member.jpg'
+        return 'images/default_member.jpg'
 
       return this.user.image
     },
@@ -56,18 +60,21 @@ export default {
       form.append('token', this.token)
       form.append('file', event.target.files[0])
 
-      await Utils.post(`php/v1/upload_image.php`, form, 200, (success) => {
+      await Utils.post(`php/v1/member/upload_image.php`, form, 200, (success) => {
         this.$store.dispatch('setUser', success)
       }, (failed) => {
-        this.error = failed
+        this.error = `${failed}`
       })
     },
 
     async submitNew() {
-      await Utils.post(`php/v1/update.php`, {token: this.token, about: this.$refs.inputAbout.value}, 200, (success) => {
+      await Utils.post(`php/v1/member/update.php`, {
+        token: this.token,
+        about: this.$refs.inputAbout.value
+      }, 200, (success) => {
         this.$store.dispatch('setUser', success)
       }, (failed) => {
-        this.error = failed
+        this.error = `${failed}`
       })
     }
   },
