@@ -294,8 +294,8 @@ class UserMapper extends Mapper
             return new JSONResponse(500, array('error' => $file['error']));
 
         $localFolder = 'images/members';
-//        $folder = "/var/www/html/";
-        $folder = "C:/Users/watte/OneDrive/Documents/Developpement/Vue/ziedelth/public/";
+        $folder = "/var/www/html/";
+//        $folder = "C:/Users/watte/OneDrive/Documents/Developpement/Vue/ziedelth/public/";
         $sfolder = "$folder$localFolder";
 
         if (!file_exists($sfolder))
