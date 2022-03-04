@@ -90,13 +90,9 @@ export default {
       this.isLoading = true
 
       await Utils.get(`api/v1/country/${this.currentCountry.tag}/anime/${this.$route.params.id}`, 200, (success) => {
-        console.log(success)
-        console.log(success.seasons)
-
         this.anime = success
-        const a = success.seasons.length > 0
-        this.selectedSeason = a ? success.seasons[0].season : null
-        this.showType = a ? 'episodes' : 'scans'
+        this.selectedSeason = success.seasons.length > 0 ? success.seasons[0].season : null
+        this.showType = success.seasons.length > 0 ? 'episodes' : 'scans'
       }, (failed) => {
         this.error = failed
       })
