@@ -31,8 +31,9 @@
 
 <script>
 import Utils from "@/utils";
-import PlatformComponent from "@/components/PlatformComponent";
-import AnimeComponent from "@/components/AnimeComponent";
+
+const PlatformComponent = () => import("@/components/PlatformComponent");
+const AnimeComponent = () => import("@/components/AnimeComponent");
 
 export default {
   name: 'EpisodeComponent',

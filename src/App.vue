@@ -23,8 +23,8 @@
 <script>
 import Utils from "@/utils";
 import {mapGetters, mapState} from "vuex";
-import LoadingComponent from "@/components/LoadingComponent";
 
+const LoadingComponent = () => import("@/components/LoadingComponent");
 const Navbar = () => import("@/components/NavbarComponent");
 const Footer = () => import("@/components/FooterComponent");
 
