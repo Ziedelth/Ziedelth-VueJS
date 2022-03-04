@@ -20,11 +20,11 @@ export default new VueRouter({
         },
         {
             path: '/login',
-            component: () => import("@/views/LoginView")
+            component: () => import("@/views/users/LoginView")
         },
         {
             path: '/register',
-            component: () => import("@/views/RegisterView")
+            component: () => import("@/views/users/RegisterView")
         },
         {
             path: '/action/:hash',
@@ -32,15 +32,15 @@ export default new VueRouter({
         },
         {
             path: '/password_reset',
-            component: () => import("@/views/PasswordResetView")
+            component: () => import("@/views/users/PasswordResetView")
         },
         {
             path: '/member/:pseudo',
-            component: () => import("@/views/MemberView")
+            component: () => import("@/views/users/MemberView")
         },
         {
             path: '/settings',
-            component: () => import("@/views/SettingsView")
+            component: () => import("@/views/users/SettingsView")
         },
         {
             path: '/privacy',
