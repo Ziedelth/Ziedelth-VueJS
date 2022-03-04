@@ -27,7 +27,7 @@ export default new VueRouter({
             component: () => import("@/views/users/RegisterView")
         },
         {
-            path: '/action/:hash',
+            path: '/a/:hash',
             component: () => import("@/views/ActionView")
         },
         {

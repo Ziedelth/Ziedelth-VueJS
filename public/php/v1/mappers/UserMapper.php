@@ -57,7 +57,7 @@ class UserMapper extends Mapper
 
     <div style="margin-top: 1vh">
         <p style="margin-top: 0; margin-bottom: 10px">Veuillez cliquez sur le lien suivant pour terminer votre inscription :</p>
-        <a href="https://ziedelth.fr/action/' . $hash . '" style="text-decoration: underline; text-decoration-color: black; color: black">Confirmer mon inscription</a>
+        <a href="https://ziedelth.fr/a/' . $hash . '" style="text-decoration: underline; text-decoration-color: black; color: black">Confirmer mon inscription</a>
 
         <p style="margin-bottom: 0">Votre inscription ne sera effective que si vous cliquez sur le lien de confirmation ci-dessus.</p>
         <i>Vous ne pourrez vous connecter que lorsque votre adresse mail sera confirmée.</i>
