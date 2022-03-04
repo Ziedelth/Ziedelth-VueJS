@@ -1,25 +1,16 @@
 <template>
   <div class="border-color rounded p-3 bg-dark">
     <div class="d-flex align-items-center align-content-center fw-bold">
-      <a :href="episode.platform.url" target="_blank">
-        <img :src="episode.platform.image" alt="Platform image" class="platform-thumbnail me-2"/>
-      </a>
-      {{ episode.platform.name }}
+      <PlatformComponent :url="episode.platform_url" :image="episode.platform_image" :name="episode.platform" />
     </div>
 
     <div class="text-start">
-      <div class="text-truncate">
-        <router-link :to="`/anime/${episode.anime.id}`" class="card-title fw-bold link-color">{{
-            episode.anime.name
-          }}
-        </router-link>
-      </div>
+      <AnimeComponent :id="episode.anime_id" :name="episode.anime" />
 
       <p class="card-text">
         <span class="fw-bold">{{ episode.title === null ? "＞﹏＜" : episode.title }}</span>
         <br>
-        {{ episode.anime.country.season }} {{ episode.season }} • {{ episode.episodeType[episode.anime.country.tag] }}
-        {{ episode.number }} {{ episode.langType[episode.anime.country.tag] }}
+        {{ episode.country_season }} {{ episode.season }} • {{ episode.episode_type }} {{ episode.number }} {{ episode.lang_type }}
         <br>
         <i class="bi bi-camera-reels-fill"></i>
         {{ toHHMMSS(episode.duration) }}
@@ -32,16 +23,20 @@
 
     <div class="d-flex">
       <div class="m-0 me-auto justify-content-start">
-        Il y a {{ timeSince(episode.releaseDate) }}
+        Il y a {{ timeSince(episode.release_date) }}
       </div>
     </div>
   </div>
 </template>
+
 <script>
 import Utils from "@/utils";
+import PlatformComponent from "@/components/PlatformComponent";
+import AnimeComponent from "@/components/AnimeComponent";
 
 export default {
   name: 'EpisodeComponent',
+  components: {AnimeComponent, PlatformComponent},
   props: {
     episode: {},
   },
@@ -56,11 +51,3 @@ export default {
 }
 </script>
 
-<style scoped>
-.platform-thumbnail {
-  width: 3vh;
-  height: 3vh;
-  border-radius: 50%;
-  margin: .25rem;
-}
-</style>

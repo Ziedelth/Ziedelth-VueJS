@@ -47,10 +47,6 @@ export default new VueRouter({
             component: () => import("@/views/CGU")
         },
         {
-            path: '/page',
-            component: () => import("@/views/Page")
-        },
-        {
             path: '/:catchAll(.*)',
             component: () => import("@/views/NotFound")
         },
