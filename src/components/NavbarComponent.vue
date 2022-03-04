@@ -20,31 +20,34 @@
           </ul>
 
           <ul class="navbar-nav mb-2 mb-lg-0">
-            <div v-if="!isLogin()" class="d-flex">
-              <router-link class="nav-link" to="/register">Inscription</router-link>
-              <router-link class="nav-link" to="/login">Connexion</router-link>
-            </div>
-            <div v-else class="d-flex">
-              <li class="nav-item dropdown">
-                <a id="navbarDropdown" aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"
-                   href="#"
-                   role="button">
-                  {{ user.pseudo }}
-                </a>
-                <ul aria-labelledby="navbarDropdown" class="dropdown-menu">
-                  <li>
-                    <router-link :to="`/member/${user.pseudo}`" class="dropdown-item">Mon profil</router-link>
-                  </li>
-                  <li>
-                    <router-link class="dropdown-item" to="/settings">Paramètres</router-link>
-                  </li>
-                  <li>
-                    <hr class="dropdown-divider">
-                  </li>
-                  <li><a class="dropdown-item" @click="logout">Déconnexion</a></li>
-                </ul>
-              </li>
-            </div>
+            <li class="nav-link">
+              <select class="form-select-sm bg-dark text-white" v-model="currentCountry.flag">
+                <option v-for="country in countries" :key="country.id" :value="country.flag">{{country.flag}}</option>
+              </select>
+            </li>
+
+            <router-link v-if="!isLogin()" class="nav-link" to="/register">Inscription</router-link>
+            <router-link v-if="!isLogin()" class="nav-link" to="/login">Connexion</router-link>
+
+            <li v-if="isLogin()" class="nav-item dropdown">
+              <a id="navbarDropdown" aria-expanded="false" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"
+                 href="#"
+                 role="button">
+                {{ user.pseudo }}
+              </a>
+              <ul aria-labelledby="navbarDropdown" class="dropdown-menu">
+                <li>
+                  <router-link :to="`/member/${user.pseudo}`" class="dropdown-item">Mon profil</router-link>
+                </li>
+                <li>
+                  <router-link class="dropdown-item" to="/settings">Paramètres</router-link>
+                </li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" @click="logout">Déconnexion</a></li>
+              </ul>
+            </li>
           </ul>
         </div>
       </div>
@@ -57,7 +60,7 @@ import {mapGetters, mapState} from "vuex";
 
 export default {
   computed: {
-    ...mapState(['user'])
+    ...mapState(['user', 'countries', 'currentCountry'])
   },
   methods: {
     ...mapGetters(['isLogin']),

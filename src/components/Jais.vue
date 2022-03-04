@@ -59,6 +59,7 @@
 
 <script>
 import Utils from "@/utils";
+import {mapState} from "vuex";
 
 const LoadingComponent = () => import("@/components/LoadingComponent");
 const EpisodeComponent = () => import("@/components/EpisodeComponent");
@@ -67,9 +68,11 @@ const ScanComponent = () => import("@/components/ScanComponent");
 export default {
   name: "Jais",
   components: {LoadingComponent, EpisodeComponent, ScanComponent},
+  computed: {
+    ...mapState(['currentCountry'])
+  },
   data() {
     return {
-      country: 'fr',
       showType: 'episodes',
 
       limit: 9,
@@ -85,13 +88,13 @@ export default {
   async mounted() {
     this.isLoading = true
 
-    await Utils.get(`api/v1/country/${this.country}/page/${this.pageEpisodes}/limit/${this.limit}/episodes`, 200, (success) => {
+    await Utils.get(`api/v1/country/${this.currentCountry.tag}/page/${this.pageEpisodes}/limit/${this.limit}/episodes`, 200, (success) => {
       this.episodes.push(...success)
     }, (failed) => {
       this.error = failed
     })
 
-    await Utils.get(`api/v1/country/${this.country}/page/${this.pageScans}/limit/${this.limit}/scans`, 200, (success) => {
+    await Utils.get(`api/v1/country/${this.currentCountry.tag}/page/${this.pageScans}/limit/${this.limit}/scans`, 200, (success) => {
       this.scans.push(...success)
     }, (failed) => {
       this.error = failed

@@ -10,6 +10,7 @@ include_once "./vendor/autoload.php";
 include_once "./mappers/EpisodeMapper.php";
 include_once "./mappers/ScanMapper.php";
 include_once "./mappers/AnimeMapper.php";
+include_once "./mappers/CountryMapper.php";
 
 $app = new App();
 
@@ -32,6 +33,17 @@ function ajoin($array, int $page, int $limit): string
 {
     return join(", ", array_slice($array, ($page - 1) * $limit, $limit));
 }
+
+$app->get('/countries', function (Request $request, Response $response, $args) {
+    try {
+        $pdo = getPDO();
+
+        $countries = CountryMapper::getAllCountries($pdo);
+        return $response->withJson($countries);
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception));
+    }
+});
 
 $app->get('/country/{country}/page/{page}/limit/{limit}/episodes', function (Request $request, Response $response, $args) {
     try {

@@ -33,15 +33,17 @@
 
 <script>
 import Utils from "@/utils";
+import {mapState} from "vuex";
 
 const LoadingComponent = () => import("@/components/LoadingComponent");
 
 export default {
   components: {LoadingComponent},
+  computed: {
+    ...mapState(['currentCountry'])
+  },
   data() {
     return {
-      country: 'fr',
-
       filter: '',
       filtered: [],
 
@@ -63,7 +65,7 @@ export default {
   async mounted() {
     this.isLoading = true
 
-    await Utils.get(`api/v1/country/${this.country}/animes`, 200, (animes) => {
+    await Utils.get(`api/v1/country/${this.currentCountry.tag}/animes`, 200, (animes) => {
       this.animes = this.filtered = animes
     }, (failed) => {
       this.error = `${failed}`

@@ -28,6 +28,13 @@ export default {
     ...mapGetters(['isLogin'])
   },
   async mounted() {
+    await Utils.get(`api/v1/countries`, 200, (success) => {
+      console.log(success[0])
+
+      this.$store.dispatch('setCountries', success)
+      this.$store.dispatch('setCurrentCountry', success[0])
+    }, (failed) => null)
+
     this.$session.start()
 
     if (this.isLogin())
