@@ -86,6 +86,20 @@ $app->get('/country/{country}/animes', function (Request $request, Response $res
     }
 });
 
+$app->get('/country/{country}/anime/{id}', function (Request $request, Response $response, $args) {
+    try {
+        $country = htmlspecialchars(strip_tags($args['country']));
+        $id = intval(htmlspecialchars(strip_tags($args['id'])));
+        $pdo = getPDO();
+        $anime = AnimeMapper::getById($pdo, $country, $id);
+        return $response->withJson($anime);
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+    }
+});
+
+// ----------------------------------------------------------------------
+
 $app->options('/{routes:.+}', function ($request, $response, $args) {
     return $response;
 });

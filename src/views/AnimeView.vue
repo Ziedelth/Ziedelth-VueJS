@@ -9,51 +9,42 @@
         <div class="container">
           <img :src="anime.image" alt="Anime image" class="w-10 rounded mb-3">
           <h3>{{ anime.name }}</h3>
-          <p>{{ anime.genres.map((e) => e.fr).join(' - ') }}</p>
+          <p>{{ anime.genres }}</p>
           <hr>
           <p v-if="anime.seasons.length > 0">Temps total : {{ getTotalTime() }}</p>
           <p class="text-muted">{{ getAnimeDescription() }}</p>
         </div>
 
         <div class="d-inline-flex mb-3">
-          <div class="form-check me-3">
-            <input id="flexRadioDefault1" v-model="showType" class="form-check-input" name="flexRadioDefault"
-                   type="radio"
-                   value="episodes">
+          <div v-if="anime.seasons.length > 0" class="form-check me-3">
+            <input id="flexRadioDefault1" v-model="showType" class="form-check-input" name="flexRadioDefault" type="radio" value="episodes">
             <label class="form-check-label" for="flexRadioDefault1">Épisodes</label>
           </div>
-          <div class="form-check">
-            <input id="flexRadioDefault2" v-model="showType" class="form-check-input" name="flexRadioDefault"
-                   type="radio"
-                   value="scans">
+          <div v-if="anime.scans.length > 0" class="form-check">
+            <input id="flexRadioDefault2" v-model="showType" class="form-check-input" name="flexRadioDefault" type="radio" value="scans">
             <label class="form-check-label" for="flexRadioDefault2">Scans</label>
           </div>
         </div>
 
         <div class="mb-3">
-          <button :class="{'active': sort === 'asc'}" class="btn btn-outline-secondary mx-1"
-                  @click="sort = 'asc'; update()"><i class="bi bi-sort-numeric-down"></i></button>
-          <button :class="{'active': sort === 'desc'}" class="btn btn-outline-secondary mx-1"
-                  @click="sort = 'desc'; update()"><i class="bi bi-sort-numeric-up"></i></button>
+          <button :class="{'active': sort === 'desc'}" class="btn btn-outline-secondary mx-1" @click="sort = 'desc'"><i class="bi bi-sort-numeric-up"></i></button>
+          <button :class="{'active': sort === 'asc'}" class="btn btn-outline-secondary mx-1" @click="sort = 'asc'"><i class="bi bi-sort-numeric-down"></i></button>
         </div>
 
         <div v-if="anime.seasons.length > 0 && showType === 'episodes'">
           <select v-model="selectedSeason" class="form-select-sm px-3 mb-3">
-            <option v-for="season in anime.seasons" :value="season.season">{{ anime.country.season }} {{
-                season.season
-              }}
-            </option>
+            <option v-for="season in anime.seasons" :value="season.season">{{ anime.country_season }} {{ season.season }}</option>
           </select>
 
           <div class="row g-3">
-            <div v-for="episode in getSelectedSeason().episodes" :key="episode.episodeId" class="col-lg-4">
+            <div v-for="episode in episodes" :key="episode.episodeId" class="col-lg-4">
               <EpisodeComponent :episode="episode"/>
             </div>
           </div>
         </div>
         <div v-if="anime.scans.length > 0 && showType === 'scans'">
           <div class="row g-3">
-            <div v-for="scan in anime.scans" :key="scan.id" class="col-lg-4">
+            <div v-for="scan in scans" :key="scan.id" class="col-lg-4">
               <ScanComponent :scan="scan"/>
             </div>
           </div>
@@ -65,6 +56,7 @@
 
 <script>
 import Utils from "@/utils";
+import {mapState} from "vuex";
 
 const EpisodeComponent = () => import("@/components/EpisodeComponent");
 const ScanComponent = () => import("@/components/ScanComponent");
@@ -72,12 +64,23 @@ const LoadingComponent = () => import("@/components/LoadingComponent");
 
 export default {
   components: {ScanComponent, EpisodeComponent, LoadingComponent},
+  computed: {
+    ...mapState(['currentCountry']),
+
+    episodes() {
+      return this.getSelectedSeason().episodes.sort((a, b) => this.sort === 'asc' ? (a.season << a.number) - (b.season << b.number) : (b.season << b.number) - (a.season << a.number))
+    },
+    scans() {
+      return this.anime.scans.sort((a, b) => this.sort === 'asc' ? a.number - b.number : b.number - a.number)
+    }
+  },
   data() {
     return {
-      sort: 'asc',
+      sort: 'desc',
       showType: 'episodes',
-      isLoading: true,
+
       error: null,
+      isLoading: true,
       anime: [],
       selectedSeason: null,
     }
@@ -86,13 +89,16 @@ export default {
     async update() {
       this.isLoading = true
 
-      await Utils.get(`php/v1/jais/get_anime.php?id=${this.$route.params.id}&sort=${this.sort}`, 200, (anime) => {
-        this.anime = anime
-        const a = anime.seasons.length > 0
-        this.selectedSeason = a ? anime.seasons[0].season : null
+      await Utils.get(`api/v1/country/${this.currentCountry.tag}/anime/${this.$route.params.id}`, 200, (success) => {
+        console.log(success)
+        console.log(success.seasons)
+
+        this.anime = success
+        const a = success.seasons.length > 0
+        this.selectedSeason = a ? success.seasons[0].season : null
         this.showType = a ? 'episodes' : 'scans'
       }, (failed) => {
-        this.error = `${failed}`
+        this.error = failed
       })
 
       this.isLoading = false

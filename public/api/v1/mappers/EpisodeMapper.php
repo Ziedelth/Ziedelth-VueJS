@@ -19,9 +19,9 @@ class EpisodeMapper
      * @param string $ids
      * @return array|false
      */
-    static function getEpisodesWithIds(PDO $pdo, string $country, string $ids)
+    static function getEpisodesWithIds(PDO $pdo, string $country, ?string $ids)
     {
-        if (empty($ids))
+        if ($ids == null && empty($ids))
             return [];
 
         $request = $pdo->prepare("SELECT p.name AS platform, p.url AS platform_url, p.image AS platform_image, a.id AS anime_id, a.name AS anime, episodes.release_date AS release_date, episodes.season AS season, episodes.number AS number, c.season AS country_season, et.$country AS episode_type, et.$country AS episode_type, lt.$country AS lang_type, episodes.episode_id AS episode_id, episodes.title AS title, episodes.url AS url, episodes.image AS image, episodes.duration AS duration FROM episodes INNER JOIN platforms p on episodes.platform_id = p.id INNER JOIN animes a on episodes.anime_id = a.id INNER JOIN countries c on a.country_id = c.id INNER JOIN episode_types et on episodes.id_episode_type = et.id INNER JOIN lang_types lt on lt.id = episodes.id_lang_type WHERE episodes.id IN ($ids) ORDER BY episodes.release_date DESC, anime_id DESC, season DESC, number DESC, id_episode_type DESC, id_lang_type DESC");
