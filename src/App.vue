@@ -16,8 +16,8 @@
 import Utils from "@/utils";
 import {mapGetters, mapState} from "vuex";
 
-const Navbar = () => import("@/components/Navbar");
-const Footer = () => import("@/components/Footer");
+const Navbar = () => import("@/components/NavbarComponent");
+const Footer = () => import("@/components/FooterComponent");
 
 export default {
   components: {Footer, Navbar},

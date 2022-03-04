@@ -5,21 +5,23 @@
     <div v-if="!isLoading">
       <p v-if="error !== null" class="alert-danger text-danger">{{ error }}</p>
 
-      <div class="container mb-3">
-        <input v-model="filter" class="form-control" placeholder="Recherchez un anime..." type="text">
-      </div>
+      <div v-else>
+        <div class="container mb-3">
+          <input v-model="filter" class="form-control" placeholder="Recherchez un anime..." type="text">
+        </div>
 
-      <div v-if="error === null" class="row g-3 row-cols-lg-3 row-cols-1">
-        <div v-for="anime in filtered" class="col">
-          <div class="p-2 border-color rounded bg-dark mh">
-            <div class="row">
-              <div class="col-9">
-                <router-link :to="`/anime/${anime.id}`" class="link-color">{{ anime.name }}</router-link>
-                <p class="anime-description">{{ getAnimeDescription(anime) }}</p>
-              </div>
+        <div class="row g-3 row-cols-lg-3 row-cols-1">
+          <div v-for="anime in filtered" class="col">
+            <div class="p-2 border-color rounded bg-dark mh">
+              <div class="row">
+                <div class="col-9">
+                  <router-link :to="`/anime/${anime.id}`" class="link-color">{{ anime.name }}</router-link>
+                  <p class="anime-description">{{ getAnimeDescription(anime) }}</p>
+                </div>
 
-              <div class="col-3 p-2">
-                <img :src="anime.image" alt="Anime image" class="img-fluid rounded"/>
+                <div class="col-3 p-2">
+                  <img :src="anime.image" alt="Anime image" class="img-fluid rounded"/>
+                </div>
               </div>
             </div>
           </div>
@@ -38,11 +40,14 @@ export default {
   components: {LoadingComponent},
   data() {
     return {
-      isLoading: true,
-      error: null,
-      animes: [],
+      country: 'fr',
+
       filter: '',
       filtered: [],
+
+      isLoading: true,
+      animes: [],
+      error: null,
     }
   },
   methods: {
@@ -52,16 +57,13 @@ export default {
   },
   watch: {
     filter: function (val) {
-      if (Utils.isNullOrEmpty(val))
-        this.filtered = Object.assign({}, this.animes)
-      else
-        this.filtered = this.animes.filter(value => value.name.toLowerCase().includes(val.toLowerCase()))
+      this.filtered = Utils.isNullOrEmpty(val) ? Object.assign({}, this.animes) : this.animes.filter(value => value.name.toLowerCase().includes(val.toLowerCase()))
     }
   },
   async mounted() {
     this.isLoading = true
 
-    await Utils.get(`php/v1/jais/animes.php`, 200, (animes) => {
+    await Utils.get(`api/v1/country/${this.country}/animes`, 200, (animes) => {
       this.animes = this.filtered = animes
     }, (failed) => {
       this.error = `${failed}`

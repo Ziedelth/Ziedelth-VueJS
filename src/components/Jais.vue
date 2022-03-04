@@ -18,9 +18,9 @@
       <p class="text mt-0 muted fw-bold">Les dernières sorties</p>
     </div>
 
-    <LoadingComponent :is-loading="isLoading"/>
+    <LoadingComponent :is-loading="isLoading" />
 
-    <div v-if="!isLoading" class="container-fluid">
+    <div v-if="!isLoading">
       <div class="d-inline-flex mb-3">
         <div class="form-check me-3">
           <input id="flexRadioDefault1" v-model="showType" class="form-check-input" name="flexRadioDefault" type="radio"
@@ -36,13 +36,21 @@
 
       <p v-if="error !== null" class="alert-danger text-danger">{{ error }}</p>
 
-      <div v-else class="row g-3">
-        <div v-for="episode in episodes" v-if="showType === 'episodes'" class="col-lg-4">
-          <EpisodeComponent :episode="episode"/>
+      <div v-else>
+        <div v-if="showType === 'episodes'" id="episodes">
+          <div class="row g-3">
+            <div v-for="episode in episodes" class="col-lg-4">
+              <EpisodeComponent :episode="episode"/>
+            </div>
+          </div>
         </div>
 
-        <div v-for="scan in scans" v-if="showType === 'scans'" class="col-lg-4">
-          <ScanComponent :scan="scan"/>
+        <div v-if="showType === 'scans'" id="scans">
+          <div class="row g-3">
+            <div v-for="scan in scans" class="col-lg-4">
+              <ScanComponent :scan="scan"/>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -61,56 +69,34 @@ export default {
   components: {LoadingComponent, EpisodeComponent, ScanComponent},
   data() {
     return {
+      country: 'fr',
       showType: 'episodes',
-      isLoading: true,
+
       limit: 9,
       pageEpisodes: 1,
       pageScans: 1,
-      error: null,
+
+      isLoading: true,
       episodes: [],
       scans: [],
+      error: null,
     }
-  },
-  methods: {
-    async getEpisodes() {
-      try {
-        const response = await fetch(Utils.getLocalFile(`api/v1/country/fr/page/${this.pageEpisodes}/limit/${this.limit}/episodes`))
-
-        if (response.status !== 200) {
-          this.episodes = []
-          this.error = response.statusText
-          return
-        }
-
-        this.episodes.push(...(await response.json()))
-        this.error = null
-      } catch (exception) {
-        this.episodes = []
-        this.error = exception
-      }
-    },
-    async getScans() {
-      try {
-        const response = await fetch(Utils.getLocalFile(`api/v1/country/fr/page/${this.pageScans}/limit/${this.limit}/scans`))
-
-        if (response.status !== 200) {
-          this.scans = []
-          this.error = response.statusText
-          return
-        }
-
-        this.scans.push(...(await response.json()))
-        this.error = null
-      } catch (exception) {
-        this.scans = []
-        this.error = exception
-      }
-    },
   },
   async mounted() {
     this.isLoading = true
-    await this.getEpisodes()
-    await this.getScans()
+
+    await Utils.get(`api/v1/country/${this.country}/page/${this.pageEpisodes}/limit/${this.limit}/episodes`, 200, (success) => {
+      this.episodes.push(...success)
+    }, (failed) => {
+      this.error = failed
+    })
+
+    await Utils.get(`api/v1/country/${this.country}/page/${this.pageScans}/limit/${this.limit}/scans`, 200, (success) => {
+      this.scans.push(...success)
+    }, (failed) => {
+      this.error = failed
+    })
+
     this.isLoading = false
   }
 }

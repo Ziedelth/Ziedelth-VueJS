@@ -8,47 +8,47 @@ export default new VueRouter({
     routes: [
         {
             path: '/',
-            component: () => import("@/views/Home")
+            component: () => import("@/views/HomeView")
         },
         {
             path: '/animes',
-            component: () => import("@/views/Animes")
+            component: () => import("@/views/AnimesView")
         },
         {
             path: '/anime/:id',
-            component: () => import("@/views/Anime")
+            component: () => import("@/views/AnimeView")
         },
         {
             path: '/login',
-            component: () => import("@/views/Login")
+            component: () => import("@/views/LoginView")
         },
         {
             path: '/register',
-            component: () => import("@/views/Register")
+            component: () => import("@/views/RegisterView")
         },
         {
             path: '/action/:hash',
-            component: () => import("@/views/Action")
+            component: () => import("@/views/ActionView")
         },
         {
             path: '/password_reset',
-            component: () => import("@/views/PasswordReset")
+            component: () => import("@/views/PasswordResetView")
         },
         {
             path: '/member/:pseudo',
-            component: () => import("@/views/Member")
+            component: () => import("@/views/MemberView")
         },
         {
             path: '/settings',
-            component: () => import("@/views/Settings")
+            component: () => import("@/views/SettingsView")
         },
         {
             path: '/privacy',
-            component: () => import("@/views/CGU")
+            component: () => import("@/views/CGUView")
         },
         {
             path: '/:catchAll(.*)',
-            component: () => import("@/views/NotFound")
+            component: () => import("@/views/NotFoundView")
         },
     ],
     scrollBehavior() {
