@@ -154,7 +154,9 @@ c-55 -5 -77 -4 -91 7 -18 13 -16 15 25 21 59 9 138 47 171 82 19 21 28 42 30
 export default {
   name: 'LoadingComponent',
   props: {
-    isLoading: {}
+    isLoading: {
+      type: Boolean
+    }
   }
 }
 </script>

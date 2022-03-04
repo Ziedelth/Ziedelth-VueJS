@@ -29,3 +29,6 @@ pnpm-debug.log*
 /package-lock.json
 /public/php/v1/example.php
 /public/images/members/
+/public/api/v1/composer.lock
+/public/api/configurations/
+/public/api/v1/vendor/
