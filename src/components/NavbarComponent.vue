@@ -20,12 +20,6 @@
           </ul>
 
           <ul class="navbar-nav mb-2 mb-lg-0">
-            <li class="nav-link">
-              <select class="form-select-sm bg-dark text-white" v-model="currentCountry.flag">
-                <option v-for="country in countries" :key="country.id" :value="country.flag">{{country.flag}}</option>
-              </select>
-            </li>
-
             <router-link v-if="!isLogin()" class="nav-link" to="/register">Inscription</router-link>
             <router-link v-if="!isLogin()" class="nav-link" to="/login">Connexion</router-link>
 
@@ -60,7 +54,7 @@ import {mapGetters, mapState} from "vuex";
 
 export default {
   computed: {
-    ...mapState(['user', 'countries', 'currentCountry'])
+    ...mapState(['user'])
   },
   methods: {
     ...mapGetters(['isLogin']),

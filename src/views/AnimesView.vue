@@ -7,11 +7,17 @@
 
       <div v-else>
         <div class="container mb-3">
-          <input v-model="filter" class="form-control" placeholder="Recherchez un anime..." type="text">
+          <input v-model="search" class="form-control" placeholder="Recherchez un anime..." type="text">
+
+          <div class="mt-2">
+            <i class="bi bi-funnel-fill me-2"></i>
+            <button :class="{'active': filter === 'asc_name'}" class="btn btn-outline-secondary mx-1" @click="filter = 'asc_name'"><i class="bi bi-sort-alpha-down"></i></button>
+            <button :class="{'active': filter === 'desc_name'}" class="btn btn-outline-secondary mx-1" @click="filter = 'desc_name'"><i class="bi bi-sort-alpha-up"></i></button>
+          </div>
         </div>
 
-        <div class="row g-3 row-cols-lg-3 row-cols-1">
-          <div v-for="anime in filtered" class="col">
+        <div class="row g-3">
+          <div v-for="anime in getItems" class="col-lg-3">
             <div class="p-2 border-color rounded bg-dark mh">
               <div class="row">
                 <div class="col-9">
@@ -40,12 +46,18 @@ const LoadingComponent = () => import("@/components/LoadingComponent");
 export default {
   components: {LoadingComponent},
   computed: {
-    ...mapState(['currentCountry'])
+    ...mapState(['currentCountry']),
+
+    getItems() {
+      return this.searchItems.sort((a, b) => this.filter === 'asc_name' ? a.name.toLowerCase().localeCompare(b.name.toLowerCase()) : b.name.toLowerCase().localeCompare(a.name.toLowerCase()))
+    },
   },
   data() {
     return {
-      filter: '',
-      filtered: [],
+      filter: 'asc_name',
+
+      search: '',
+      searchItems: [],
 
       isLoading: true,
       animes: [],
@@ -58,15 +70,15 @@ export default {
     },
   },
   watch: {
-    filter: function (val) {
-      this.filtered = Utils.isNullOrEmpty(val) ? Object.assign({}, this.animes) : this.animes.filter(value => value.name.toLowerCase().includes(val.toLowerCase()))
+    search: function (val) {
+      this.searchItems = Utils.isNullOrEmpty(val) ? Object.assign({}, this.animes) : this.animes.filter(value => value.name.toLowerCase().includes(val.toLowerCase()))
     }
   },
   async mounted() {
     this.isLoading = true
 
     await Utils.get(`api/v1/country/${this.currentCountry.tag}/animes`, 200, (animes) => {
-      this.animes = this.filtered = animes
+      this.animes = this.searchItems = animes
     }, (failed) => {
       this.error = `${failed}`
     })

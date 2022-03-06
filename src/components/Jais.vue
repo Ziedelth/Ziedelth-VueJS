@@ -39,7 +39,7 @@
       <div v-else>
         <div v-if="showType === 'episodes'" id="episodes">
           <div class="row g-3">
-            <div v-for="episode in episodes" class="col-lg-4">
+            <div v-for="episode in episodes" class="col-lg-3">
               <EpisodeComponent :episode="episode"/>
             </div>
           </div>
@@ -47,7 +47,7 @@
 
         <div v-if="showType === 'scans'" id="scans">
           <div class="row g-3">
-            <div v-for="scan in scans" class="col-lg-4">
+            <div v-for="scan in scans" class="col-lg-3">
               <ScanComponent :scan="scan"/>
             </div>
           </div>
@@ -75,7 +75,7 @@ export default {
     return {
       showType: 'episodes',
 
-      limit: 9,
+      limit: 12,
       pageEpisodes: 1,
       pageScans: 1,
 
