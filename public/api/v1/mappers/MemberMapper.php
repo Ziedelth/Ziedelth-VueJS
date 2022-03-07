@@ -183,13 +183,23 @@ class MemberMapper
         return array('object' => $object, 'success' => 'OK');
     }
 
-    static function getMember(PDO $pdo, string $pseudo)
+    static function getMemberWithPseudo(PDO $pdo, string $pseudo)
     {
         if (!self::pseudoExists($pdo, $pseudo))
             return array('error' => "Pseudo does not exists");
 
         $request = $pdo->prepare("SELECT timestamp, pseudo, role, image, about FROM ziedelth.users WHERE pseudo = :pseudo");
         $request->execute(array('pseudo' => $pseudo));
+        return $request->fetch(PDO::FETCH_ASSOC);
+    }
+
+    static function getMemberWithToken(PDO $pdo, string $token)
+    {
+        if (!self::tokenExists($pdo, $token))
+            return array('error' => "Token does not exists");
+
+        $request = $pdo->prepare("SELECT u.timestamp, u.pseudo, u.role, u.image, u.about FROM ziedelth.users u INNER JOIN ziedelth.tokens t ON t.user_id = u.id WHERE t.token = :token");
+        $request->execute(array('token' => $token));
         return $request->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -233,7 +243,7 @@ class MemberMapper
 
         $request->execute(array('userId' => $member['id'], 'token' => $token));
 
-        return array('token' => $token, 'user' => self::getMember($pdo, $member['pseudo']));
+        return array('token' => $token, 'user' => self::getMemberWithPseudo($pdo, $member['pseudo']));
     }
 
     /**
@@ -254,9 +264,22 @@ class MemberMapper
         if ($member['email_verified'] != 1)
             return array('error' => "Email is not verified");
 
-        $request = $pdo->prepare("UPDATE ziedelth.tokens SET timestamp = CURRENT_TIMESTAMP WHERE user_id = :userId");
-        $request->execute(array('userId' => $member['id']));
+        return array('token' => $token, 'user' => self::getMemberWithPseudo($pdo, $member['pseudo']));
+    }
 
-        return array('token' => $token, 'user' => self::getMember($pdo, $member['pseudo']));
+    static function update(PDO $pdo, string $token, string $about): array {
+        self::deleteOld($pdo);
+
+        if (!self::tokenExists($pdo, $token))
+            return array('error' => "Token does not exists");
+
+        $request = $pdo->prepare("UPDATE ziedelth.users u INNER JOIN ziedelth.tokens t on u.id = t.user_id SET about = :about WHERE t.token = :token");
+        $request->execute(array('about' => $about, 'token' => $token));
+        $count = $request->rowCount();
+
+        if ($count != 1)
+            return array('error' => "Can not update member");
+
+        return array('user' => self::getMemberWithToken($pdo, $token));
     }
 }

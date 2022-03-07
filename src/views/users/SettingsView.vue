@@ -68,11 +68,16 @@ export default {
     },
 
     async submitNew() {
-      await Utils.post(`php/v1/member/update.php`, JSON.stringify({
+      await Utils.put(`api/v1/member/update`, JSON.stringify({
         token: this.token,
         about: this.$refs.inputAbout.value
       }), (success) => {
-        this.$store.dispatch('setUser', success)
+        if ("error" in success) {
+          this.error = `${success.error}`
+          return
+        }
+
+        this.$store.dispatch('setUser', success.user)
       }, (failed) => {
         this.error = `${failed}`
       })

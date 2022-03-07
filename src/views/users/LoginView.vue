@@ -34,13 +34,23 @@ import Utils from "@/utils";
 export default {
   data() {
     return {
-      error: ``
+      error: ``,
+      interval: null,
     }
   },
   mounted() {
     if (this.isLogin()) {
       this.$router.push('/')
     }
+
+    this.interval = setInterval(() => {
+      if (this.isLogin()) {
+        this.$router.push('/')
+      }
+    }, 5000)
+  },
+  destroyed() {
+    clearInterval(this.interval);
   },
   methods: {
     ...mapGetters(['isLogin']),

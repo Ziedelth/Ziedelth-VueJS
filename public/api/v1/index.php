@@ -185,7 +185,21 @@ $app->get('/member/{pseudo}', function (Request $request, Response $response, $a
     try {
         $pseudo = htmlspecialchars(strip_tags($args['pseudo']));
         $pdo = getPDO();
-        return $response->withJson(MemberMapper::getMember($pdo, $pseudo));
+        return $response->withJson(MemberMapper::getMemberWithPseudo($pdo, $pseudo));
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+    }
+});
+
+$app->put('/member/update', function (Request $request, Response $response) {
+    $_ = $request->getParsedBody();
+
+    try {
+        $token = htmlspecialchars(strip_tags($_['token']));
+        $about = htmlspecialchars(strip_tags($_['about']));
+
+        $pdo = getPDO();
+        return $response->withJson(MemberMapper::update($pdo, $token, $about));
     } catch (Exception $exception) {
         return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
     }

@@ -50,6 +50,15 @@ export default {
     if (this.isLogin()) {
       this.$router.push('/')
     }
+
+    this.interval = setInterval(() => {
+      if (this.isLogin()) {
+        this.$router.push('/')
+      }
+    }, 5000)
+  },
+  destroyed() {
+    clearInterval(this.interval);
   },
   methods: {
     ...mapGetters(['isLogin']),
