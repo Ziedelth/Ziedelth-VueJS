@@ -79,6 +79,20 @@ export default class Utils {
         }
     }
 
+    static async file(url, body, onSuccess, onFailed) {
+        try {
+            const response = await fetch(Utils.getLocalFile(url), {
+                method: 'POST',
+                body: body
+            })
+
+            const json = await response.json()
+            onSuccess(json)
+        } catch (exception) {
+            onFailed(exception)
+        }
+    }
+
     static async put(url, body, onSuccess, onFailed) {
         try {
             const response = await fetch(Utils.getLocalFile(url), {

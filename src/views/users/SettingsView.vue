@@ -60,7 +60,12 @@ export default {
       form.append('token', this.token)
       form.append('file', event.target.files[0])
 
-      await Utils.post(`php/v1/member/upload_image.php`, form, (success) => {
+      await Utils.file(`api/v1/routes/upload_image.php`, form, (success) => {
+        if ("error" in success) {
+          this.error = `${success.error}`
+          return
+        }
+
         this.$store.dispatch('setUser', success)
       }, (failed) => {
         this.error = `${failed}`
@@ -77,7 +82,7 @@ export default {
           return
         }
 
-        this.$store.dispatch('setUser', success.user)
+        this.$store.dispatch('setUser', success)
       }, (failed) => {
         this.error = `${failed}`
       })

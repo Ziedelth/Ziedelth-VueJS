@@ -267,6 +267,12 @@ class MemberMapper
         return array('token' => $token, 'user' => self::getMemberWithPseudo($pdo, $member['pseudo']));
     }
 
+    /**
+     * @param PDO $pdo
+     * @param string $token
+     * @param string $about
+     * @return string[]
+     */
     static function update(PDO $pdo, string $token, string $about): array {
         self::deleteOld($pdo);
 
@@ -280,6 +286,58 @@ class MemberMapper
         if ($count != 1)
             return array('error' => "Can not update member");
 
-        return array('user' => self::getMemberWithToken($pdo, $token));
+        return self::getMemberWithToken($pdo, $token);
+    }
+
+    /**
+     * @param PDO $pdo
+     * @param string $token
+     * @param $file
+     * @return array|string[]
+     */
+    static function updateImage(PDO $pdo, string $token, $file): array {
+        self::deleteOld($pdo);
+
+        if (!self::tokenExists($pdo, $token))
+            return array('error' => "Token does not exists");
+
+        $member = self::getMemberWithToken($pdo, $token);
+        $ext_array = $member['role'] >= 100 ? array('png', 'jpg', 'jpeg', 'gif') : array('png', 'jpg', 'jpeg');
+        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+
+        if (!in_array($ext, $ext_array))
+            return array('error' => "Invalid extension");
+
+        if ($file['size'] > 2 * 1024 * 1024)
+            return array('error' => "Invalid size for file, max: 2 MiB");
+
+        if ($file['error'] != UPLOAD_ERR_OK)
+            return array('error' => $file['error']);
+
+        $localFolder = 'images/members';
+//        $folder = "/var/www/html/";
+        $folder = "C:/Users/watte/OneDrive/Documents/Developpement/Vue/ziedelth/public/";
+        $sfolder = "$folder$localFolder";
+
+        if (!file_exists($sfolder))
+            mkdir($sfolder);
+
+        $key = Utils::generateRandomString(50);
+        $a = "$key.$ext";
+
+        if (!move_uploaded_file($file['tmp_name'], "$sfolder/$a"))
+            return array('error' => "Can not move uploaded file");
+
+        if ($member['image'] != null && file_exists("$folder/" . $member['image']))
+            unlink("$folder/" . $member['image']);
+
+        $request = $pdo->prepare("UPDATE ziedelth.users u INNER JOIN ziedelth.tokens t on u.id = t.user_id SET image = :image WHERE t.token = :token");
+        $request->execute(array('image' => "$localFolder/$a", 'token' => $token));
+        $count = $request->rowCount();
+
+        if ($count != 1)
+            return array('error' => "Can not update member");
+
+        return self::getMemberWithToken($pdo, $token);
     }
 }

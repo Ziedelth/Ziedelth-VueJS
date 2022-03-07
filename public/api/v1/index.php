@@ -17,7 +17,12 @@ include_once "./mappers/CountryMapper.php";
 include_once "./mappers/EmailMapper.php";
 include_once "./mappers/MemberMapper.php";
 
-$app = new App();
+$app = new App([
+    'settings' => [
+        'displayErrorDetails' => true,
+        'upload_directory' => __DIR__ . '/../public/uploads',
+    ]
+]);
 
 /**
  * @return PDO
