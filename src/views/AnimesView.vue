@@ -77,7 +77,7 @@ export default {
   async mounted() {
     this.isLoading = true
 
-    await Utils.get(`api/v1/country/${this.currentCountry.tag}/animes`, 200, (animes) => {
+    await Utils.get(`api/v1/country/${this.currentCountry.tag}/animes`, (animes) => {
       this.animes = this.searchItems = animes
     }, (failed) => {
       this.error = `${failed}`

@@ -51,7 +51,12 @@ export default {
   async mounted() {
     this.isLoading = true
 
-    await Utils.get(`php/v1/member/get_user.php?pseudo=${this.$route.params.pseudo}`, 200, (success) => {
+    await Utils.get(`api/v1/member/${this.$route.params.pseudo}`, (success) => {
+      if ("error" in success) {
+        this.error = `${success.error}`
+        return
+      }
+
       this.member = success
     }, (failed) => {
       this.error = `${failed}`

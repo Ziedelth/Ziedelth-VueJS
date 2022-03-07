@@ -52,36 +52,27 @@ export default class Utils {
         return Utils.isNotNull(object) ? (Utils.isNotNull(object[key]) ? object[key] : defaultValue) : defaultValue
     }
 
-    static async get(url, goodCode, onSuccess, onFailed) {
+    static async get(url, onSuccess, onFailed) {
         try {
             const response = await fetch(Utils.getLocalFile(url))
             const json = await response.json()
-
-            if (response.status !== goodCode) {
-                onFailed(json.error)
-                return
-            }
-
             onSuccess(json)
         } catch (exception) {
             onFailed(exception)
         }
     }
 
-    static async post(url, body, goodCode, onSuccess, onFailed) {
+    static async post(url, body, onSuccess, onFailed) {
         try {
             const response = await fetch(Utils.getLocalFile(url), {
                 method: 'POST',
-                body: body
+                body: body,
+                headers: {
+                    "Content-Type": "application/json"
+                }
             })
 
             const json = await response.json()
-
-            if (response.status !== goodCode) {
-                onFailed(json.error)
-                return
-            }
-
             onSuccess(json)
         } catch (exception) {
             onFailed(exception)

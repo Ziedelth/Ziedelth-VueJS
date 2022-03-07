@@ -32,6 +32,16 @@ class MemberMapper
         return $request->rowCount() >= 1;
     }
 
+    static function tokenExists(PDO $pdo, ?string $token): bool
+    {
+        if ($token == null && empty($token))
+            return false;
+
+        $request = $pdo->prepare("SELECT id FROM ziedelth.tokens WHERE token = :token");
+        $request->execute(array('token' => $token));
+        return $request->rowCount() >= 1;
+    }
+
     /**
      * @param int $length
      * @return string
@@ -75,6 +85,26 @@ class MemberMapper
 
     /**
      * @param PDO $pdo
+     * @return void
+     */
+    static function deleteOldTokens(PDO $pdo)
+    {
+        $request = $pdo->prepare("DELETE FROM ziedelth.tokens WHERE timestamp < NOW() - INTERVAL 1 MONTH");
+        $request->execute(array());
+    }
+
+    /**
+     * @param PDO $pdo
+     * @return void
+     */
+    static function deleteOld(PDO $pdo)
+    {
+        self::deleteOldActions($pdo);
+        self::deleteOldTokens($pdo);
+    }
+
+    /**
+     * @param PDO $pdo
      * @param string $pseudo
      * @param string $email
      * @param string $password
@@ -82,7 +112,7 @@ class MemberMapper
      */
     static function register(PDO $pdo, string $pseudo, string $email, string $password): array
     {
-        self::deleteOldActions($pdo);
+        self::deleteOld($pdo);
 
         if (self::pseudoExists($pdo, $pseudo))
             return array('error' => "Pseudo already exists");
@@ -121,7 +151,7 @@ class MemberMapper
      */
     static function validateAction(PDO $pdo, string $hash): array
     {
-        self::deleteOldActions($pdo);
+        self::deleteOld($pdo);
 
         $request = $pdo->prepare("SELECT * FROM ziedelth.actions WHERE hash = :hash");
         $request->execute(array('hash' => $hash));
@@ -151,5 +181,82 @@ class MemberMapper
         }
 
         return array('object' => $object, 'success' => 'OK');
+    }
+
+    static function getMember(PDO $pdo, string $pseudo)
+    {
+        if (!self::pseudoExists($pdo, $pseudo))
+            return array('error' => "Pseudo does not exists");
+
+        $request = $pdo->prepare("SELECT timestamp, pseudo, role, image, about FROM ziedelth.users WHERE pseudo = :pseudo");
+        $request->execute(array('pseudo' => $pseudo));
+        return $request->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @param PDO $pdo
+     * @param string $email
+     * @param string $password
+     * @return string[]
+     */
+    static function loginUser(PDO $pdo, string $email, string $password): array {
+        self::deleteOld($pdo);
+
+        if (!self::emailExists($pdo, $email))
+            return array('error' => "Email does not exists");
+        if (!preg_match('/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/', $email))
+            return array('error' => "Email invalid pattern");
+
+        $request = $pdo->prepare("SELECT * FROM ziedelth.users WHERE email = :email");
+        $request->execute(array('email' => $email));
+        $member = $request->fetch(PDO::FETCH_ASSOC);
+
+        if ($member['email_verified'] != 1)
+            return array('error' => "Email is not verified");
+
+        $exploded = explode('|', $member['salt_password']);
+        $salt = $exploded[0];
+        $saltPassword = hash('sha512', "$salt$password");
+
+        if ($saltPassword != $exploded[1])
+            return array('error' => "Invalid credentials");
+
+        $token = self::generateRandomString(100);
+        $request = $pdo->prepare("SELECT id FROM ziedelth.tokens WHERE user_id = :userId");
+        $request->execute(array('userId' => $member['id']));
+        $count = $request->rowCount();
+
+        if ($count == 0)
+            $request = $pdo->prepare("INSERT INTO ziedelth.tokens VALUES (NULL, CURRENT_TIMESTAMP, :userId, :token)");
+        else
+            $request = $pdo->prepare("UPDATE ziedelth.tokens SET token = :token WHERE user_id = :userId");
+
+        $request->execute(array('userId' => $member['id'], 'token' => $token));
+
+        return array('token' => $token, 'user' => self::getMember($pdo, $member['pseudo']));
+    }
+
+    /**
+     * @param PDO $pdo
+     * @param string $token
+     * @return string[]
+     */
+    static function loginToken(PDO $pdo, string $token): array {
+        self::deleteOld($pdo);
+
+        if (!self::tokenExists($pdo, $token))
+            return array('error' => "Token does not exists");
+
+        $request = $pdo->prepare("SELECT * FROM ziedelth.users u INNER JOIN ziedelth.tokens t on u.id = t.user_id WHERE t.token = :token");
+        $request->execute(array('token' => $token));
+        $member = $request->fetch(PDO::FETCH_ASSOC);
+
+        if ($member['email_verified'] != 1)
+            return array('error' => "Email is not verified");
+
+        $request = $pdo->prepare("UPDATE ziedelth.tokens SET timestamp = CURRENT_TIMESTAMP WHERE user_id = :userId");
+        $request->execute(array('userId' => $member['id']));
+
+        return array('token' => $token, 'user' => self::getMember($pdo, $member['pseudo']));
     }
 }

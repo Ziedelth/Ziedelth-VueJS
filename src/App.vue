@@ -44,7 +44,7 @@ export default {
   async mounted() {
     this.isLoading = true
 
-    await Utils.get(`api/v1/countries`, 200, (success) => {
+    await Utils.get(`api/v1/countries`, (success) => {
       this.$store.dispatch('setCountries', success)
       this.$store.dispatch('setCurrentCountry', success[0])
     }, (failed) => null)
@@ -55,9 +55,14 @@ export default {
     if (this.isLogin() || !this.$session.has('token'))
       return
 
-    await Utils.post(`php/v1/member/get_user.php`, JSON.stringify({token: this.$session.get('token')}), 200, (success) => {
-      this.$store.dispatch('setToken', this.$session.get('token'))
-      this.$store.dispatch('setUser', success)
+    await Utils.post(`api/v1/member/login/token`, JSON.stringify({token: this.$session.get('token')}), (success) => {
+      if (!("token" in success)) {
+        this.$router.push('/login')
+        return
+      }
+
+      this.$store.dispatch('setToken', success.token)
+      this.$store.dispatch('setUser', success.user)
     }, (failed) => null)
   }
 }

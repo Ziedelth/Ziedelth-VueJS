@@ -1,16 +1,15 @@
 <template>
   <div class="container text-start">
     <div class="row g-3 mb-3">
-      <div class="col-lg-12">
-        <div class="input-group mb-3">
-          <span id="basic-addon1" class="input-group-text">@</span>
-          <input ref="pseudoInput" class="form-control" placeholder="Pseudonyme" type="text">
-        </div>
+      <div class="col-lg-12 has-validation">
+        <input ref="emailInput" class="form-control" placeholder="Adresse mail" type="email">
+        <div ref="emailValidation" />
       </div>
 
-      <div class="col-lg-12">
+      <div class="col-lg-12 has-validation">
         <input ref="passwordInput" class="form-control" placeholder="Mot de passe" type="password">
-        <div id="emailHelp" class="form-text">Ne partagez jamais votre mot de passe.</div>
+        <div class="form-text">Ne partagez jamais votre mot de passe.</div>
+        <div ref="passwordValidation" />
       </div>
     </div>
 
@@ -21,7 +20,7 @@
         <router-link class="btn btn-outline-secondary" to="/password_reset">Mot de passe oublié ?</router-link>
       </div>
 
-      <span>Vous n'avez pas encore de compte ? <router-link to="/register">Inscrivez-vous ici</router-link></span>
+      <span>Vous n'avez pas encore de compte ? <router-link to="/register" class="text-decoration-none link-color">Inscrivez-vous ici</router-link></span>
     </div>
 
     <div v-if="error != null && error.length > 0" class="alert-danger p-3 text-center rounded fw-bold">{{ error }}</div>
@@ -29,9 +28,8 @@
 </template>
 
 <script>
-import {sha512} from "js-sha512";
-import Utils from "@/utils";
 import {mapGetters} from "vuex";
+import Utils from "@/utils";
 
 export default {
   data() {
@@ -47,36 +45,78 @@ export default {
   methods: {
     ...mapGetters(['isLogin']),
 
-    async submitUser() {
-      const pseudo = this.$refs.pseudoInput.value
-      const password = sha512(this.$refs.passwordInput.value)
-
-      if (pseudo.length < 4 || pseudo.length > 16) {
-        console.log('Invalid pseudo')
-        this.error = `Invalid pseudo`
-        return
+    invalidInputGroup: function (input, validation, message) {
+      input.classList.remove("is-valid")
+      input.classList.add("is-invalid")
+      validation.classList.remove("valid-feedback")
+      validation.classList.add("invalid-feedback")
+      validation.textContent = message
+    },
+    validInputGroup: function (input, validation, message) {
+      input.classList.add("is-valid")
+      input.classList.remove("is-invalid")
+      validation.classList.add("valid-feedback")
+      validation.classList.remove("invalid-feedback")
+      validation.textContent = message
+    },
+    async testEmail(email) {
+      if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))) {
+        this.invalidInputGroup(this.$refs.emailInput, this.$refs.emailValidation, "Adresse mail invalide")
+        return false
       }
 
+      let status = null
+
+      await Utils.post(`api/v1/member/exists/email`, JSON.stringify({ email: email }), 200, (success) => {
+        if (success.is_exists === false) {
+          this.invalidInputGroup(this.$refs.emailInput, this.$refs.emailValidation, "Adresse mail non utilisée")
+          status = false
+          return
+        }
+
+        this.validInputGroup(this.$refs.emailInput, this.$refs.emailValidation, "OK")
+        status = true
+      }, (failed) => {
+        this.validInputGroup(this.$refs.emailInput, this.$refs.emailValidation, "OK")
+        status = true
+      })
+
+      return status
+    },
+    testPassword(password) {
       if (Utils.isNullOrEmpty(password)) {
-        console.log('Password can not be empty')
-        this.error = `Password can not be empty`
-        return
+        this.invalidInputGroup(this.$refs.passwordInput, this.$refs.passwordValidation, "Mot de passe invalide")
+        return false
       }
 
-      await Utils.post(`php/v1/member/login.php`, JSON.stringify({
-        pseudo: pseudo,
+      this.validInputGroup(this.$refs.passwordInput, this.$refs.passwordValidation, "OK")
+      return true
+    },
+
+    async submitUser() {
+      const email = this.$refs.emailInput.value
+      const password = this.$refs.passwordInput.value
+
+      const testEmail = await this.testEmail(email)
+      const testPassword = this.testPassword(password)
+
+      if (!(testEmail && testPassword))
+        return
+
+      await Utils.post(`api/v1/member/login/user`, JSON.stringify({
+        email: email,
         password: password
-      }), 200, (success) => {
+      }), (success) => {
+        if ("error" in success) {
+          this.error = `${success.error}`
+          return
+        }
+
         this.$session.start()
         this.$session.set('token', success.token)
         this.$store.dispatch('setToken', success.token)
-
-        Utils.post(`php/v1/member/get_user.php`, JSON.stringify({token: success.token}), 200, (success) => {
-          this.$store.dispatch('setUser', success)
-          this.$router.push('/')
-        }, (failed) => {
-          this.error = `${failed}`
-        })
+        this.$store.dispatch('setUser', success.user)
+        this.$router.push('/')
       }, (failed) => {
         this.error = `${failed}`
       })

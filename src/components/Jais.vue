@@ -88,13 +88,13 @@ export default {
   async mounted() {
     this.isLoading = true
 
-    await Utils.get(`api/v1/country/${this.currentCountry.tag}/page/${this.pageEpisodes}/limit/${this.limit}/episodes`, 200, (success) => {
+    await Utils.get(`api/v1/country/${this.currentCountry.tag}/page/${this.pageEpisodes}/limit/${this.limit}/episodes`, (success) => {
       this.episodes.push(...success)
     }, (failed) => {
       this.error = failed
     })
 
-    await Utils.get(`api/v1/country/${this.currentCountry.tag}/page/${this.pageScans}/limit/${this.limit}/scans`, 200, (success) => {
+    await Utils.get(`api/v1/country/${this.currentCountry.tag}/page/${this.pageScans}/limit/${this.limit}/scans`, (success) => {
       this.scans.push(...success)
     }, (failed) => {
       this.error = failed

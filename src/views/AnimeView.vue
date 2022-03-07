@@ -89,7 +89,7 @@ export default {
     async update() {
       this.isLoading = true
 
-      await Utils.get(`api/v1/country/${this.currentCountry.tag}/anime/${this.$route.params.id}`, 200, (success) => {
+      await Utils.get(`api/v1/country/${this.currentCountry.tag}/anime/${this.$route.params.id}`, (success) => {
         this.anime = success
         this.selectedSeason = success.seasons.length > 0 ? success.seasons[0].season : null
         this.showType = success.seasons.length > 0 ? 'episodes' : 'scans'

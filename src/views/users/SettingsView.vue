@@ -60,7 +60,7 @@ export default {
       form.append('token', this.token)
       form.append('file', event.target.files[0])
 
-      await Utils.post(`php/v1/member/upload_image.php`, form, 200, (success) => {
+      await Utils.post(`php/v1/member/upload_image.php`, form, (success) => {
         this.$store.dispatch('setUser', success)
       }, (failed) => {
         this.error = `${failed}`
@@ -71,7 +71,7 @@ export default {
       await Utils.post(`php/v1/member/update.php`, JSON.stringify({
         token: this.token,
         about: this.$refs.inputAbout.value
-      }), 200, (success) => {
+      }), (success) => {
         this.$store.dispatch('setUser', success)
       }, (failed) => {
         this.error = `${failed}`

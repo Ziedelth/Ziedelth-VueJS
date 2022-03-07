@@ -22,10 +22,15 @@ export default {
     this.isLoading = true
     const hash = this.$route.params.hash
 
-    await Utils.post(`php/v1/member/action.php`, JSON.stringify({hash: hash}), 200, (json) => {
-      if (json.object.action === 'VERIFY_EMAIL')
+    await Utils.get(`api/v1/member/validate_action/${hash}`, (success) => {
+      if ("error" in success) {
+        this.error = `${success.error}`
+        return
+      }
+
+      if (success.object.action === 'VERIFY_EMAIL')
         this.$router.push('/login')
-      else if (json.object.action === 'PASSWORD_RESET')
+      else if (success.object.action === 'PASSWORD_RESET')
         this.action = `PASSWORD_RESET`
     }, (failed) => {
       this.error = `${failed}`
