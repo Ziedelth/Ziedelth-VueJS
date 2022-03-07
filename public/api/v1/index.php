@@ -4,19 +4,27 @@ use Slim\App;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
+include_once "./vendor/autoload.php";
 include_once "../configurations/config.php";
 
-include_once "./vendor/autoload.php";
+include_once "./templates/EmailTemplate.php";
+
 include_once "./mappers/EpisodeMapper.php";
 include_once "./mappers/ScanMapper.php";
 include_once "./mappers/AnimeMapper.php";
 include_once "./mappers/CountryMapper.php";
 
+include_once "./mappers/EmailMapper.php";
+include_once "./mappers/MemberMapper.php";
+
 $app = new App();
 
+/**
+ * @return PDO
+ */
 function getPDO(): PDO
 {
-    $pdo = new PDO("mysql:host=" . DATABASE_HOST . ";dbname=jais", DATABASE_USER, DATABASE_PASSWORD);
+    $pdo = new PDO("mysql:host=" . DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     $pdo->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
@@ -98,25 +106,54 @@ $app->get('/country/{country}/anime/{id}', function (Request $request, Response 
     }
 });
 
-// ----------------------------------------------------------------------
+$app->post('/member/exists/pseudo', function (Request $request, Response $response) {
+    $_ = $request->getParsedBody();
 
-$app->options('/{routes:.+}', function ($request, $response, $args) {
-    return $response;
+    try {
+        $pseudo = htmlspecialchars(strip_tags($_['pseudo']));
+        $pdo = getPDO();
+        $memberExists = MemberMapper::pseudoExists($pdo, $pseudo);
+        return $response->withJson(array('is_exists' => $memberExists));
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+    }
 });
 
-$app->add(function ($req, $res, $next) {
-    $response = $next($req, $res);
-    return $response
-        ->withHeader('Access-Control-Allow-Origin', '*')
-        ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
-        ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+$app->post('/member/exists/email', function (Request $request, Response $response) {
+    $_ = $request->getParsedBody();
+
+    try {
+        $email = htmlspecialchars(strip_tags($_['email']));
+        $pdo = getPDO();
+        $memberExists = MemberMapper::emailExists($pdo, $email);
+        return $response->withJson(array('is_exists' => $memberExists));
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+    }
 });
 
-// Catch-all route to serve a 404 Not Found page if none of the routes match
-// NOTE: make sure this route is defined last
-$app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function($req, $res) {
-    $handler = $this->notFoundHandler; // handle using the default Slim page not found handler
-    return $handler($req, $res);
+$app->post('/member/register', function (Request $request, Response $response) {
+    $_ = $request->getParsedBody();
+
+    try {
+        $pseudo = htmlspecialchars(strip_tags($_['pseudo']));
+        $email = htmlspecialchars(strip_tags($_['email']));
+        $password = htmlspecialchars(strip_tags($_['password']));
+        $pdo = getPDO();
+        return $response->withJson(MemberMapper::register($pdo, $pseudo, $email, $password));
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+    }
+});
+
+$app->get('/member/validate_action/{hash}', function (Request $request, Response $response, $args) {
+    try {
+        $hash = htmlspecialchars(strip_tags($args['hash']));
+        $pdo = getPDO();
+        return $response->withJson(MemberMapper::validateAction($pdo, $hash));
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+    }
 });
 
 try {
