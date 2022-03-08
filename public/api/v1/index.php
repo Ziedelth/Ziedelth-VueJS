@@ -3,6 +3,7 @@
 use Slim\App;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use Slim\Http\UploadedFile;
 
 include_once "./vendor/autoload.php";
 include_once "../configurations/config.php";
@@ -20,9 +21,11 @@ include_once "./mappers/MemberMapper.php";
 $app = new App([
     'settings' => [
         'displayErrorDetails' => true,
-        'upload_directory' => __DIR__ . '/../public/uploads',
     ]
 ]);
+
+$container = $app->getContainer();
+$container['upload_directory'] = __DIR__ . '/uploads';
 
 /**
  * @return PDO
@@ -147,7 +150,7 @@ $app->post('/member/register', function (Request $request, Response $response) {
         $pdo = getPDO();
         return $response->withJson(MemberMapper::register($pdo, $pseudo, $email, $password));
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception));
     }
 });
 
@@ -205,6 +208,21 @@ $app->put('/member/update', function (Request $request, Response $response) {
 
         $pdo = getPDO();
         return $response->withJson(MemberMapper::update($pdo, $token, $about));
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+    }
+});
+
+$app->post('/member/update/image', function(Request $request, Response $response) {
+//    $directory = $this->get('upload_directory');
+    $_ = $request->getParsedBody();
+    $uploadedFiles = $request->getUploadedFiles();
+
+    try {
+        $token = htmlspecialchars(strip_tags($_['token']));
+
+        $pdo = getPDO();
+        return $response->withJson(MemberMapper::updateImage($pdo, $token, $uploadedFiles['file']));
     } catch (Exception $exception) {
         return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
     }

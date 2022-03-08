@@ -1,5 +1,7 @@
 <?php
 
+use Slim\Http\UploadedFile;
+
 class MemberMapper
 {
     /**
@@ -292,10 +294,10 @@ class MemberMapper
     /**
      * @param PDO $pdo
      * @param string $token
-     * @param $file
+     * @param UploadedFile|null $file
      * @return array|string[]
      */
-    static function updateImage(PDO $pdo, string $token, $file): array {
+    static function updateImage(PDO $pdo, string $token, ?UploadedFile $file): array {
         self::deleteOld($pdo);
 
         if (!self::tokenExists($pdo, $token))
@@ -303,30 +305,28 @@ class MemberMapper
 
         $member = self::getMemberWithToken($pdo, $token);
         $ext_array = $member['role'] >= 100 ? array('png', 'jpg', 'jpeg', 'gif') : array('png', 'jpg', 'jpeg');
-        $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $ext = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);
 
         if (!in_array($ext, $ext_array))
             return array('error' => "Invalid extension");
 
-        if ($file['size'] > 2 * 1024 * 1024)
+        if ($file->getSize() > 2 * 1024 * 1024)
             return array('error' => "Invalid size for file, max: 2 MiB");
 
-        if ($file['error'] != UPLOAD_ERR_OK)
+        if ($file->getError() != UPLOAD_ERR_OK)
             return array('error' => $file['error']);
 
         $localFolder = 'images/members';
 //        $folder = "/var/www/html/";
-        $folder = "C:/Users/watte/OneDrive/Documents/Developpement/Vue/ziedelth/public/";
+        $folder = "/mnt/c/Users/watte/Documents/Development/Ziedelth.fr/public/";
         $sfolder = "$folder$localFolder";
 
         if (!file_exists($sfolder))
             mkdir($sfolder);
 
-        $key = Utils::generateRandomString(50);
+        $key = self::generateRandomString(50);
         $a = "$key.$ext";
-
-        if (!move_uploaded_file($file['tmp_name'], "$sfolder/$a"))
-            return array('error' => "Can not move uploaded file");
+        $file->moveTo("$sfolder/$a");
 
         if ($member['image'] != null && file_exists("$folder/" . $member['image']))
             unlink("$folder/" . $member['image']);

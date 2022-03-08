@@ -1,6 +1,6 @@
 {
     "require": {
-        "slim/slim": "3.0",
+        "slim/slim": "3.*",
         "phpmailer/phpmailer": "v6.5.3"
     }
 }

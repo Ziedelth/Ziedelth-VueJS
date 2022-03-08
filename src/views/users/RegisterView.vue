@@ -24,7 +24,7 @@
     </div>
 
     <div class="w-100 text-center mb-3">
-      <button class="btn btn-primary" @click="submitUser">Inscription</button>
+      <button class="btn btn-primary" @click="submitUser" ref="submitButton">Inscription</button>
 
       <br><br>
       <span>Vous avez déjà un compte ? <router-link to="/login" class="text-decoration-none link-color">Connectez-vous ici</router-link></span>
@@ -149,6 +149,8 @@ export default {
     },
 
     async submitUser() {
+      this.$refs.submitButton.disabled = true
+
       const pseudo = this.$refs.pseudoInput.value
       const email = this.$refs.emailInput.value
       const password = this.$refs.passwordInput.value
@@ -159,8 +161,10 @@ export default {
       const testPassword = this.testPassword(password)
       const testConfirmationPassword = this.testConfirmationPassword(password, confirmPassword)
 
-      if (!(testPseudo && testEmail && testPassword && testConfirmationPassword))
+      if (!(testPseudo && testEmail && testPassword && testConfirmationPassword)) {
+        this.$refs.submitButton.disabled = false
         return
+      }
 
       await Utils.post(`api/v1/member/register`, JSON.stringify({
         pseudo: pseudo,
@@ -168,13 +172,17 @@ export default {
         password: password
       }), (success) => {
         if ("error" in success) {
+          this.$refs.submitButton.disabled = true
+          this.success = null
           this.error = `${success.error}`
           return
         }
 
+        this.error = null
         this.success = `Un mail de confirmation vous a été envoyé à l'adresse mail suivante : ${email}. Veuillez le confirmer, vérifier aussi vos courriers indésirables.<br/>Vous ne pourrez pas vous connecter tant que celle-ci ne sera pas valider.`
         setTimeout(() => this.$router.push('/login'), 10000)
       }, (failed) => {
+        this.$refs.submitButton.disabled = false
         console.log(failed)
         this.error = `${failed}`
       })

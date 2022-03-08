@@ -14,7 +14,7 @@
     </div>
 
     <div class="w-100 text-center mb-3">
-      <button class="btn btn-primary" @click="submitUser">Connexion</button>
+      <button class="btn btn-primary" @click="submitUser" ref="submitButton">Connexion</button>
 
       <div class="mt-3 mb-3">
         <router-link class="btn btn-outline-secondary" to="/password_reset">Mot de passe oublié ?</router-link>
@@ -104,14 +104,18 @@ export default {
     },
 
     async submitUser() {
+      this.$refs.submitButton.disabled = true
+
       const email = this.$refs.emailInput.value
       const password = this.$refs.passwordInput.value
 
       const testEmail = await this.testEmail(email)
       const testPassword = this.testPassword(password)
 
-      if (!(testEmail && testPassword))
+      if (!(testEmail && testPassword)) {
+        this.$refs.submitButton.disabled = false
         return
+      }
 
       await Utils.post(`api/v1/member/login/user`, JSON.stringify({
         email: email,
@@ -119,6 +123,7 @@ export default {
       }), (success) => {
         if ("error" in success) {
           this.error = `${success.error}`
+          this.$refs.submitButton.disabled = false
           return
         }
 
@@ -127,7 +132,9 @@ export default {
         this.$store.dispatch('setToken', success.token)
         this.$store.dispatch('setUser', success.user)
         this.$router.push('/')
+        this.$refs.submitButton.disabled = false
       }, (failed) => {
+        this.$refs.submitButton.disabled = false
         this.error = `${failed}`
       })
     }
