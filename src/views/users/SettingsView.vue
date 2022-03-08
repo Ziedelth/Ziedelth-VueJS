@@ -12,11 +12,11 @@
 
     <div class="mb-3 container text-start">
       <label class="form-label" for="inputAbout">À propos</label>
-      <input id="inputAbout" ref="inputAbout" class="form-control" type="text">
+      <input id="inputAbout" ref="inputAbout" class="form-control" type="text" v-model="user.about">
     </div>
 
     <div class="mb-3">
-      <button class="btn btn-primary" @click="submitNew()">Modifier</button>
+      <button class="btn btn-primary" @click="submitNew" ref="submitButton">Modifier</button>
     </div>
     <div class="mb-3">
       <button class="btn btn-outline-danger"><i class="bi bi-trash-fill me-2"></i>Supprimer mon compte</button>
@@ -73,10 +73,14 @@ export default {
     },
 
     async submitNew() {
+      this.$refs.submitButton.disabled = true
+
       await Utils.put(`api/v1/member/update`, JSON.stringify({
         token: this.token,
         about: this.$refs.inputAbout.value
       }), (success) => {
+        this.$refs.submitButton.disabled = false
+
         if ("error" in success) {
           this.error = `${success.error}`
           return
@@ -84,6 +88,7 @@ export default {
 
         this.$store.dispatch('setUser', success)
       }, (failed) => {
+        this.$refs.submitButton.disabled = false
         this.error = `${failed}`
       })
     }

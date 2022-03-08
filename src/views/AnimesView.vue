@@ -46,7 +46,7 @@ const LoadingComponent = () => import("@/components/LoadingComponent");
 export default {
   components: {LoadingComponent},
   computed: {
-    ...mapState(['currentCountry']),
+    ...mapState(['user', 'currentCountry']),
 
     getItems() {
       return this.searchItems.sort((a, b) => this.filter === 'asc_name' ? a.name.toLowerCase().localeCompare(b.name.toLowerCase()) : b.name.toLowerCase().localeCompare(a.name.toLowerCase()))
