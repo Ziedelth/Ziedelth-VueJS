@@ -294,10 +294,11 @@ class MemberMapper
     /**
      * @param PDO $pdo
      * @param string $token
+     * @param string $directory
      * @param UploadedFile|null $file
      * @return array|string[]
      */
-    static function updateImage(PDO $pdo, string $token, ?UploadedFile $file): array {
+    static function updateImage(PDO $pdo, string $token, string $directory, ?UploadedFile $file): array {
         self::deleteOld($pdo);
 
         if (!self::tokenExists($pdo, $token))
@@ -317,9 +318,7 @@ class MemberMapper
             return array('error' => $file['error']);
 
         $localFolder = 'images/members';
-//        $folder = "/var/www/html/";
-        $folder = "/mnt/c/Users/watte/Documents/Development/Ziedelth.fr/public/";
-        $sfolder = "$folder$localFolder";
+        $sfolder = "$directory$localFolder";
 
         if (!file_exists($sfolder))
             mkdir($sfolder);
@@ -328,8 +327,8 @@ class MemberMapper
         $a = "$key.$ext";
         $file->moveTo("$sfolder/$a");
 
-        if ($member['image'] != null && file_exists("$folder/" . $member['image']))
-            unlink("$folder/" . $member['image']);
+        if ($member['image'] != null && file_exists("$directory/" . $member['image']))
+            unlink("$directory/" . $member['image']);
 
         $request = $pdo->prepare("UPDATE ziedelth.users u INNER JOIN ziedelth.tokens t on u.id = t.user_id SET image = :image WHERE t.token = :token");
         $request->execute(array('image' => "$localFolder/$a", 'token' => $token));

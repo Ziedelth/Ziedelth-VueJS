@@ -25,7 +25,7 @@ $app = new App([
 ]);
 
 $container = $app->getContainer();
-$container['upload_directory'] = __DIR__ . '/uploads';
+$container['upload_directory'] = __DIR__ . '/../../';
 
 /**
  * @return PDO
@@ -214,7 +214,7 @@ $app->put('/member/update', function (Request $request, Response $response) {
 });
 
 $app->post('/member/update/image', function(Request $request, Response $response) {
-//    $directory = $this->get('upload_directory');
+    $directory = $this->get('upload_directory');
     $_ = $request->getParsedBody();
     $uploadedFiles = $request->getUploadedFiles();
 
@@ -222,9 +222,9 @@ $app->post('/member/update/image', function(Request $request, Response $response
         $token = htmlspecialchars(strip_tags($_['token']));
 
         $pdo = getPDO();
-        return $response->withJson(MemberMapper::updateImage($pdo, $token, $uploadedFiles['file']));
+        return $response->withJson(MemberMapper::updateImage($pdo, $token, $directory, $uploadedFiles['file']));
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception));
     }
 });
 
