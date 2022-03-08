@@ -27,8 +27,9 @@
         </div>
 
         <div class="mb-3">
-          <button :class="{'active': sort === 'desc'}" class="btn btn-outline-secondary mx-1" @click="sort = 'desc'"><i class="bi bi-sort-numeric-up"></i></button>
-          <button :class="{'active': sort === 'asc'}" class="btn btn-outline-secondary mx-1" @click="sort = 'asc'"><i class="bi bi-sort-numeric-down"></i></button>
+          <b-icon-funnel-fill class="me-2" scale="1.5" />
+          <button :class="{'active': sort === 'desc'}" class="btn btn-outline-secondary mx-1" @click="sort = 'desc'"><b-icon-sort-numeric-up /></button>
+          <button :class="{'active': sort === 'asc'}" class="btn btn-outline-secondary mx-1" @click="sort = 'asc'"><b-icon-sort-numeric-down /></button>
         </div>
 
         <div v-if="anime.seasons.length > 0 && showType === 'episodes'">

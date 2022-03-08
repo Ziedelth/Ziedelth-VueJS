@@ -19,7 +19,7 @@
       <button class="btn btn-primary" @click="submitNew" ref="submitButton">Modifier</button>
     </div>
     <div class="mb-3">
-      <button class="btn btn-outline-danger"><i class="bi bi-trash-fill me-2"></i>Supprimer mon compte</button>
+      <button class="btn btn-outline-danger"><b-icon-trash-fill class="me-2" />Supprimer mon compte</button>
     </div>
 
     <br>
