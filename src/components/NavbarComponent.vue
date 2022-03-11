@@ -69,6 +69,7 @@
           <b-nav-item-dropdown v-if="isLogin()" :text="user.pseudo" right>
             <router-link :to="`/member/${user.pseudo}`" class="dropdown-item">Mon profil</router-link>
             <router-link class="dropdown-item" to="/settings">Paramètres</router-link>
+            <b-dropdown-divider />
             <a class="dropdown-item" @click="logout">Déconnexion</a>
           </b-nav-item-dropdown>
         </b-navbar-nav>
