@@ -228,6 +228,19 @@ $app->post('/member/update/image', function(Request $request, Response $response
     }
 });
 
+$app->post('/member/delete', function(Request $request, Response $response) {
+    $_ = $request->getParsedBody();
+
+    try {
+        $token = htmlspecialchars(strip_tags($_['token']));
+
+        $pdo = getPDO();
+        return $response->withJson(MemberMapper::delete($pdo, $token));
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception));
+    }
+});
+
 try {
     $app->run();
 } catch (Exception $e) {

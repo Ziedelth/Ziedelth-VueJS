@@ -41,11 +41,13 @@ export default {
   mounted() {
     if (this.isLogin()) {
       this.$router.push('/')
+      return
     }
 
     this.interval = setInterval(() => {
       if (this.isLogin()) {
         this.$router.push('/')
+        return
       }
     }, 5000)
   },

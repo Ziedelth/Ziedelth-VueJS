@@ -16,13 +16,16 @@
     </div>
 
     <div class="mb-3">
-      <button class="btn btn-primary" @click="submitNew()">Modifier</button>
+      <button class="btn btn-primary" @click="submitNew">Modifier</button>
     </div>
     <div class="mb-3">
-      <button class="btn btn-outline-danger"><i class="bi bi-trash-fill me-2"></i>Supprimer mon compte</button>
+      <button class="btn btn-outline-danger" @click="submitDelete"><i class="bi bi-trash-fill me-2"></i>Supprimer mon compte</button>
     </div>
 
     <br>
+    <label v-if="success != null && success.length > 0" class="mt-3 alert-success p-3 text-center rounded fw-bold">{{
+        success
+      }}</label>
     <label v-if="error != null && error.length > 0" class="mt-3 alert-danger p-3 text-center rounded fw-bold">{{
         error
       }}</label>
@@ -40,10 +43,33 @@ export default {
   data() {
     return {
       error: null,
+      success: null,
+      interval: null,
     }
+  },
+  mounted() {
+    if (!this.isLogin()) {
+      this.$router.push('/')
+      return
+    }
+
+    this.interval = setInterval(() => {
+      if (!this.isLogin()) {
+        this.$router.push('/')
+        return
+      }
+    }, 5000)
+  },
+  destroyed() {
+    clearInterval(this.interval);
   },
   methods: {
     ...mapGetters(['isLogin']),
+
+    showSuccess: function (message) {
+      this.success = message
+      setTimeout(() => this.success = null, 5000)
+    },
 
     getImage() {
       if (Utils.isNullOrEmpty(this.user.image))
@@ -67,11 +93,11 @@ export default {
         }
 
         this.$store.dispatch('setUser', success)
+        this.showSuccess(`Votre image de profil a bien été mise à joure`)
       }, (failed) => {
         this.error = `${failed}`
       })
     },
-
     async submitNew() {
       await Utils.put(`api/v1/member/update`, JSON.stringify({
         token: this.token,
@@ -83,16 +109,26 @@ export default {
         }
 
         this.$store.dispatch('setUser', success)
+        this.showSuccess(`Votre profil a bien été mis à jour`)
+      }, (failed) => {
+        this.error = `${failed}`
+      })
+    },
+    async submitDelete() {
+      await Utils.post(`api/v1/member/delete`, JSON.stringify({
+        token: this.token
+      }), (success) => {
+        if ("error" in success) {
+          this.error = `${success.error}`
+          return
+        }
+
+        this.showSuccess(`Votre demande de suppression de compte a bien été prise en compte, un mail de confirmation vous a été envoyé`)
       }, (failed) => {
         this.error = `${failed}`
       })
     }
   },
-  mounted() {
-    if (!this.isLogin()) {
-      this.$router.push('/login')
-    }
-  }
 }
 </script>
 

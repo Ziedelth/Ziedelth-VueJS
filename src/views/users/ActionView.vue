@@ -28,10 +28,23 @@ export default {
         return
       }
 
-      if (success.object.action === 'VERIFY_EMAIL')
-        this.$router.push('/login')
-      else if (success.object.action === 'PASSWORD_RESET')
-        this.action = `PASSWORD_RESET`
+      switch (success.object.action) {
+        case 'VERIFY_EMAIL':
+          this.$router.push('/login')
+          break;
+        case 'PASSWORD_RESET':
+          this.action = ``
+          break;
+        case 'DELETE_ACCOUNT':
+          this.$session.destroy()
+          this.$store.dispatch('setToken', null)
+          this.$store.dispatch('setUser', null)
+          this.$router.push('/')
+          break;
+        default:
+          this.$router.push('/')
+          break;
+      }
     }, (failed) => {
       this.error = `${failed}`
     })

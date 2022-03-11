@@ -178,6 +178,12 @@ class MemberMapper
                 break;
             case 'PASSWORD_RESET':
                 break;
+            case 'DELETE_ACCOUNT':
+                $request = $pdo->prepare("DELETE FROM ziedelth.actions WHERE id = :id");
+                $request->execute(array('id' => $object['id']));
+                $request = $pdo->prepare("DELETE FROM ziedelth.users WHERE id = :id");
+                $request->execute(array('id' => $object['user_id']));
+                break;
             default:
                 return array('error' => "Invalid action");
         }
@@ -205,13 +211,24 @@ class MemberMapper
         return $request->fetch(PDO::FETCH_ASSOC);
     }
 
+    static function getPrivateMemberWithToken(PDO $pdo, string $token)
+    {
+        if (!self::tokenExists($pdo, $token))
+            return array('error' => "Token does not exists");
+
+        $request = $pdo->prepare("SELECT u.* FROM ziedelth.users u INNER JOIN ziedelth.tokens t ON t.user_id = u.id WHERE t.token = :token");
+        $request->execute(array('token' => $token));
+        return $request->fetch(PDO::FETCH_ASSOC);
+    }
+
     /**
      * @param PDO $pdo
      * @param string $email
      * @param string $password
      * @return string[]
      */
-    static function loginUser(PDO $pdo, string $email, string $password): array {
+    static function loginUser(PDO $pdo, string $email, string $password): array
+    {
         self::deleteOld($pdo);
 
         if (!self::emailExists($pdo, $email))
@@ -253,7 +270,8 @@ class MemberMapper
      * @param string $token
      * @return string[]
      */
-    static function loginToken(PDO $pdo, string $token): array {
+    static function loginToken(PDO $pdo, string $token): array
+    {
         self::deleteOld($pdo);
 
         if (!self::tokenExists($pdo, $token))
@@ -275,7 +293,8 @@ class MemberMapper
      * @param string $about
      * @return string[]
      */
-    static function update(PDO $pdo, string $token, string $about): array {
+    static function update(PDO $pdo, string $token, string $about): array
+    {
         self::deleteOld($pdo);
 
         if (!self::tokenExists($pdo, $token))
@@ -298,7 +317,8 @@ class MemberMapper
      * @param UploadedFile|null $file
      * @return array|string[]
      */
-    static function updateImage(PDO $pdo, string $token, string $directory, ?UploadedFile $file): array {
+    static function updateImage(PDO $pdo, string $token, string $directory, ?UploadedFile $file): array
+    {
         self::deleteOld($pdo);
 
         if (!self::tokenExists($pdo, $token))
@@ -338,5 +358,28 @@ class MemberMapper
             return array('error' => "Can not update member");
 
         return self::getMemberWithToken($pdo, $token);
+    }
+
+    static function delete(PDO $pdo, string $token): array
+    {
+        self::deleteOld($pdo);
+
+        if (!self::tokenExists($pdo, $token))
+            return array('error' => 'Token does not exists');
+
+        $member = self::getPrivateMemberWithToken($pdo, $token);
+        $pdo->beginTransaction();
+
+        $hash = self::generateRandomString(15);
+        $request = $pdo->prepare("INSERT INTO ziedelth.actions VALUES (NULL, CURRENT_TIMESTAMP, :userId, :hash, :action)");
+        $request->execute(array('userId' => $member['id'], 'hash' => $hash, 'action' => 'DELETE_ACCOUNT'));
+
+        if (!EmailMapper::sendEmail("Suppression de compte sur Ziedelth.fr", EmailTemplate::getAccountDeletedTemplate($member['pseudo'], $hash), $member['email'])) {
+            $pdo->rollBack();
+            return array('error' => "Can not send email");
+        }
+
+        $pdo->commit();
+        return array('success' => "OK");
     }
 }
