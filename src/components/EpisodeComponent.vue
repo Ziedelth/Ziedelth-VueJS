@@ -7,7 +7,7 @@
     <div class="text-start">
       <AnimeComponent :id="episode.anime_id" :name="episode.anime" />
 
-      <p class="card-text">
+      <p class="card-text text-truncate">
         <span class="fw-bold">{{ episode.title === null ? "＞﹏＜" : episode.title }}</span>
         <br>
         {{ episode.country_season }} {{ episode.season }} • {{ episode.episode_type }} {{ episode.number }} {{ episode.lang_type }}
