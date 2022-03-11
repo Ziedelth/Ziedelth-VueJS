@@ -127,22 +127,19 @@ class MemberMapper
             return array('error' => "Email invalid pattern");
 
         $salt = self::generateRandomString(10);
-        $pdo->beginTransaction();
+        $hash = self::generateRandomString(15);
 
+        if (!EmailMapper::sendEmail("Inscription sur Ziedelth.fr", EmailTemplate::getEmailRegisterTemplate($pseudo, $hash), $email))
+            return array('error' => "Can not send email");
+
+        $pdo->beginTransaction();
         $request = $pdo->prepare("INSERT INTO ziedelth.users VALUES (NULL, CURRENT_TIMESTAMP, :pseudo, :email, :password, 0, 0, NULL, NULL)");
         $request->execute(array('pseudo' => $pseudo, 'email' => $email, 'password' => "$salt|" . hash('sha512', "$salt$password")));
         $id = $pdo->lastInsertId();
-
-        $hash = self::generateRandomString(15);
         $request = $pdo->prepare("INSERT INTO ziedelth.actions VALUES (NULL, CURRENT_TIMESTAMP, :userId, :hash, :action)");
         $request->execute(array('userId' => $id, 'hash' => $hash, 'action' => 'VERIFY_EMAIL'));
-
-        if (!EmailMapper::sendEmail("Inscription sur Ziedelth.fr", EmailTemplate::getEmailRegisterTemplate($pseudo, $hash), $email)) {
-            $pdo->rollBack();
-            return array('error' => "Can not send email");
-        }
-
         $pdo->commit();
+
         return array('success' => "OK");
     }
 
@@ -179,8 +176,6 @@ class MemberMapper
             case 'PASSWORD_RESET':
                 break;
             case 'DELETE_ACCOUNT':
-                $request = $pdo->prepare("DELETE FROM ziedelth.actions WHERE id = :id");
-                $request->execute(array('id' => $object['id']));
                 $request = $pdo->prepare("DELETE FROM ziedelth.users WHERE id = :id");
                 $request->execute(array('id' => $object['user_id']));
                 break;

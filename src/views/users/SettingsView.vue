@@ -17,7 +17,9 @@
 
     <div class="mb-3">
       <button class="btn btn-primary" @click="submitNew" ref="submitButton">Modifier</button>
-      <button class="btn btn-outline-danger" @click="submitDelete"><b-icon-trash-fill class="me-2" />Supprimer mon compte</button>
+      <br>
+      <br>
+      <button class="btn btn-outline-danger" @click="submitDelete" ref="deleteButton"><b-icon-trash-fill class="me-2" />Supprimer mon compte</button>
     </div>
     <br>
     <label v-if="success != null && success.length > 0" class="mt-3 alert-success p-3 text-center rounded fw-bold">{{
@@ -90,7 +92,7 @@ export default {
         }
 
         this.$store.dispatch('setUser', success)
-        this.showSuccess(`Votre image de profil a bien été mise à joure`)
+        this.showSuccess(`Votre image de profil a bien été mise à jour`)
       }, (failed) => {
         this.error = `${failed}`
       })
@@ -116,9 +118,13 @@ export default {
       })
     },
     async submitDelete() {
+      this.$refs.deleteButton.disabled = true
+
       await Utils.post(`api/v1/member/delete`, JSON.stringify({
         token: this.token
       }), (success) => {
+        this.$refs.deleteButton.disabled = false
+
         if ("error" in success) {
           this.error = `${success.error}`
           return
@@ -126,7 +132,7 @@ export default {
 
         this.showSuccess(`Votre demande de suppression de compte a bien été prise en compte, un mail de confirmation vous a été envoyé`)
       }, (failed) => {
-        this.$refs.submitButton.disabled = false
+        this.$refs.deleteButton.disabled = false
         this.error = `${failed}`
       })
     }

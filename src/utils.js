@@ -1,4 +1,6 @@
 export default class Utils {
+    static TIMEOUT = 60000
+
     static getLocalFile(path) {
         return window.location.protocol + "//" + window.location.hostname + "/" + path
     }
@@ -54,7 +56,10 @@ export default class Utils {
 
     static async get(url, onSuccess, onFailed) {
         try {
-            const response = await fetch(Utils.getLocalFile(url))
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT)
+            const response = await fetch(Utils.getLocalFile(url), { signal: controller.signal })
+            clearTimeout(timeoutId)
             const json = await response.json()
             onSuccess(json)
         } catch (exception) {
@@ -64,7 +69,11 @@ export default class Utils {
 
     static async post(url, body, onSuccess, onFailed) {
         try {
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT)
+
             const response = await fetch(Utils.getLocalFile(url), {
+                signal: controller.signal,
                 method: 'POST',
                 body: body,
                 headers: {
@@ -72,6 +81,7 @@ export default class Utils {
                 }
             })
 
+            clearTimeout(timeoutId)
             const json = await response.json()
             onSuccess(json)
         } catch (exception) {
@@ -81,11 +91,16 @@ export default class Utils {
 
     static async file(url, body, onSuccess, onFailed) {
         try {
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT)
+
             const response = await fetch(Utils.getLocalFile(url), {
+                signal: controller.signal,
                 method: 'POST',
                 body: body
             })
 
+            clearTimeout(timeoutId)
             const json = await response.json()
             onSuccess(json)
         } catch (exception) {
@@ -95,7 +110,11 @@ export default class Utils {
 
     static async put(url, body, onSuccess, onFailed) {
         try {
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT)
+
             const response = await fetch(Utils.getLocalFile(url), {
+                signal: controller.signal,
                 method: 'PUT',
                 body: body,
                 headers: {
@@ -103,6 +122,7 @@ export default class Utils {
                 }
             })
 
+            clearTimeout(timeoutId)
             const json = await response.json()
             onSuccess(json)
         } catch (exception) {

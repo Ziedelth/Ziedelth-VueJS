@@ -14,15 +14,17 @@ export default {
   data() {
     return {
       isLoading: true,
-      action: ``,
-      error: ``
+      action: null,
+      error: null
     }
   },
-  async mounted() {
+  mounted() {
     this.isLoading = true
     const hash = this.$route.params.hash
 
-    await Utils.get(`api/v1/member/validate_action/${hash}`, (success) => {
+    Utils.get(`api/v1/member/validate_action/${hash}`, (success) => {
+      this.isLoading = false
+
       if ("error" in success) {
         this.error = `${success.error}`
         return
@@ -48,8 +50,6 @@ export default {
     }, (failed) => {
       this.error = `${failed}`
     })
-
-    this.isLoading = false
   }
 }
 </script>
