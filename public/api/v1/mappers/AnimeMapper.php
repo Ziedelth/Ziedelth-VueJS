@@ -46,7 +46,7 @@ class AnimeMapper
      */
     static function getById(PDO $pdo, string $country, int $id)
     {
-        $request = $pdo->prepare("SELECT a.*, c.season AS country_season, GROUP_CONCAT(g.$country) AS genres FROM jais.animes a INNER JOIN jais.countries c on a.country_id = c.id INNER JOIN jais.anime_genres ag ON ag.anime_id = a.id INNER JOIN jais.genres g ON g.id = ag.genre_id WHERE a.id = :id GROUP BY a.id");
+        $request = $pdo->prepare("SELECT a.*, c.season AS country_season, GROUP_CONCAT(g.$country) AS genres FROM jais.animes a LEFT JOIN jais.countries c on a.country_id = c.id LEFT JOIN jais.anime_genres ag ON ag.anime_id = a.id LEFT JOIN jais.genres g ON g.id = ag.genre_id WHERE a.id = :id GROUP BY a.id");
         $request->execute(array('id' => $id));
         $anime = $request->fetch(PDO::FETCH_ASSOC);
         $seasons = self::getSeasons($pdo, $id);
