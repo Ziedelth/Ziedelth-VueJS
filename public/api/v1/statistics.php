@@ -1,8 +1,10 @@
 <?php
 
+include_once "../configurations/config.php";
+
 function getPDO(): PDO
 {
-    $pdo = new PDO("mysql:host=127.0.0.1", "root", "root");
+    $pdo = new PDO("mysql:host=" . DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     $pdo->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
@@ -18,16 +20,20 @@ function getCountDelay(PDO $pdo, string $table, int $delayInMonth)
 
 $pdo = getPDO();
 
-print_r(getCountDelay($pdo, 'jais.animes', 1));
+echo "Last month count animes: " . getCountDelay($pdo, 'jais.animes', 1);
 echo "\n";
-print_r(getCountDelay($pdo, 'jais.animes', 3));
-echo "\n";
-echo "\n";
-print_r(getCountDelay($pdo, 'jais.episodes', 1));
-echo "\n";
-print_r(getCountDelay($pdo, 'jais.episodes', 3));
+echo "Last 3 month count animes: " . getCountDelay($pdo, 'jais.animes', 3);
+
 echo "\n";
 echo "\n";
-print_r(getCountDelay($pdo, 'jais.scans', 1));
+
+echo "Last month count episodes: " . getCountDelay($pdo, 'jais.episodes', 1);
 echo "\n";
-print_r(getCountDelay($pdo, 'jais.scans', 3));
+echo "Last 3 month count episodes: " . getCountDelay($pdo, 'jais.episodes', 3);
+
+echo "\n";
+echo "\n";
+
+echo "Last month count scans: " . getCountDelay($pdo, 'jais.scans', 1);
+echo "\n";
+echo "Last 3 month count scans: " . getCountDelay($pdo, 'jais.scans', 3);
