@@ -5,10 +5,13 @@ use PHPMailer\PHPMailer\PHPMailer;
 class EmailMapper
 {
     /**
-     * @param string $subject
-     * @param string $body
-     * @param string $address
-     * @return bool
+     * Send an email using PHP
+     *
+     * @param string $subject The subject of the email.
+     * @param string $body The body of the email.
+     * @param string $address The email address to send the email to.
+     *
+     * @return bool A boolean value.
      */
     static function sendEmail(string $subject, string $body, string $address): bool
     {

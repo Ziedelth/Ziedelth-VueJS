@@ -3,9 +3,13 @@
 class EmailTemplate
 {
     /**
-     * @param string $pseudo
-     * @param string $hash
-     * @return string
+     * This function returns a string containing the HTML code of the email template for the registration confirmation
+     * email
+     *
+     * @param string $pseudo The pseudo of the user
+     * @param string $hash The hash of the user's email.
+     *
+     * @return string A string containing the email template.
      */
     static function getEmailRegisterTemplate(string $pseudo, string $hash): string
     {
@@ -39,6 +43,14 @@ class EmailTemplate
 </div>';
     }
 
+    /**
+     * Returns a string containing the HTML code of the account deletion template
+     *
+     * @param string pseudo The pseudo of the account that will be deleted
+     * @param string hash The hash of the account to delete
+     *
+     * @return string A string.
+     */
     static function getAccountDeletedTemplate(string $pseudo, string $hash): string
     {
         return '<div style="margin: 0;">

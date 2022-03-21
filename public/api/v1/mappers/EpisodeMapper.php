@@ -3,9 +3,12 @@
 class EpisodeMapper
 {
     /**
-     * @param PDO $pdo
-     * @param string $country
-     * @return array|false
+     * It returns the last episode id for each anime of the given country
+     *
+     * @param PDO $pdo The PDO object that we created earlier.
+     * @param string $country The country tag of the anime you want to get the last ids from.
+     *
+     * @return array|false An array of the last episode id for each anime.
      */
     static function getLastIds(PDO $pdo, string $country) {
         $request = $pdo->prepare("SELECT episodes.id FROM jais.episodes INNER JOIN jais.animes a on episodes.anime_id = a.id INNER JOIN jais.countries c on a.country_id = c.id WHERE c.tag = :country ORDER BY episodes.release_date DESC, episodes.anime_id DESC, episodes.season DESC, episodes.number DESC, episodes.id_episode_type DESC, episodes.id_lang_type DESC");
@@ -14,10 +17,26 @@ class EpisodeMapper
     }
 
     /**
-     * @param PDO $pdo
-     * @param string $country
-     * @param string|null $ids
-     * @return array|false
+     * Get all the episodes with the given ids
+     *
+     * @param PDO $pdo The PDO object that will be used to execute the query.
+     * @param string $country The country code of the country you want to get the episodes for.
+     * @param string|null $ids The ids of the episodes to get.
+     *
+     * @return array|false An array of arrays. Each array contains the following:
+     *     - platform
+     *     - platform_url
+     *     - platform_image
+     *     - anime_id
+     *     - anime
+     *     - id
+     *     - release_date
+     *     - season
+     *     - number
+     *     - country_season
+     *     - episode_type
+     *     - episode_type
+     *     - lang_type
      */
     static function getEpisodesWithIds(PDO $pdo, string $country, ?string $ids)
     {

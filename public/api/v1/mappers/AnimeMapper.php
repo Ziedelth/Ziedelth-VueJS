@@ -3,9 +3,12 @@
 class AnimeMapper
 {
     /**
-     * @param PDO $pdo
-     * @param string $country
-     * @return array|false
+     * Get all the animes from the database, ordered by name, from the country with the tag $country
+     *
+     * @param PDO $pdo The PDO object that we created earlier.
+     * @param string $country The country tag of the country you want to get all the animes from.
+     *
+     * @return array|false An array of associative arrays.
      */
     static function getAllAnimes(PDO $pdo, string $country)
     {
@@ -15,9 +18,14 @@ class AnimeMapper
     }
 
     /**
-     * @param PDO $pdo
-     * @param int $animeId
-     * @return array|false
+     * Get all the seasons and episodes for a given anime
+     *
+     * @param PDO $pdo The PDO object that we created earlier.
+     * @param int $animeId The ID of the anime you want to get the seasons for.
+     *
+     * @return array|false An array of associative arrays. Each associative array has two keys:
+     *     - season: The season number
+     *     - episodes: A comma-separated list of episode IDs
      */
     static function getSeasons(PDO $pdo, int $animeId)
     {
@@ -27,9 +35,12 @@ class AnimeMapper
     }
 
     /**
-     * @param PDO $pdo
-     * @param int $animeId
-     * @return array|false
+     * Get all the scans for a given anime
+     *
+     * @param PDO $pdo The PDO object that we created earlier.
+     * @param int $animeId The ID of the anime you want to get the scans for.
+     *
+     * @return array|false An array of the scans for the anime.
      */
     static function getScans(PDO $pdo, int $animeId)
     {
@@ -39,10 +50,13 @@ class AnimeMapper
     }
 
     /**
-     * @param PDO $pdo
-     * @param string $country
-     * @param int $id
-     * @return array|false
+     * Get an anime by id
+     *
+     * @param PDO $pdo The PDO object that we created earlier.
+     * @param string $country The country code of the country you want to get the anime from.
+     * @param int $id The id of the anime you want to get.
+     *
+     * @return array|false An array of the anime, its seasons, and its scans.
      */
     static function getById(PDO $pdo, string $country, int $id)
     {

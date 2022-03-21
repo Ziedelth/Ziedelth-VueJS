@@ -171,7 +171,7 @@ $app->post('/member/login/user', function (Request $request, Response $response)
         $email = htmlspecialchars(strip_tags($_['email']));
         $password = htmlspecialchars(strip_tags($_['password']));
         $pdo = getPDO();
-        return $response->withJson(MemberMapper::loginUser($pdo, $email, $password));
+        return $response->withJson(MemberMapper::loginWithCredentials($pdo, $email, $password));
     } catch (Exception $exception) {
         return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
     }
@@ -183,7 +183,7 @@ $app->post('/member/login/token', function (Request $request, Response $response
     try {
         $token = htmlspecialchars(strip_tags($_['token']));
         $pdo = getPDO();
-        return $response->withJson(MemberMapper::loginToken($pdo, $token));
+        return $response->withJson(MemberMapper::loginWithToken($pdo, $token));
     } catch (Exception $exception) {
         return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
     }
