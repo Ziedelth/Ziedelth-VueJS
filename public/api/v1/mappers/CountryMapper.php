@@ -11,7 +11,8 @@ class CountryMapper
      */
     static function getAllCountries(PDO $pdo)
     {
-        $request = $pdo->prepare("SELECT * FROM jais.countries");
+        $request = $pdo->prepare("SELECT *
+FROM jais.countries");
         $request->execute(array());
         return $request->fetchAll(PDO::FETCH_ASSOC);
     }

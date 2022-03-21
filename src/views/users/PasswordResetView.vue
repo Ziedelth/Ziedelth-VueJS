@@ -35,7 +35,7 @@ export default {
       if (Utils.isNullOrEmpty(email))
         return
 
-      await Utils.post(`php/v1/member/password_reset.php`, JSON.stringify({email: email}), (success) => {
+      await Utils.post(`api/v1/member/password_reset`, JSON.stringify({email: email}), (success) => {
         this.success = 'Votre demande a bien été prise en compte, nous vous avons envoyé un mail d\'oubli de mot de passe'
       }, (failed) => {
         console.log(failed)

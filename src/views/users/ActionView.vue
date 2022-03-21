@@ -14,8 +14,7 @@ export default {
   data() {
     return {
       isLoading: true,
-      action: null,
-      error: null
+      error: null,
     }
   },
   mounted() {
@@ -34,8 +33,8 @@ export default {
         case 'VERIFY_EMAIL':
           this.$router.push('/login')
           break;
-        case 'PASSWORD_RESET':
-          this.action = ``
+        case 'CONFIRM_PASSWORD_RESET':
+          this.$router.push(`/confirm/${success.object.hash}`)
           break;
         case 'DELETE_ACCOUNT':
           this.$session.destroy()
@@ -50,6 +49,6 @@ export default {
     }, (failed) => {
       this.error = `${failed}`
     })
-  }
+  },
 }
 </script>
