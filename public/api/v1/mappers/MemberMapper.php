@@ -17,7 +17,9 @@ class MemberMapper
         if ($pseudo == null && empty($pseudo))
             return false;
 
-        $request = $pdo->prepare("SELECT id FROM ziedelth.users WHERE pseudo = :pseudo");
+        $request = $pdo->prepare("SELECT id
+FROM ziedelth.users
+WHERE pseudo = :pseudo");
         $request->execute(array('pseudo' => $pseudo));
         return $request->rowCount() >= 1;
     }
@@ -36,7 +38,9 @@ class MemberMapper
         if ($email == null && empty($email))
             return false;
 
-        $request = $pdo->prepare("SELECT id FROM ziedelth.users WHERE email = :email");
+        $request = $pdo->prepare("SELECT id
+FROM ziedelth.users
+WHERE email = :email");
         $request->execute(array('email' => $email));
         return $request->rowCount() >= 1;
     }
@@ -54,7 +58,9 @@ class MemberMapper
         if ($token == null && empty($token))
             return false;
 
-        $request = $pdo->prepare("SELECT id FROM ziedelth.tokens WHERE token = :token");
+        $request = $pdo->prepare("SELECT id
+FROM ziedelth.tokens
+WHERE token = :token");
         $request->execute(array('token' => $token));
         return $request->rowCount() >= 1;
     }
@@ -86,18 +92,24 @@ class MemberMapper
      */
     static function deleteOldActions(PDO $pdo)
     {
-        $request = $pdo->prepare("SELECT * FROM ziedelth.actions WHERE timestamp < NOW() - INTERVAL 10 MINUTE");
+        $request = $pdo->prepare("SELECT *
+FROM ziedelth.actions
+WHERE timestamp < NOW() - INTERVAL 10 MINUTE");
         $request->execute(array());
         $objects = $request->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($objects as $object) {
             switch ($object['action']) {
                 case 'VERIFY_EMAIL':
-                    $request = $pdo->prepare("DELETE FROM ziedelth.users WHERE id = :userId");
+                    $request = $pdo->prepare("DELETE
+FROM ziedelth.users
+WHERE id = :userId");
                     $request->execute(array('userId' => $object['user_id']));
                     break;
                 default:
-                    $request = $pdo->prepare("DELETE FROM ziedelth.actions WHERE id = :id");
+                    $request = $pdo->prepare("DELETE
+FROM ziedelth.actions
+WHERE id = :id");
                     $request->execute(array('id' => $object['id']));
                     break;
             }
@@ -111,7 +123,9 @@ class MemberMapper
      */
     static function deleteOldTokens(PDO $pdo)
     {
-        $request = $pdo->prepare("DELETE FROM ziedelth.tokens WHERE timestamp < NOW() - INTERVAL 1 MONTH");
+        $request = $pdo->prepare("DELETE
+FROM ziedelth.tokens
+WHERE timestamp < NOW() - INTERVAL 1 MONTH");
         $request->execute(array());
     }
 
@@ -157,10 +171,12 @@ class MemberMapper
             return array('error' => "Can not send email");
 
         $pdo->beginTransaction();
-        $request = $pdo->prepare("INSERT INTO ziedelth.users VALUES (NULL, CURRENT_TIMESTAMP, :pseudo, :email, :password, 0, 0, NULL, NULL)");
+        $request = $pdo->prepare("INSERT INTO ziedelth.users
+VALUES (NULL, CURRENT_TIMESTAMP, :pseudo, :email, :password, 0, 0, NULL, NULL)");
         $request->execute(array('pseudo' => $pseudo, 'email' => $email, 'password' => "$salt|" . hash('sha512', "$salt$password")));
         $id = $pdo->lastInsertId();
-        $request = $pdo->prepare("INSERT INTO ziedelth.actions VALUES (NULL, CURRENT_TIMESTAMP, :userId, :hash, :action)");
+        $request = $pdo->prepare("INSERT INTO ziedelth.actions
+VALUES (NULL, CURRENT_TIMESTAMP, :userId, :hash, :action)");
         $request->execute(array('userId' => $id, 'hash' => $hash, 'action' => 'VERIFY_EMAIL'));
         $pdo->commit();
 
@@ -179,7 +195,9 @@ class MemberMapper
     {
         self::deleteOld($pdo);
 
-        $request = $pdo->prepare("SELECT * FROM ziedelth.actions WHERE hash = :hash");
+        $request = $pdo->prepare("SELECT *
+FROM ziedelth.actions
+WHERE hash = :hash");
         $request->execute(array('hash' => $hash));
         $count = $request->rowCount();
 
@@ -190,20 +208,27 @@ class MemberMapper
 
         switch ($object['action']) {
             case 'VERIFY_EMAIL':
-                $request = $pdo->prepare("UPDATE ziedelth.users SET email_verified = 1 WHERE email_verified = 0 AND id = :userId");
+                $request = $pdo->prepare("UPDATE ziedelth.users
+SET email_verified = 1
+WHERE email_verified = 0
+  AND id = :userId");
                 $request->execute(array('userId' => $object['user_id']));
                 $count = $request->rowCount();
 
                 if ($count != 1)
                     return array('error' => "No update");
 
-                $request = $pdo->prepare("DELETE FROM ziedelth.actions WHERE id = :id");
+                $request = $pdo->prepare("DELETE
+FROM ziedelth.actions
+WHERE id = :id");
                 $request->execute(array('id' => $object['id']));
                 break;
             case 'PASSWORD_RESET':
                 break;
             case 'DELETE_ACCOUNT':
-                $request = $pdo->prepare("DELETE FROM ziedelth.users WHERE id = :id");
+                $request = $pdo->prepare("DELETE
+FROM ziedelth.users
+WHERE id = :id");
                 $request->execute(array('id' => $object['user_id']));
                 break;
             default:
@@ -231,7 +256,9 @@ class MemberMapper
         if (!self::pseudoExists($pdo, $pseudo))
             return array('error' => "Pseudo does not exists");
 
-        $request = $pdo->prepare("SELECT timestamp, pseudo, role, image, about FROM ziedelth.users WHERE pseudo = :pseudo");
+        $request = $pdo->prepare("SELECT timestamp, pseudo, role, image, about
+FROM ziedelth.users
+WHERE pseudo = :pseudo");
         $request->execute(array('pseudo' => $pseudo));
         return $request->fetch(PDO::FETCH_ASSOC);
     }
@@ -254,7 +281,10 @@ class MemberMapper
         if (!self::tokenExists($pdo, $token))
             return array('error' => "Token does not exists");
 
-        $request = $pdo->prepare("SELECT u.timestamp, u.pseudo, u.role, u.image, u.about FROM ziedelth.users u INNER JOIN ziedelth.tokens t ON t.user_id = u.id WHERE t.token = :token");
+        $request = $pdo->prepare("SELECT u.timestamp, u.pseudo, u.role, u.image, u.about
+FROM ziedelth.users u
+         INNER JOIN ziedelth.tokens t ON t.user_id = u.id
+WHERE t.token = :token");
         $request->execute(array('token' => $token));
         return $request->fetch(PDO::FETCH_ASSOC);
     }
@@ -272,7 +302,10 @@ class MemberMapper
         if (!self::tokenExists($pdo, $token))
             return array('error' => "Token does not exists");
 
-        $request = $pdo->prepare("SELECT u.* FROM ziedelth.users u INNER JOIN ziedelth.tokens t ON t.user_id = u.id WHERE t.token = :token");
+        $request = $pdo->prepare("SELECT u.*
+FROM ziedelth.users u
+         INNER JOIN ziedelth.tokens t ON t.user_id = u.id
+WHERE t.token = :token");
         $request->execute(array('token' => $token));
         return $request->fetch(PDO::FETCH_ASSOC);
     }
@@ -295,7 +328,9 @@ class MemberMapper
         if (!preg_match('/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/', $email))
             return array('error' => "Email invalid pattern");
 
-        $request = $pdo->prepare("SELECT * FROM ziedelth.users WHERE email = :email");
+        $request = $pdo->prepare("SELECT *
+FROM ziedelth.users
+WHERE email = :email");
         $request->execute(array('email' => $email));
         $member = $request->fetch(PDO::FETCH_ASSOC);
 
@@ -310,14 +345,19 @@ class MemberMapper
             return array('error' => "Invalid credentials");
 
         $token = self::generateRandomString(100);
-        $request = $pdo->prepare("SELECT id FROM ziedelth.tokens WHERE user_id = :userId");
+        $request = $pdo->prepare("SELECT id
+FROM ziedelth.tokens
+WHERE user_id = :userId");
         $request->execute(array('userId' => $member['id']));
         $count = $request->rowCount();
 
         if ($count == 0)
-            $request = $pdo->prepare("INSERT INTO ziedelth.tokens VALUES (NULL, CURRENT_TIMESTAMP, :userId, :token)");
+            $request = $pdo->prepare("INSERT INTO ziedelth.tokens
+VALUES (NULL, CURRENT_TIMESTAMP, :userId, :token)");
         else
-            $request = $pdo->prepare("UPDATE ziedelth.tokens SET token = :token WHERE user_id = :userId");
+            $request = $pdo->prepare("UPDATE ziedelth.tokens
+SET token = :token
+WHERE user_id = :userId");
 
         $request->execute(array('userId' => $member['id'], 'token' => $token));
 
@@ -339,7 +379,10 @@ class MemberMapper
         if (!self::tokenExists($pdo, $token))
             return array('error' => "Token does not exists");
 
-        $request = $pdo->prepare("SELECT * FROM ziedelth.users u INNER JOIN ziedelth.tokens t on u.id = t.user_id WHERE t.token = :token");
+        $request = $pdo->prepare("SELECT *
+FROM ziedelth.users u
+         INNER JOIN ziedelth.tokens t on u.id = t.user_id
+WHERE t.token = :token");
         $request->execute(array('token' => $token));
         $member = $request->fetch(PDO::FETCH_ASSOC);
 
@@ -365,7 +408,9 @@ class MemberMapper
         if (!self::tokenExists($pdo, $token))
             return array('error' => "Token does not exists");
 
-        $request = $pdo->prepare("UPDATE ziedelth.users u INNER JOIN ziedelth.tokens t on u.id = t.user_id SET about = :about WHERE t.token = :token");
+        $request = $pdo->prepare("UPDATE ziedelth.users u INNER JOIN ziedelth.tokens t on u.id = t.user_id
+SET about = :about
+WHERE t.token = :token");
         $request->execute(array('about' => $about, 'token' => $token));
         $count = $request->rowCount();
 
@@ -418,7 +463,9 @@ class MemberMapper
         if ($member['image'] != null && file_exists("$directory/" . $member['image']))
             unlink("$directory/" . $member['image']);
 
-        $request = $pdo->prepare("UPDATE ziedelth.users u INNER JOIN ziedelth.tokens t on u.id = t.user_id SET image = :image WHERE t.token = :token");
+        $request = $pdo->prepare("UPDATE ziedelth.users u INNER JOIN ziedelth.tokens t on u.id = t.user_id
+SET image = :image
+WHERE t.token = :token");
         $request->execute(array('image' => "$localFolder/$a", 'token' => $token));
         $count = $request->rowCount();
 
@@ -447,7 +494,8 @@ class MemberMapper
         $pdo->beginTransaction();
 
         $hash = self::generateRandomString(15);
-        $request = $pdo->prepare("INSERT INTO ziedelth.actions VALUES (NULL, CURRENT_TIMESTAMP, :userId, :hash, :action)");
+        $request = $pdo->prepare("INSERT INTO ziedelth.actions
+VALUES (NULL, CURRENT_TIMESTAMP, :userId, :hash, :action)");
         $request->execute(array('userId' => $member['id'], 'hash' => $hash, 'action' => 'DELETE_ACCOUNT'));
 
         if (!EmailMapper::sendEmail("Suppression de compte sur Ziedelth.fr", EmailTemplate::getAccountDeletedTemplate($member['pseudo'], $hash), $member['email'])) {

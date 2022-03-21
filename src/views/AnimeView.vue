@@ -11,16 +11,15 @@
           <h3>{{ anime.name }}</h3>
           <p>{{ anime.genres }}</p>
           <hr>
-          <p v-if="anime.seasons.length > 0">Temps total : {{ getTotalTime() }}</p>
           <p class="text-muted">{{ getAnimeDescription() }}</p>
         </div>
 
         <div class="d-inline-flex mb-3">
-          <div v-if="anime.seasons.length > 0" class="form-check me-3">
+          <div v-if="anime.seasons.length > 0 && anime.scans.length > 0" class="form-check me-3">
             <input id="flexRadioDefault1" v-model="showType" class="form-check-input" name="flexRadioDefault" type="radio" value="episodes">
             <label class="form-check-label" for="flexRadioDefault1">Épisodes</label>
           </div>
-          <div v-if="anime.scans.length > 0" class="form-check">
+          <div v-if="anime.seasons.length > 0 && anime.scans.length > 0" class="form-check">
             <input id="flexRadioDefault2" v-model="showType" class="form-check-input" name="flexRadioDefault" type="radio" value="scans">
             <label class="form-check-label" for="flexRadioDefault2">Scans</label>
           </div>
@@ -33,7 +32,7 @@
         </div>
 
         <div v-if="anime.seasons.length > 0 && showType === 'episodes'">
-          <select v-model="selectedSeason" class="form-select-sm px-3 mb-3">
+          <select v-if="anime.seasons.length > 1" v-model="selectedSeason" class="form-select-sm px-3 mb-3">
             <option v-for="season in anime.seasons" :value="season.season">{{ anime.country_season }} {{ season.season }}</option>
           </select>
 
@@ -110,15 +109,6 @@ export default {
 
       return null
     },
-    getTotalTime() {
-      let duration = 0
-
-      for (const season of this.anime.seasons)
-        for (const episode of season.episodes)
-          duration += episode.duration
-
-      return Utils.getTimeFormat(duration)
-    }
   },
   async mounted() {
     await this.update()
