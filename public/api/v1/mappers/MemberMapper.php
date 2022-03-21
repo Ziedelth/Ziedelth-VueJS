@@ -224,7 +224,26 @@ WHERE id = :id");
                 $request->execute(array('id' => $object['id']));
                 break;
             case 'PASSWORD_RESET':
-                break;
+                $newHash = self::generateRandomString(15);
+                $request = $pdo->prepare("UPDATE ziedelth.actions
+SET timestamp = CURRENT_TIMESTAMP,
+    hash      = :hash,
+    action    = 'CONFIRM_PASSWORD_RESET'
+WHERE id = :id");
+                $request->execute(array('hash' => $newHash, 'id' => $object['id']));
+
+                $request = $pdo->prepare("SELECT *
+FROM ziedelth.actions
+WHERE id = :id");
+                $request->execute(array('id' => $object['id']));
+                $count = $request->rowCount();
+
+                if ($count != 1)
+                    return array('error' => "No action");
+
+                $object = $request->fetch(PDO::FETCH_ASSOC);
+
+                return array('object' => $object, 'success' => 'OK');
             case 'DELETE_ACCOUNT':
                 $request = $pdo->prepare("DELETE
 FROM ziedelth.users
@@ -310,6 +329,18 @@ WHERE t.token = :token");
         return $request->fetch(PDO::FETCH_ASSOC);
     }
 
+    static function getPrivateMemberWithEmail(PDO $pdo, string $email)
+    {
+        if (!self::emailExists($pdo, $email))
+            return array('error' => "Email does not exists");
+
+        $request = $pdo->prepare("SELECT *
+FROM ziedelth.users
+WHERE email = :email");
+        $request->execute(array('email' => $email));
+        return $request->fetch(PDO::FETCH_ASSOC);
+    }
+
     /**
      * Generate a token for the user and return it
      *
@@ -344,18 +375,21 @@ WHERE email = :email");
         if ($saltPassword != $exploded[1])
             return array('error' => "Invalid credentials");
 
-        $token = self::generateRandomString(100);
-        $request = $pdo->prepare("SELECT id
+
+        $request = $pdo->prepare("SELECT *
 FROM ziedelth.tokens
 WHERE user_id = :userId");
         $request->execute(array('userId' => $member['id']));
         $count = $request->rowCount();
 
-        if ($count == 0)
+        if ($count == 0) {
+            $token = self::generateRandomString(100);
             $request = $pdo->prepare("INSERT INTO ziedelth.tokens
 VALUES (NULL, CURRENT_TIMESTAMP, :userId, :token)");
-
-        $request->execute(array('userId' => $member['id'], 'token' => $token));
+            $request->execute(array('userId' => $member['id'], 'token' => $token));
+        } else {
+            $token = $request->fetch(PDO::FETCH_ASSOC)['token'];
+        }
 
         return array('token' => $token, 'user' => self::getMemberWithPseudo($pdo, $member['pseudo']));
     }
@@ -500,6 +534,68 @@ VALUES (NULL, CURRENT_TIMESTAMP, :userId, :hash, :action)");
         }
 
         $pdo->commit();
+        return array('success' => "OK");
+    }
+
+    static function passwordReset(PDO $pdo, string $email): array
+    {
+        self::deleteOld($pdo);
+
+        if (!self::emailExists($pdo, $email))
+            return array('error' => 'Email does not exists');
+
+        $member = self::getPrivateMemberWithEmail($pdo, $email);
+        $pdo->beginTransaction();
+
+        $hash = self::generateRandomString(15);
+        $request = $pdo->prepare("INSERT INTO ziedelth.actions
+VALUES (NULL, CURRENT_TIMESTAMP, :userId, :hash, :action)");
+        $request->execute(array('userId' => $member['id'], 'hash' => $hash, 'action' => 'PASSWORD_RESET'));
+
+        if (!EmailMapper::sendEmail("Changement de mot de passe sur Ziedelth.fr", EmailTemplate::getPasswordResetTemplate($member['pseudo'], $hash), $member['email'])) {
+            $pdo->rollBack();
+            return array('error' => "Can not send email");
+        }
+
+        $pdo->commit();
+        return array('success' => "OK");
+    }
+
+    static function confirmPasswordReset(PDO $pdo, string $hash, string $password): array
+    {
+        self::deleteOld($pdo);
+
+        $request = $pdo->prepare("SELECT *
+FROM ziedelth.actions
+WHERE hash = :hash");
+        $request->execute(array('hash' => $hash));
+        $count = $request->rowCount();
+
+        if ($count != 1)
+            return array('error' => "No action");
+
+        $object = $request->fetch(PDO::FETCH_ASSOC);
+        $request = $pdo->prepare("DELETE
+FROM ziedelth.actions
+WHERE id = :id
+  AND action = 'CONFIRM_PASSWORD_RESET'");
+        $request->execute(array('id' => $object['id']));
+        $request = $pdo->prepare("SELECT *
+FROM ziedelth.users
+WHERE id = :userId");
+        $request->execute(array('userId' => $object['user_id']));
+        $user = $request->fetch(PDO::FETCH_ASSOC);
+
+        $salt = self::generateRandomString(10);
+
+        if (!EmailMapper::sendEmail("Confirmation de changement de mot de passe sur Ziedelth.fr", EmailTemplate::getConfirmationPasswordResetTemplate($user['pseudo']), $user['email']))
+            return array('error' => "Can not send email");
+
+        $request = $pdo->prepare("UPDATE ziedelth.users
+SET salt_password = :password
+WHERE id = :id");
+        $request->execute(array('password' => "$salt|" . hash('sha512', "$salt$password"), 'id' => $user['id']));
+
         return array('success' => "OK");
     }
 }

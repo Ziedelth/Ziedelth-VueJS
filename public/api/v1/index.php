@@ -3,7 +3,6 @@
 use Slim\App;
 use Slim\Http\Request;
 use Slim\Http\Response;
-use Slim\Http\UploadedFile;
 
 include_once "./vendor/autoload.php";
 include_once "../configurations/config.php";
@@ -50,14 +49,14 @@ function ajoin($array, int $page, int $limit): string
     return join(", ", array_slice($array, ($page - 1) * $limit, $limit));
 }
 
-$app->get('/countries', function (Request $request, Response $response, $args) {
+$app->get('/countries', function (Request $request, Response $response) {
     try {
         $pdo = getPDO();
 
         $countries = CountryMapper::getAllCountries($pdo);
         return $response->withJson($countries);
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception));
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
@@ -72,7 +71,7 @@ $app->get('/country/{country}/page/{page}/limit/{limit}/episodes', function (Req
         $episodes = EpisodeMapper::getEpisodesWithIds($pdo, $country, $lastIds);
         return $response->withJson($episodes);
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception));
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
@@ -87,7 +86,7 @@ $app->get('/country/{country}/page/{page}/limit/{limit}/scans', function (Reques
         $scans = ScanMapper::getScansWithIds($pdo, $country, $lastIds);
         return $response->withJson($scans);
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+         return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
@@ -98,7 +97,7 @@ $app->get('/country/{country}/animes', function (Request $request, Response $res
         $animes = AnimeMapper::getAllAnimes($pdo, $country);
         return $response->withJson($animes);
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+         return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
@@ -110,7 +109,7 @@ $app->get('/country/{country}/anime/{id}', function (Request $request, Response 
         $anime = AnimeMapper::getById($pdo, $country, $id);
         return $response->withJson($anime);
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+         return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
@@ -123,7 +122,7 @@ $app->post('/member/exists/pseudo', function (Request $request, Response $respon
         $memberExists = MemberMapper::pseudoExists($pdo, $pseudo);
         return $response->withJson(array('is_exists' => $memberExists));
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
@@ -136,7 +135,7 @@ $app->post('/member/exists/email', function (Request $request, Response $respons
         $memberExists = MemberMapper::emailExists($pdo, $email);
         return $response->withJson(array('is_exists' => $memberExists));
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
@@ -150,7 +149,7 @@ $app->post('/member/register', function (Request $request, Response $response) {
         $pdo = getPDO();
         return $response->withJson(MemberMapper::register($pdo, $pseudo, $email, $password));
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception));
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
@@ -160,7 +159,7 @@ $app->get('/member/validate_action/{hash}', function (Request $request, Response
         $pdo = getPDO();
         return $response->withJson(MemberMapper::validateAction($pdo, $hash));
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
@@ -173,7 +172,7 @@ $app->post('/member/login/user', function (Request $request, Response $response)
         $pdo = getPDO();
         return $response->withJson(MemberMapper::loginWithCredentials($pdo, $email, $password));
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
@@ -185,7 +184,7 @@ $app->post('/member/login/token', function (Request $request, Response $response
         $pdo = getPDO();
         return $response->withJson(MemberMapper::loginWithToken($pdo, $token));
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
@@ -195,7 +194,7 @@ $app->get('/member/{pseudo}', function (Request $request, Response $response, $a
         $pdo = getPDO();
         return $response->withJson(MemberMapper::getMemberWithPseudo($pdo, $pseudo));
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
@@ -209,7 +208,7 @@ $app->put('/member/update', function (Request $request, Response $response) {
         $pdo = getPDO();
         return $response->withJson(MemberMapper::update($pdo, $token, $about));
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong"));
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
@@ -224,7 +223,7 @@ $app->post('/member/update/image', function(Request $request, Response $response
         $pdo = getPDO();
         return $response->withJson(MemberMapper::updateImage($pdo, $token, $directory, $uploadedFiles['file']));
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception));
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
@@ -237,13 +236,40 @@ $app->post('/member/delete', function(Request $request, Response $response) {
         $pdo = getPDO();
         return $response->withJson(MemberMapper::delete($pdo, $token));
     } catch (Exception $exception) {
-        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception));
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
+    }
+});
+
+$app->post('/member/password_reset', function(Request $request, Response $response) {
+    $_ = $request->getParsedBody();
+
+    try {
+        $email = htmlspecialchars(strip_tags($_['email']));
+
+        $pdo = getPDO();
+        return $response->withJson(MemberMapper::passwordReset($pdo, $email));
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
+    }
+});
+
+$app->post('/member/confirm_password_reset', function(Request $request, Response $response) {
+    $_ = $request->getParsedBody();
+
+    try {
+        $hash = htmlspecialchars(strip_tags($_['hash']));
+        $password = htmlspecialchars(strip_tags($_['password']));
+
+        $pdo = getPDO();
+        return $response->withJson(MemberMapper::confirmPasswordReset($pdo, $hash, $password));
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
 try {
     $app->run();
-} catch (Exception $e) {
+} catch (Exception|Throwable $e) {
     http_response_code(500);
     echo $e;
     die();
