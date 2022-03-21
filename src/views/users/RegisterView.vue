@@ -43,17 +43,20 @@ export default {
   data() {
     return {
       success: ``,
-      error: ``
+      error: ``,
+      interval: null,
     }
   },
   mounted() {
     if (this.isLogin()) {
       this.$router.push('/')
+      return
     }
 
     this.interval = setInterval(() => {
       if (this.isLogin()) {
         this.$router.push('/')
+        return
       }
     }, 5000)
   },

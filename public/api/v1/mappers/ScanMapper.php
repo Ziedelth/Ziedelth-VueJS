@@ -3,9 +3,12 @@
 class ScanMapper
 {
     /**
-     * @param PDO $pdo
-     * @param string $country
-     * @return array|false
+     * Get the last scan id for each anime in the given country
+     *
+     * @param PDO $pdo The PDO object that we created earlier.
+     * @param string $country The country tag of the anime you want to get the last ids from.
+     *
+     * @return array|false An array of the last scan id for each anime.
      */
     static function getLastIds(PDO $pdo, string $country) {
         $request = $pdo->prepare("SELECT scans.id FROM jais.scans INNER JOIN jais.animes a on scans.anime_id = a.id INNER JOIN jais.countries c on a.country_id = c.id WHERE c.tag = :country ORDER BY scans.release_date DESC, scans.anime_id DESC, scans.number DESC, scans.id_episode_type DESC, scans.id_lang_type DESC");
@@ -14,10 +17,24 @@ class ScanMapper
     }
 
     /**
-     * @param PDO $pdo
-     * @param string $country
-     * @param string|null $ids
-     * @return array|false
+     * Get all the scans with the given ids
+     *
+     * @param PDO $pdo The PDO object that will be used to execute the query.
+     * @param string $country The country code of the language you want to get.
+     * @param string|null $ids The ids of the scans you want to get.
+     *
+     * @return array|false An array of arrays. Each array contains the following:
+     *     - platform
+     *     - platform_url
+     *     - platform_image
+     *     - anime_id
+     *     - anime
+     *     - anime_image
+     *     - release_date
+     *     - number
+     *     - episode_type
+     *     - lang_type
+     *     - url
      */
     static function getScansWithIds(PDO $pdo, string $country, ?string $ids)
     {

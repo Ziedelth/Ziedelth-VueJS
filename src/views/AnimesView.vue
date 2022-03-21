@@ -10,9 +10,9 @@
           <input v-model="search" class="form-control" placeholder="Recherchez un anime..." type="text">
 
           <div class="mt-2">
-            <i class="bi bi-funnel-fill me-2"></i>
-            <button :class="{'active': filter === 'asc_name'}" class="btn btn-outline-secondary mx-1" @click="filter = 'asc_name'"><i class="bi bi-sort-alpha-down"></i></button>
-            <button :class="{'active': filter === 'desc_name'}" class="btn btn-outline-secondary mx-1" @click="filter = 'desc_name'"><i class="bi bi-sort-alpha-up"></i></button>
+            <b-icon-funnel-fill class="me-2" scale="1.5" />
+            <button :class="{'active': filter === 'asc_name'}" class="btn btn-outline-secondary mx-1" @click="filter = 'asc_name'"><b-icon-sort-alpha-down /></button>
+            <button :class="{'active': filter === 'desc_name'}" class="btn btn-outline-secondary mx-1" @click="filter = 'desc_name'"><b-icon-sort-alpha-up /></button>
           </div>
         </div>
 
@@ -46,7 +46,7 @@ const LoadingComponent = () => import("@/components/LoadingComponent");
 export default {
   components: {LoadingComponent},
   computed: {
-    ...mapState(['currentCountry']),
+    ...mapState(['user', 'currentCountry']),
 
     getItems() {
       return this.searchItems.sort((a, b) => this.filter === 'asc_name' ? a.name.toLowerCase().localeCompare(b.name.toLowerCase()) : b.name.toLowerCase().localeCompare(a.name.toLowerCase()))

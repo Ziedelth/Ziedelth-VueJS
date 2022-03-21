@@ -8,7 +8,7 @@
       <div v-else>
         <img :src="getImage()" alt="Member image" class="w-25 img-fluid rounded mb-3">
         <h3 class="fw-bold">
-          <i v-if="isAdmin() " class="bi bi-patch-check-fill text-danger" title="Administrateur"></i>
+          <b-icon-patch-check-fill variant="danger" v-if="isAdmin()" />
           {{ member.pseudo }}
         </h3>
         <p class="mb-1">Inscription il y a {{ timeSince() }}</p>

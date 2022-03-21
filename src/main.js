@@ -4,8 +4,15 @@ import App from './App.vue'
 import VueSession from 'vue-session'
 import store from "@/store/store"
 import router from "@/router/router"
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 
-import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'bootstrap-vue/dist/bootstrap-vue-icons.css'
+import 'bootstrap-icons/font/bootstrap-icons.css'
+
+Vue.use(BootstrapVue)
+Vue.use(IconsPlugin)
 
 Vue.use(VueSession, {
     persist: true

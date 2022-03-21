@@ -8,11 +8,10 @@
       <p class="lead mt-0 mb-0 fw-bold">Un bot fana d'animés et de mangas</p>
 
       <div class="d-inline w-100">
-        <a class="link-color" href="https://twitter.com/Jaiss___" target="_blank"><i class="bi bi-twitter mx-2"></i></a>
-        <a class="link-color" href="https://www.instagram.com/jais_zie/" target="_blank"><i
-            class="bi bi-instagram mx-2"></i></a>
-        <a class="link-color" href="https://github.com/Ziedelth/Jais" target="_blank"><i class="bi bi-github mx-2"></i></a>
-        <a class="link-color" href="#"><i class="bi bi-discord mx-2"></i></a>
+        <a class="link-color" href="https://twitter.com/Jaiss___" target="_blank"><b-icon-twitter class="mx-2" /></a>
+        <a class="link-color" href="https://www.instagram.com/jais_zie/" target="_blank"><b-icon-instagram class="mx-2" /></a>
+        <a class="link-color" href="https://github.com/Ziedelth/Jais" target="_blank"><b-icon-github class="mx-2" /></a>
+        <a class="link-color" href="#"><b-icon-discord class="mx-2" /></a>
       </div>
 
       <p class="text mt-0 muted fw-bold">Les dernières sorties</p>

@@ -56,10 +56,8 @@ export default {
       return
 
     await Utils.post(`api/v1/member/login/token`, JSON.stringify({token: this.$session.get('token')}), (success) => {
-      if (!("token" in success)) {
-        this.$router.push('/login')
+      if (!("token" in success))
         return
-      }
 
       this.$store.dispatch('setToken', success.token)
       this.$store.dispatch('setUser', success.user)
