@@ -354,10 +354,6 @@ WHERE user_id = :userId");
         if ($count == 0)
             $request = $pdo->prepare("INSERT INTO ziedelth.tokens
 VALUES (NULL, CURRENT_TIMESTAMP, :userId, :token)");
-        else
-            $request = $pdo->prepare("UPDATE ziedelth.tokens
-SET token = :token
-WHERE user_id = :userId");
 
         $request->execute(array('userId' => $member['id'], 'token' => $token));
 
