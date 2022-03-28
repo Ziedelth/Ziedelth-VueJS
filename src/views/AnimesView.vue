@@ -13,11 +13,13 @@
             <b-icon-funnel-fill class="me-2" scale="1.5" />
             <button :class="{'active': filter === 'asc_name'}" class="btn btn-outline-secondary mx-1" @click="filter = 'asc_name'"><b-icon-sort-alpha-down /></button>
             <button :class="{'active': filter === 'desc_name'}" class="btn btn-outline-secondary mx-1" @click="filter = 'desc_name'"><b-icon-sort-alpha-up /></button>
+            <button :class="{'active': filter === 'asc_time'}" class="btn btn-outline-secondary mx-1" @click="filter = 'asc_time'"><b-icon-calendar-plus /></button>
+            <button :class="{'active': filter === 'desc_time'}" class="btn btn-outline-secondary mx-1" @click="filter = 'desc_time'"><b-icon-calendar-minus /></button>
           </div>
         </div>
 
-        <div class="row g-3">
-          <div v-for="anime in getItems" class="col-lg-3">
+        <div class="row row-cols-lg-4 g-3 d-flex justify-content-center text-center mb-3">
+          <div v-for="anime in getItems" class="col">
             <div class="p-2 border-color rounded bg-dark mh">
               <div class="row">
                 <div class="col-9">
@@ -49,7 +51,18 @@ export default {
     ...mapState(['user', 'currentCountry']),
 
     getItems() {
-      return this.searchItems.sort((a, b) => this.filter === 'asc_name' ? a.name.toLowerCase().localeCompare(b.name.toLowerCase()) : b.name.toLowerCase().localeCompare(a.name.toLowerCase()))
+      return this.searchItems.sort((a, b) => {
+        switch (this.filter) {
+          case "asc_name":
+            return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+          case "desc_name":
+            return b.name.toLowerCase().localeCompare(a.name.toLowerCase())
+          case "asc_time":
+            return new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
+          case "desc_time":
+            return new Date(a.release_date).getTime() - new Date(b.release_date).getTime()
+        }
+      });
     },
   },
   data() {

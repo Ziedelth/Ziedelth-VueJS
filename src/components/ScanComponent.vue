@@ -11,16 +11,22 @@
         <p class="card-text">
           {{ scan.episode_type }} {{ scan.number }} {{ scan.lang_type }}
         </p>
-
-        <div class="d-flex">
-          <div class="m-0 me-auto justify-content-start">
-            Il y a {{ timeSince(scan.release_date) }}
-          </div>
-        </div>
       </div>
 
       <div class="col-lg-3">
         <img :src="scan.anime_image" alt="Anime image" class="img-fluid rounded"/>
+      </div>
+    </div>
+
+    <div class="d-flex mt-1">
+      <div class="m-0 me-auto justify-content-start">
+        Il y a {{ timeSince(scan.release_date) }}
+      </div>
+
+      <div class="m-0 ms-auto justify-content-end">
+        <i class="bi bi-hand-thumbs-up-fill me-1"></i>
+        0
+        <i class="bi bi-hand-thumbs-down-fill ms-1"></i>
       </div>
     </div>
   </div>

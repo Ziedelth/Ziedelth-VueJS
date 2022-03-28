@@ -27,8 +27,10 @@
 
         <div class="mb-3">
           <b-icon-funnel-fill class="me-2" scale="1.5" />
-          <button :class="{'active': sort === 'desc'}" class="btn btn-outline-secondary mx-1" @click="sort = 'desc'"><b-icon-sort-numeric-up /></button>
-          <button :class="{'active': sort === 'asc'}" class="btn btn-outline-secondary mx-1" @click="sort = 'asc'"><b-icon-sort-numeric-down /></button>
+          <button :class="{'active': filter === 'desc_number'}" class="btn btn-outline-secondary mx-1" @click="filter = 'desc_number'"><b-icon-sort-numeric-up /></button>
+          <button :class="{'active': filter === 'asc_number'}" class="btn btn-outline-secondary mx-1" @click="filter = 'asc_number'"><b-icon-sort-numeric-down /></button>
+          <button :class="{'active': filter === 'asc_time'}" class="btn btn-outline-secondary mx-1" @click="filter = 'asc_time'"><b-icon-calendar-plus /></button>
+          <button :class="{'active': filter === 'desc_time'}" class="btn btn-outline-secondary mx-1" @click="filter = 'desc_time'"><b-icon-calendar-minus /></button>
         </div>
 
         <div v-if="anime.seasons.length > 0 && showType === 'episodes'">
@@ -68,15 +70,37 @@ export default {
     ...mapState(['currentCountry']),
 
     episodes() {
-      return this.getSelectedSeason().episodes.sort((a, b) => this.sort === 'asc' ? (a.season << a.number) - (b.season << b.number) : (b.season << b.number) - (a.season << a.number))
+      return this.getSelectedSeason().episodes.sort((a, b) => {
+        switch (this.filter) {
+          case "asc_number":
+            return (a.season << a.number) - (b.season << b.number)
+          case "desc_number":
+            return (b.season << b.number) - (a.season << a.number)
+          case "desc_time":
+            return new Date(a.release_date).getTime() - new Date(b.release_date).getTime()
+          case "asc_time":
+            return new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
+        }
+      })
     },
     scans() {
-      return this.anime.scans.sort((a, b) => this.sort === 'asc' ? a.number - b.number : b.number - a.number)
+      return this.anime.scans.sort((a, b) => {
+        switch (this.filter) {
+          case "asc_number":
+            return a.number - b.number
+          case "desc_number":
+            return b.number - a.number
+          case "desc_time":
+            return new Date(a.release_date).getTime() - new Date(b.release_date).getTime()
+          case "asc_time":
+            return new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
+        }
+      })
     }
   },
   data() {
     return {
-      sort: 'desc',
+      filter: 'desc_number',
       showType: 'episodes',
 
       error: null,

@@ -12,7 +12,7 @@ class AnimeMapper
      */
     static function getAllAnimes(PDO $pdo, string $country)
     {
-        $request = $pdo->prepare("SELECT animes.id AS id, animes.name AS name, animes.description AS description, animes.image AS image
+        $request = $pdo->prepare("SELECT animes.id AS id, animes.release_date, animes.name AS name, animes.description AS description, animes.image AS image
 FROM jais.animes
          INNER JOIN jais.countries c on animes.country_id = c.id
 WHERE c.tag = :country
