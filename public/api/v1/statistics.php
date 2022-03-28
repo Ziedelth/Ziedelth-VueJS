@@ -18,6 +18,13 @@ function getCountDelay(PDO $pdo, string $table, int $delayInMonth)
     return $request->fetch(PDO::FETCH_ASSOC)['count'];
 }
 
+function getSumEpisodesDelay(PDO $pdo, int $delayInMonth)
+{
+    $request = $pdo->prepare("SELECT SUM(duration) AS count FROM jais.episodes WHERE STR_TO_DATE(release_date,'%Y-%m-%dT%TZ') > NOW() - INTERVAL $delayInMonth MONTH");
+    $request->execute(array());
+    return $request->fetch(PDO::FETCH_ASSOC)['count'];
+}
+
 $pdo = getPDO();
 
 echo "Last month count animes: " . getCountDelay($pdo, 'jais.animes', 1);
@@ -30,6 +37,13 @@ echo "\n";
 echo "Last month count episodes: " . getCountDelay($pdo, 'jais.episodes', 1);
 echo "\n";
 echo "Last 3 month count episodes: " . getCountDelay($pdo, 'jais.episodes', 3);
+
+echo "\n";
+echo "\n";
+
+echo "Last month count episodes duration: " . getSumEpisodesDelay($pdo, 1);
+echo "\n";
+echo "Last 3 month count episodes duration: " . getSumEpisodesDelay($pdo, 3);
 
 echo "\n";
 echo "\n";

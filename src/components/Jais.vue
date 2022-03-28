@@ -13,30 +13,17 @@
         <a class="link-color" href="https://github.com/Ziedelth/Jais" target="_blank"><b-icon-github class="mx-2" /></a>
         <a class="link-color" href="#"><b-icon-discord class="mx-2" /></a>
       </div>
-
-      <p class="text mt-0 muted fw-bold">Les dernières sorties</p>
     </div>
 
     <LoadingComponent :is-loading="isLoading" />
 
     <div v-if="!isLoading">
-      <div class="d-inline-flex mb-3">
-        <div class="form-check me-3">
-          <input id="flexRadioDefault1" v-model="showType" class="form-check-input" name="flexRadioDefault" type="radio"
-                 value="episodes">
-          <label class="form-check-label" for="flexRadioDefault1">Épisodes</label>
-        </div>
-        <div class="form-check">
-          <input id="flexRadioDefault2" v-model="showType" class="form-check-input" name="flexRadioDefault" type="radio"
-                 value="scans">
-          <label class="form-check-label" for="flexRadioDefault2">Scans</label>
-        </div>
-      </div>
-
       <p v-if="error !== null" class="alert-danger text-danger">{{ error }}</p>
 
       <div v-else>
-        <div v-if="showType === 'episodes'" id="episodes">
+        <div class="mb-3">
+          <p class="text mt-0 muted fw-bold">Les derniers épisodes sortis</p>
+
           <div class="row g-3">
             <div v-for="episode in episodes" class="col-lg-3">
               <EpisodeComponent :episode="episode"/>
@@ -44,7 +31,9 @@
           </div>
         </div>
 
-        <div v-if="showType === 'scans'" id="scans">
+        <div class="mb-3">
+          <p class="text mt-0 muted fw-bold">Les derniers scans sortis</p>
+
           <div class="row g-3">
             <div v-for="scan in scans" class="col-lg-3">
               <ScanComponent :scan="scan"/>
@@ -72,8 +61,6 @@ export default {
   },
   data() {
     return {
-      showType: 'episodes',
-
       limit: 12,
       pageEpisodes: 1,
       pageScans: 1,
