@@ -267,6 +267,42 @@ $app->post('/member/confirm_password_reset', function(Request $request, Response
     }
 });
 
+
+$app->get('/statistics', function (Request $request, Response $response, $args) {
+    // SELECT COUNT(id) AS count FROM $table WHERE STR_TO_DATE(release_date,'%Y-%m-%dT%TZ') > NOW() - INTERVAL $delayInMonth MONTH
+
+    try {
+        $pdo = getPDO();
+        $dates = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = date('Y-m-d', strtotime("-$i days"));
+
+            $request = $pdo->prepare("SELECT COUNT(id) AS count FROM jais.animes WHERE STR_TO_DATE(release_date,'%Y-%m-%d') = STR_TO_DATE('$date','%Y-%m-%dT%TZ')");
+            $request->execute(array());
+            $countAnimes = $request->fetch(PDO::FETCH_ASSOC)['count'];
+
+            $request = $pdo->prepare("SELECT COUNT(id) AS count FROM jais.episodes WHERE STR_TO_DATE(release_date,'%Y-%m-%d') = STR_TO_DATE('$date','%Y-%m-%dT%TZ')");
+            $request->execute(array());
+            $countEpisodes = $request->fetch(PDO::FETCH_ASSOC)['count'];
+
+            $request = $pdo->prepare("SELECT SUM(duration) AS duration FROM jais.episodes WHERE STR_TO_DATE(release_date,'%Y-%m-%d') = STR_TO_DATE('$date','%Y-%m-%dT%TZ')");
+            $request->execute(array());
+            $durationEpisodes = intval($request->fetch(PDO::FETCH_ASSOC)['duration']) ?? 0;
+
+            $request = $pdo->prepare("SELECT COUNT(id) AS count FROM jais.scans WHERE STR_TO_DATE(release_date,'%Y-%m-%d') = STR_TO_DATE('$date','%Y-%m-%dT%TZ')");
+            $request->execute(array());
+            $countScans = $request->fetch(PDO::FETCH_ASSOC)['count'];
+
+            $dates[] = array('date' => $date, 'animes' => $countAnimes, 'episodes' => $countEpisodes, 'duration' => $durationEpisodes, 'scans' => $countScans);
+        }
+
+        return $response->withJson($dates);
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
+    }
+});
+
 try {
     $app->run();
 } catch (Exception|Throwable $e) {

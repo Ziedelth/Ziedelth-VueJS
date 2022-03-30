@@ -51,6 +51,10 @@ export default new VueRouter({
             component: () => import("@/views/CGUView")
         },
         {
+            path: '/statistics',
+            component: () => import("@/views/StatisticsView")
+        },
+        {
             path: '/:catchAll(.*)',
             component: () => import("@/views/NotFoundView")
         },
