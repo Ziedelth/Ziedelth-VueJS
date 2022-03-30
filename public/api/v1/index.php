@@ -268,33 +268,34 @@ $app->post('/member/confirm_password_reset', function(Request $request, Response
 });
 
 
-$app->get('/statistics', function (Request $request, Response $response, $args) {
+$app->get('/statistics/{days}', function (Request $request, Response $response, $args) {
     // SELECT COUNT(id) AS count FROM $table WHERE STR_TO_DATE(release_date,'%Y-%m-%dT%TZ') > NOW() - INTERVAL $delayInMonth MONTH
 
     try {
+        $days = intval(htmlspecialchars(strip_tags($args['days']))) - 1;
         $pdo = getPDO();
         $dates = [];
 
-        for ($i = 6; $i >= 0; $i--) {
+        for ($i = $days; $i >= 0; $i--) {
             $date = date('Y-m-d', strtotime("-$i days"));
 
-            $request = $pdo->prepare("SELECT COUNT(id) AS count FROM jais.animes WHERE STR_TO_DATE(release_date,'%Y-%m-%d') = STR_TO_DATE('$date','%Y-%m-%dT%TZ')");
+            $request = $pdo->prepare("SELECT p.name, p.color, (SELECT COUNT(e.id) AS count FROM jais.episodes e WHERE STR_TO_DATE(e.release_date,'%Y-%m-%d') = STR_TO_DATE('$date','%Y-%m-%dT%TZ') AND e.platform_id = p.id) as count FROM jais.platforms p");
             $request->execute(array());
-            $countAnimes = $request->fetch(PDO::FETCH_ASSOC)['count'];
+            $platformsCount = $request->fetchAll(PDO::FETCH_ASSOC);
 
             $request = $pdo->prepare("SELECT COUNT(id) AS count FROM jais.episodes WHERE STR_TO_DATE(release_date,'%Y-%m-%d') = STR_TO_DATE('$date','%Y-%m-%dT%TZ')");
             $request->execute(array());
             $countEpisodes = $request->fetch(PDO::FETCH_ASSOC)['count'];
 
-            $request = $pdo->prepare("SELECT SUM(duration) AS duration FROM jais.episodes WHERE STR_TO_DATE(release_date,'%Y-%m-%d') = STR_TO_DATE('$date','%Y-%m-%dT%TZ')");
+            $request = $pdo->prepare("SELECT p.name, p.color, (SELECT CAST(COALESCE(SUM(e.duration), 0) AS INTEGER) AS count FROM jais.episodes e WHERE STR_TO_DATE(e.release_date,'%Y-%m-%d') = STR_TO_DATE('$date','%Y-%m-%dT%TZ') AND e.platform_id = p.id) as duration FROM jais.platforms p");
             $request->execute(array());
-            $durationEpisodes = intval($request->fetch(PDO::FETCH_ASSOC)['duration']) ?? 0;
+            $platformsDuration = $request->fetchAll(PDO::FETCH_ASSOC);
 
-            $request = $pdo->prepare("SELECT COUNT(id) AS count FROM jais.scans WHERE STR_TO_DATE(release_date,'%Y-%m-%d') = STR_TO_DATE('$date','%Y-%m-%dT%TZ')");
+            $request = $pdo->prepare("SELECT CAST(COALESCE(SUM(duration), 0) AS INTEGER) AS duration FROM jais.episodes WHERE STR_TO_DATE(release_date,'%Y-%m-%d') = STR_TO_DATE('$date','%Y-%m-%dT%TZ')");
             $request->execute(array());
-            $countScans = $request->fetch(PDO::FETCH_ASSOC)['count'];
+            $durationEpisodes = $request->fetch(PDO::FETCH_ASSOC)['duration'];
 
-            $dates[] = array('date' => $date, 'animes' => $countAnimes, 'episodes' => $countEpisodes, 'duration' => $durationEpisodes, 'scans' => $countScans);
+            $dates[] = array('date' => $date, 'platforms_count' => $platformsCount, 'episodes' => $countEpisodes, 'platforms_duration' => $platformsDuration, 'duration' => $durationEpisodes);
         }
 
         return $response->withJson($dates);
