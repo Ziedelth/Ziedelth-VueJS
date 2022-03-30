@@ -3,19 +3,8 @@
     <LoadingComponent :is-loading="isLoading" />
 
     <div v-if="!isLoading">
-      <h5>Épisodes</h5>
-
-      <div class="row row-cols-lg-1 g-3 d-flex justify-content-center text-center">
-        <div class="col">
-          <h5>Données globales au mois</h5>
-          <Chart :data="globalDataMonth"/>
-        </div>
-
-        <div class="col">
-          <h5>Durée globale au mois (en heures)</h5>
-          <Chart :data="durationDataMonth"/>
-        </div>
-      </div>
+      <h5>Données globales au mois</h5>
+      <Chart :data="globalDataMonth"/>
     </div>
   </div>
 </template>
@@ -30,9 +19,7 @@ export default {
   data() {
     return {
       isLoading: true,
-
       globalDataMonth: null,
-      durationDataMonth: null,
     }
   },
   async mounted() {
@@ -44,45 +31,22 @@ export default {
           label: "Total",
           borderColor: "#ffffff",
           borderWidth: 2,
-          data: success.map((item) => item.episodes),
-        },
-      ];
-      const durationDataset = [
-        {
-          label: "Total",
-          borderColor: "#ffffff",
-          borderWidth: 2,
-          data: success.map((item) => item.duration / 3600),
+          data: success.map((item) => item.episodes + item.scans),
         },
       ];
 
       success.forEach(data => {
-        data.platforms_count.forEach(item => {
+        data.platforms.forEach(item => {
           if (globalDataset.some(data => data.label === item.name)) {
             globalDataset.filter(data => data.label === item.name).forEach(data => {
-              data.data.push(item.count);
+              data.data.push(item.episodes + item.scans);
             });
           } else {
             globalDataset.push({
               label: item.name,
               borderColor: "#" + item.color.toString(16).padStart(6, "0"),
               borderWidth: 2,
-              data: [item.count],
-            });
-          }
-        });
-
-        data.platforms_duration.forEach(item => {
-          if (durationDataset.some(data => data.label === item.name)) {
-            durationDataset.filter(data => data.label === item.name).forEach(data => {
-              data.data.push(item.duration / 3600);
-            });
-          } else {
-            durationDataset.push({
-              label: item.name,
-              borderColor: "#" + item.color.toString(16).padStart(6, "0"),
-              borderWidth: 2,
-              data: [item.duration / 3600],
+              data: [item.episodes + item.scans],
             });
           }
         });
@@ -91,11 +55,6 @@ export default {
       this.globalDataMonth = {
         labels: success.map((item) => item.date),
         datasets: globalDataset
-      };
-
-      this.durationDataMonth = {
-        labels: success.map((item) => item.date),
-        datasets: durationDataset
       };
     }, (failed) => null)
 
