@@ -1,6 +1,6 @@
 <template>
   <div class="row row-cols-lg-4 g-3 d-flex justify-content-center text-center mb-3">
-    <div v-for="episode in episodes" class="col" :key="episode.episode_id" @dblclick="showEpisode(episode)">
+    <div v-for="episode in episodes" class="col-lg" :key="episode.episode_id" @dblclick="showEpisode(episode)">
       <EpisodeComponent :episode="episode"/>
     </div>
 

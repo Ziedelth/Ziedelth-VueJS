@@ -19,7 +19,7 @@
         </div>
 
         <div class="row row-cols-lg-4 g-3 d-flex justify-content-center text-center mb-3">
-          <div v-for="anime in getItems" class="col">
+          <div v-for="anime in getItems" class="col-lg">
             <AnimeComponent :anime="anime" />
           </div>
         </div>

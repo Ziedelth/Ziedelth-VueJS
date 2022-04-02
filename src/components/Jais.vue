@@ -1,7 +1,8 @@
 <template>
   <div id="jais" class="text-center">
-    <img alt="Jaïs brand" class="img-fluid collapsed border-color rounded-circle shadow" height="120"
-         loading="lazy" src="images/jais.jpg" width="120"/>
+    <figure v-lazyload class="m-0 p-0">
+      <img alt="Jaïs brand" class="img-fluid collapsed border-color rounded-circle shadow" data-url="images/jais.jpg" width="120" height="120"/>
+    </figure>
 
     <div class="container-fluid">
       <h2 class="mt-2 mb-0 fw-bold">Jaïs</h2>

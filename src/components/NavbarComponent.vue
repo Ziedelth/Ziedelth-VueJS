@@ -1,22 +1,23 @@
 <template>
   <header>
     <b-navbar toggleable="lg" type="dark" variant="dark">
-      <b-navbar-brand class="ms-5">
-        <img alt="" class="d-inline-block align-text-top me-2 rounded" height="30" loading="lazy"
-             src="images/favicon.jpg" width="30">
-        Ziedelth.fr
+      <b-navbar-brand class="ms-3">
+        <figure v-lazyload class="m-0 p-0">
+          <img alt="" class="d-inline-block align-text-top me-2 rounded" data-url="images/favicon.jpg" width="30" height="30">
+          Ziedelth.fr
+        </figure>
       </b-navbar-brand>
 
-      <b-navbar-toggle target="nav-collapse" />
+      <b-navbar-toggle target="nav-collapse" class="me-3" />
 
-      <b-collapse id="nav-collapse" is-nav class="me-5">
-        <b-navbar-nav class="me-auto">
+      <b-collapse id="nav-collapse" is-nav>
+        <b-navbar-nav class="ms-3">
           <router-link class="nav-link" to="/">Accueil</router-link>
           <router-link class="nav-link" to="/animes">Animes</router-link>
           <router-link class="nav-link" to="/statistics">Statistiques</router-link>
         </b-navbar-nav>
 
-        <b-navbar-nav class="ml-auto">
+        <b-navbar-nav class="ms-auto me-5">
           <router-link v-if="!isLogin()" class="nav-link" to="/register">Inscription</router-link>
           <router-link v-if="!isLogin()" class="nav-link" to="/login">Connexion</router-link>
 
