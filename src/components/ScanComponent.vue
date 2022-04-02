@@ -19,7 +19,7 @@
       </div>
 
       <div class="col-lg-3">
-        <figure v-lazyload>
+        <figure v-lazyload class="m-0 p-0">
           <img :data-url="scan.anime_image" alt="Anime image" class="img-fluid rounded" width="640" height="960"/>
         </figure>
       </div>

@@ -7,7 +7,7 @@
 
       <div v-else class="container-fluid">
         <div class="container">
-          <figure v-lazyload>
+          <figure v-lazyload class="m-0 p-0">
             <img :data-url="anime.image" alt="Anime image" class="w-10 rounded mb-3">
           </figure>
 

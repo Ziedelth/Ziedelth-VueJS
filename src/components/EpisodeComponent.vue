@@ -21,7 +21,7 @@
     </div>
 
     <a :href="episode.url" target="_blank">
-      <figure v-lazyload>
+      <figure v-lazyload class="m-0 p-0">
         <img :data-url="episode.image" alt="Episode image" class="mb-2 rounded img-fluid w-100 mt-2" width="1920" height="1080">
       </figure>
     </a>
