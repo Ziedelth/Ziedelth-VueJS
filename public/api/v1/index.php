@@ -298,6 +298,85 @@ $app->get('/statistics/{days}', function (Request $request, Response $response, 
     }
 });
 
+$app->put('/episode/update', function (Request $request, Response $response) {
+    $_ = $request->getParsedBody();
+
+    try {
+        $token = htmlspecialchars(strip_tags($_['token']));
+        $id = intval(htmlspecialchars(strip_tags($_['id'])));
+        $pdo = getPDO();
+
+        if (!MemberMapper::isAdminToken($pdo, $token)) {
+            return $response->withStatus(403)->withJson(array('error' => "You are not allowed to do this"));
+        }
+
+        if (!EpisodeMapper::isIDExists($pdo, $id)) {
+            return $response->withStatus(404)->withJson(array('error' => "Episode not found"));
+        }
+
+        $pdo->beginTransaction();
+
+        // Get release_date from _
+        $release_date = htmlspecialchars(strip_tags($_['release_date']));
+
+        // If release_date is not null and not empty, update it
+        if (!empty($release_date)) {
+            $request = $pdo->prepare("UPDATE jais.episodes SET release_date = ? WHERE id = ?");
+            $request->execute(array($release_date, $id));
+        }
+
+        // Get int season from _
+        $season = intval(htmlspecialchars(strip_tags($_['season'])));
+
+        // If season is not null and not empty, update it
+        if (!empty($season)) {
+            $request = $pdo->prepare("UPDATE jais.episodes SET season = ? WHERE id = ?");
+            $request->execute(array($season, $id));
+        }
+
+        // Get int number from _
+        $number = intval(htmlspecialchars(strip_tags($_['number'])));
+
+        // If number is not null and not empty, update it
+        if (!empty($number)) {
+            $request = $pdo->prepare("UPDATE jais.episodes SET number = ? WHERE id = ?");
+            $request->execute(array($number, $id));
+        }
+
+        // Get title from _
+        $title = htmlspecialchars(strip_tags($_['title']));
+
+        // If title is not null and not empty, update it
+        if (!empty($title)) {
+            $request = $pdo->prepare("UPDATE jais.episodes SET title = ? WHERE id = ?");
+            $request->execute(array($title, $id));
+        }
+
+        // Get URL from _
+        $url = htmlspecialchars(strip_tags($_['url']));
+
+        // If URL is not null and not empty, update it
+        if (!empty($url)) {
+            $request = $pdo->prepare("UPDATE jais.episodes SET url = ? WHERE id = ?");
+            $request->execute(array($url, $id));
+        }
+
+        // Get int duration from _
+        $duration = intval(htmlspecialchars(strip_tags($_['duration'])));
+
+        // If duration is not null and not empty, update it
+        if (!empty($duration)) {
+            $request = $pdo->prepare("UPDATE jais.episodes SET duration = ? WHERE id = ?");
+            $request->execute(array($duration, $id));
+        }
+
+        $pdo->commit();
+        return $response->withJson(array('success' => "Episode updated"));
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
+    }
+});
+
 try {
     $app->run();
 } catch (Exception|Throwable $e) {

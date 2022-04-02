@@ -23,22 +23,12 @@
       <div v-else>
         <div class="mb-3">
           <p class="text mt-0 muted fw-bold">Les derniers épisodes sortis</p>
-
-          <div class="row g-3">
-            <div v-for="episode in episodes" class="col-lg-3">
-              <EpisodeComponent :episode="episode"/>
-            </div>
-          </div>
+          <Episodes :episodes="episodes" @refresh="getEpisodes"/>
         </div>
 
         <div class="mb-3">
           <p class="text mt-0 muted fw-bold">Les derniers scans sortis</p>
-
-          <div class="row g-3">
-            <div v-for="scan in scans" class="col-lg-3">
-              <ScanComponent :scan="scan"/>
-            </div>
-          </div>
+          <Scans :scans="scans"/>
         </div>
       </div>
     </div>
@@ -50,12 +40,12 @@ import Utils from "@/utils";
 import {mapState} from "vuex";
 
 const LoadingComponent = () => import("@/components/LoadingComponent");
-const EpisodeComponent = () => import("@/components/EpisodeComponent");
-const ScanComponent = () => import("@/components/ScanComponent");
+const Episodes = () => import("@/components/Episodes");
+const Scans = () => import("@/components/Scans");
 
 export default {
   name: "Jais",
-  components: {LoadingComponent, EpisodeComponent, ScanComponent},
+  components: {LoadingComponent, Episodes, Scans},
   computed: {
     ...mapState(['currentCountry'])
   },
@@ -71,21 +61,29 @@ export default {
       error: null,
     }
   },
+  methods: {
+    // Get episodes
+    async getEpisodes() {
+      await Utils.get(`api/v1/country/${this.currentCountry.tag}/page/${this.pageEpisodes}/limit/${this.limit}/episodes`, (success) => {
+        this.episodes = success
+      }, (failed) => {
+        this.error = failed
+      })
+    },
+
+    // Get scans
+    async getScans() {
+      await Utils.get(`api/v1/country/${this.currentCountry.tag}/page/${this.pageScans}/limit/${this.limit}/scans`, (success) => {
+        this.scans = success
+      }, (failed) => {
+        this.error = failed
+      })
+    },
+  },
   async mounted() {
     this.isLoading = true
-
-    await Utils.get(`api/v1/country/${this.currentCountry.tag}/page/${this.pageEpisodes}/limit/${this.limit}/episodes`, (success) => {
-      this.episodes.push(...success)
-    }, (failed) => {
-      this.error = failed
-    })
-
-    await Utils.get(`api/v1/country/${this.currentCountry.tag}/page/${this.pageScans}/limit/${this.limit}/scans`, (success) => {
-      this.scans.push(...success)
-    }, (failed) => {
-      this.error = failed
-    })
-
+    await this.getEpisodes()
+    await this.getScans()
     this.isLoading = false
   }
 }

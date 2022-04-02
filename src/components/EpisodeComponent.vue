@@ -4,10 +4,13 @@
       <PlatformComponent :url="episode.platform_url" :image="episode.platform_image" :name="episode.platform" />
     </div>
 
-    <div class="text-start">
-      <AnimeComponent :id="episode.anime_id" :name="episode.anime" />
+    <div class="text-start text-truncate">
+      <router-link :to="`/anime/${episode.anime_id}`" class="card-title fw-bold link-color">{{
+          episode.anime
+        }}
+      </router-link>
 
-      <p class="card-text text-truncate">
+      <p class="card-text">
         <span class="fw-bold">{{ episode.title === null ? "＞﹏＜" : episode.title }}</span>
         <br>
         {{ episode.country_season }} {{ episode.season }} • {{ episode.episode_type }} {{ episode.number }} {{ episode.lang_type }}
@@ -40,11 +43,10 @@ import Utils from "@/utils";
 import {mapState} from "vuex";
 
 const PlatformComponent = () => import("@/components/PlatformComponent");
-const AnimeComponent = () => import("@/components/AnimeComponent");
 
 export default {
   name: 'EpisodeComponent',
-  components: {AnimeComponent, PlatformComponent},
+  components: {PlatformComponent},
   props: {
     episode: {},
   },

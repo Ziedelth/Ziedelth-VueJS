@@ -38,18 +38,10 @@
             <option v-for="season in anime.seasons" :value="season.season">{{ anime.country_season }} {{ season.season }}</option>
           </select>
 
-          <div class="row g-3">
-            <div v-for="episode in episodes" :key="episode.episodeId" class="col-lg-4">
-              <EpisodeComponent :episode="episode"/>
-            </div>
-          </div>
+          <Episodes :episodes="episodes" />
         </div>
         <div v-if="anime.scans.length > 0 && showType === 'scans'">
-          <div class="row g-3">
-            <div v-for="scan in scans" :key="scan.id" class="col-lg-4">
-              <ScanComponent :scan="scan"/>
-            </div>
-          </div>
+          <Scans :scans="scans" />
         </div>
       </div>
     </div>
@@ -60,12 +52,12 @@
 import Utils from "@/utils";
 import {mapState} from "vuex";
 
-const EpisodeComponent = () => import("@/components/EpisodeComponent");
-const ScanComponent = () => import("@/components/ScanComponent");
 const LoadingComponent = () => import("@/components/LoadingComponent");
+const Episodes = () => import("@/components/Episodes");
+const Scans = () => import("@/components/Scans");
 
 export default {
-  components: {ScanComponent, EpisodeComponent, LoadingComponent},
+  components: {LoadingComponent, Episodes, Scans},
   computed: {
     ...mapState(['currentCountry']),
 

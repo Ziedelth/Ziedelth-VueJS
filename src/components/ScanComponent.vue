@@ -6,7 +6,12 @@
           <PlatformComponent :url="scan.platform_url" :image="scan.platform_image" :name="scan.platform" />
         </div>
 
-        <AnimeComponent :id="scan.anime_id" :name="scan.anime" />
+        <div class="text-truncate">
+          <router-link :to="`/anime/${scan.anime_id}`" class="card-title fw-bold link-color">{{
+              scan.anime
+            }}
+          </router-link>
+        </div>
 
         <p class="card-text">
           {{ scan.episode_type }} {{ scan.number }} {{ scan.lang_type }}
@@ -36,11 +41,10 @@
 import Utils from "@/utils";
 
 const PlatformComponent = () => import("@/components/PlatformComponent");
-const AnimeComponent = () => import("@/components/AnimeComponent");
 
 export default {
   name: 'ScanComponent',
-  components: {PlatformComponent, AnimeComponent},
+  components: {PlatformComponent},
   props: {
     scan: {},
   },

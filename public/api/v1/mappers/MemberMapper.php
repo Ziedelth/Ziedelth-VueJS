@@ -65,6 +65,19 @@ WHERE token = :token");
         return $request->rowCount() >= 1;
     }
 
+    static function isAdminToken(PDO $pdo, ?string $token): bool
+    {
+        if (!self::tokenExists($pdo, $token))
+            return false;
+
+        $request = $pdo->prepare("SELECT tokens.id
+FROM ziedelth.tokens
+INNER JOIN ziedelth.users ON tokens.user_id = users.id
+WHERE token = :token AND users.role = 100");
+        $request->execute(array('token' => $token));
+        return $request->rowCount() >= 1;
+    }
+
     /**
      * Generate a random string of a given length
      *

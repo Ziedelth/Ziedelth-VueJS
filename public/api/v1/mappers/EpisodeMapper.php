@@ -78,4 +78,16 @@ ORDER BY episodes.release_date DESC, anime_id DESC, season DESC, number DESC, id
         $request->execute(array());
         return $request->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    static function isIDExists(PDO $pdo, ?int $id): bool
+    {
+        if ($id == null && empty($id))
+            return false;
+
+        $request = $pdo->prepare("SELECT id
+FROM jais.episodes
+WHERE id = :id");
+        $request->execute(array('id' => $id));
+        return $request->rowCount() >= 1;
+    }
 }
