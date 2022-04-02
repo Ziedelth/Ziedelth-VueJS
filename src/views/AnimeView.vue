@@ -7,7 +7,10 @@
 
       <div v-else class="container-fluid">
         <div class="container">
-          <img :src="anime.image" alt="Anime image" class="w-10 rounded mb-3">
+          <figure v-lazyload>
+            <img :data-url="anime.image" alt="Anime image" class="w-10 rounded mb-3">
+          </figure>
+
           <h3>{{ anime.name }}</h3>
           <p>{{ anime.genres }}</p>
           <hr>

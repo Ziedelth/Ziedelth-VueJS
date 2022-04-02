@@ -5,22 +5,22 @@ import VueSession from 'vue-session'
 import store from "@/store/store"
 import router from "@/router/router"
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+import LazyLoadDirective from "@/directives/LazyLoadDirective";
 
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-import 'bootstrap-vue/dist/bootstrap-vue-icons.css'
+import 'bootstrap-vue/dist/bootstrap-vue.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
+Vue.use(Vuex)
 
 Vue.use(VueSession, {
     persist: true
 })
 
-Vue.use(Vuex)
-
 Vue.config.productionTip = false
+
+Vue.directive("lazyload", LazyLoadDirective);
 
 new Vue({
     router,

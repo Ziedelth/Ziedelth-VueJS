@@ -20,18 +20,7 @@
 
         <div class="row row-cols-lg-4 g-3 d-flex justify-content-center text-center mb-3">
           <div v-for="anime in getItems" class="col">
-            <div class="p-2 border-color rounded bg-dark mh">
-              <div class="row">
-                <div class="col-9">
-                  <router-link :to="`/anime/${anime.id}`" class="link-color">{{ anime.name }}</router-link>
-                  <p class="anime-description">{{ getAnimeDescription(anime) }}</p>
-                </div>
-
-                <div class="col-3 p-2">
-                  <img :src="anime.image" alt="Anime image" class="img-fluid rounded"/>
-                </div>
-              </div>
-            </div>
+            <AnimeComponent :anime="anime" />
           </div>
         </div>
       </div>
@@ -44,9 +33,10 @@ import Utils from "@/utils";
 import {mapState} from "vuex";
 
 const LoadingComponent = () => import("@/components/LoadingComponent");
+const AnimeComponent = () => import("@/components/AnimeComponent");
 
 export default {
-  components: {LoadingComponent},
+  components: {AnimeComponent, LoadingComponent},
   computed: {
     ...mapState(['user', 'currentCountry']),
 
@@ -77,11 +67,6 @@ export default {
       error: null,
     }
   },
-  methods: {
-    getAnimeDescription(anime) {
-      return Utils.isNullOrEmpty(anime.description) ? 'Aucune description pour le moment...' : anime.description
-    },
-  },
   watch: {
     search: function (val) {
       this.searchItems = Utils.isNullOrEmpty(val) ? Object.assign({}, this.animes) : this.animes.filter(value => value.name.toLowerCase().includes(val.toLowerCase()))
@@ -101,16 +86,3 @@ export default {
 }
 </script>
 
-<style scoped>
-.anime-description {
-  display: -webkit-box;
-  -webkit-line-clamp: 7;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.mh {
-  height: 24vh;
-  overflow: hidden;
-}
-</style>

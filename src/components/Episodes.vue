@@ -4,7 +4,7 @@
       <EpisodeComponent :episode="episode"/>
     </div>
 
-    <b-modal id="modal-episode" title="Édition de l'épisode" size="xl" hide-header-close hide-footer centered scrollable >
+    <b-modal id="modal-episode" title="Édition de l'épisode" size="xl" hide-header-close hide-footer centered scrollable>
       <div class="row row-cols-lg-2 g-3 d-flex justify-content-center mb-3">
         <div class="col">
           <div class="form-group">
