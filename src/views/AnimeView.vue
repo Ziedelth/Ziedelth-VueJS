@@ -106,17 +106,23 @@ export default {
   },
   methods: {
     async update() {
-      this.isLoading = true
-
       await Utils.get(`api/v1/country/${this.currentCountry.tag}/anime/${this.$route.params.id}`, (success) => {
         this.anime = success
-        this.selectedSeason = success.seasons.length > 0 ? success.seasons[0].season : null
+
+        if (this.anime.seasons.length > 0) {
+          // If selected season is not null, update it
+          if (this.selectedSeason !== null) {
+            this.selectedSeason = this.anime.seasons.find(season => season.season === this.selectedSeason).season
+          } else {
+            // If selected season is null, set it to the first season
+            this.selectedSeason = this.anime.seasons[0].season
+          }
+        }
+
         this.showType = success.seasons.length > 0 ? 'episodes' : 'scans'
       }, (failed) => {
         this.error = failed
       })
-
-      this.isLoading = false
     },
     getAnimeDescription() {
       return Utils.isNullOrEmpty(this.anime.description) ? 'Aucune description pour le moment...' : this.anime.description
@@ -130,7 +136,9 @@ export default {
     },
   },
   async mounted() {
+    this.isLoading = true
     await this.update()
+    this.isLoading = false
   }
 }
 </script>
