@@ -122,7 +122,7 @@ export default {
       await Utils.post(`api/v1/member/login/user`, JSON.stringify({
         email: email,
         password: password
-      }), (success) => {
+      }), async (success) => {
         if ("error" in success) {
           this.error = `${success.error}`
           this.$refs.submitButton.disabled = false
@@ -131,10 +131,21 @@ export default {
 
         this.$session.start()
         this.$session.set('token', success.token)
-        this.$store.dispatch('setToken', success.token)
-        this.$store.dispatch('setUser', success.user)
-        this.$router.push('/')
+        await this.$store.dispatch('setToken', success.token)
+        await this.$store.dispatch('setUser', success.user)
+        await this.$router.push('/')
         this.$refs.submitButton.disabled = false
+
+        // If user is null and not have a pseudo, return
+        if (!this.user.pseudo)
+          return
+
+        await Utils.get(`api/v1/statistics/member/${this.user.pseudo}`, (success) => {
+          if ("error" in success)
+            return
+
+          this.$store.dispatch('setStatistics', success)
+        }, (failed) => null)
       }, (failed) => {
         this.$refs.submitButton.disabled = false
         this.error = `${failed}`

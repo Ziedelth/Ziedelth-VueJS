@@ -41,10 +41,10 @@
             <option v-for="season in anime.seasons" :value="season.season">{{ anime.country_season }} {{ season.season }}</option>
           </select>
 
-          <Episodes :episodes="episodes" />
+          <Episodes :episodes="episodes" @refresh="update"/>
         </div>
         <div v-if="anime.scans.length > 0 && showType === 'scans'">
-          <Scans :scans="scans" />
+          <Scans :scans="scans" @refresh="update" />
         </div>
       </div>
     </div>
@@ -68,9 +68,9 @@ export default {
       return this.getSelectedSeason().episodes.sort((a, b) => {
         switch (this.filter) {
           case "asc_number":
-            return (a.season << a.number) - (b.season << b.number)
+            return a.number - b.number
           case "desc_number":
-            return (b.season << b.number) - (a.season << a.number)
+            return b.number - a.number
           case "desc_time":
             return new Date(a.release_date).getTime() - new Date(b.release_date).getTime()
           case "asc_time":

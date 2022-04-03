@@ -20,7 +20,7 @@
 
         <div class="row row-cols-lg-4 g-3 d-flex justify-content-center text-center mb-3">
           <div v-for="anime in getItems" class="col-lg">
-            <AnimeComponent :anime="anime" />
+            <AnimeComponent :anime="anime" @notation="notation" />
           </div>
         </div>
       </div>
@@ -30,7 +30,7 @@
 
 <script>
 import Utils from "@/utils";
-import {mapState} from "vuex";
+import {mapGetters, mapState} from "vuex";
 
 const LoadingComponent = () => import("@/components/LoadingComponent");
 const AnimeComponent = () => import("@/components/AnimeComponent");
@@ -38,7 +38,7 @@ const AnimeComponent = () => import("@/components/AnimeComponent");
 export default {
   components: {AnimeComponent, LoadingComponent},
   computed: {
-    ...mapState(['user', 'currentCountry']),
+    ...mapState(['token', 'user', 'currentCountry']),
 
     getItems() {
       return this.searchItems.sort((a, b) => {
@@ -72,15 +72,45 @@ export default {
       this.searchItems = Utils.isNullOrEmpty(val) ? Object.assign({}, this.animes) : this.animes.filter(value => value.name.toLowerCase().includes(val.toLowerCase()))
     }
   },
+  methods: {
+    ...mapGetters(['isLogin']),
+
+    async update() {
+      await Utils.get(`api/v1/country/${this.currentCountry.tag}/animes`, (animes) => {
+        this.animes = this.searchItems = animes
+      }, (failed) => {
+        this.error = `${failed}`
+      })
+    },
+    async notation({anime, count}) {
+      // If the user is not logged, we do not save the notation
+      if (!this.isLogin()) {
+        return;
+      }
+
+      await Utils.put(`api/v1/member/notation/anime`, JSON.stringify({token: this.token, id: anime.id, count: count}), async (success) => {
+        if (!("success" in success))
+          return
+
+        // Refresh episodes
+        await this.update()
+
+        // If user is null and not have a pseudo, return
+        if (!this.user.pseudo)
+          return
+
+        await Utils.get(`api/v1/statistics/member/${this.user.pseudo}`, (success) => {
+          if ("error" in success)
+            return
+
+          this.$store.dispatch('setStatistics', success)
+        }, (failed) => null)
+      }, (failed) => null)
+    },
+  },
   async mounted() {
     this.isLoading = true
-
-    await Utils.get(`api/v1/country/${this.currentCountry.tag}/animes`, (animes) => {
-      this.animes = this.searchItems = animes
-    }, (failed) => {
-      this.error = `${failed}`
-    })
-
+    await this.update()
     this.isLoading = false
   }
 }

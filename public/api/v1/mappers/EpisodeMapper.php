@@ -2,6 +2,15 @@
 
 class EpisodeMapper
 {
+    // Check if id exists
+    public static function exists(PDO $pdo, $id): bool
+    {
+        $query = $pdo->prepare('SELECT COUNT(*) FROM jais.episodes WHERE id = :id');
+        $query->execute(array('id' => $id));
+        $rows = $query->rowCount();
+        return $rows > 0;
+    }
+
     /**
      * It returns the last episode id for each anime of the given country
      *
@@ -66,7 +75,8 @@ ORDER BY episodes.release_date DESC, episodes.anime_id DESC, episodes.season DES
        episodes.title        AS title,
        episodes.url          AS url,
        episodes.image        AS image,
-       episodes.duration     AS duration
+       episodes.duration     AS duration,
+       (SELECT COALESCE(CAST(SUM(en.count) AS INT), 0) FROM ziedelth.episodes_notations en WHERE en.episode_id = jais.episodes.id AND en.count = 1) AS notation
 FROM jais.episodes
          INNER JOIN jais.platforms p on episodes.platform_id = p.id
          INNER JOIN jais.animes a on episodes.anime_id = a.id

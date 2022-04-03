@@ -113,6 +113,89 @@ $app->get('/country/{country}/anime/{id}', function (Request $request, Response 
     }
 });
 
+$app->put('/episode/update', function (Request $request, Response $response) {
+    $_ = $request->getParsedBody();
+
+    try {
+        $token = htmlspecialchars(strip_tags($_['token']));
+        $id = intval(htmlspecialchars(strip_tags($_['id'])));
+        $pdo = getPDO();
+
+        if (!MemberMapper::isAdminToken($pdo, $token)) {
+            return $response->withStatus(403)->withJson(array('error' => "You are not allowed to do this"));
+        }
+
+        if (!EpisodeMapper::isIDExists($pdo, $id)) {
+            return $response->withStatus(404)->withJson(array('error' => "Episode not found"));
+        }
+
+        $pdo->beginTransaction();
+
+        // Get release_date from _
+        $release_date = htmlspecialchars(strip_tags($_['release_date']));
+
+        // If release_date is not null and not empty, update it
+        if (!empty($release_date)) {
+            $request = $pdo->prepare("UPDATE jais.episodes SET release_date = ? WHERE id = ?");
+            $request->execute(array($release_date, $id));
+        }
+
+        // Get int season from _
+        $season = intval(htmlspecialchars(strip_tags($_['season'])));
+
+        // If season is not null and not empty, update it
+        if (!empty($season)) {
+            $request = $pdo->prepare("UPDATE jais.episodes SET season = ? WHERE id = ?");
+            $request->execute(array($season, $id));
+        }
+
+        // Get int number from _
+        $number = intval(htmlspecialchars(strip_tags($_['number'])));
+
+        // If number is not null and not empty, update it
+        if (!empty($number)) {
+            $request = $pdo->prepare("UPDATE jais.episodes SET number = ? WHERE id = ?");
+            $request->execute(array($number, $id));
+        }
+
+        // Get title from _
+        $title = htmlspecialchars(strip_tags($_['title']));
+
+        // If title is not null and not empty, update it
+        if (!empty($title)) {
+            $request = $pdo->prepare("UPDATE jais.episodes SET title = ? WHERE id = ?");
+            $request->execute(array($title, $id));
+        }
+
+        // Get URL from _
+        $url = htmlspecialchars(strip_tags($_['url']));
+
+        // If URL is not null and not empty, update it
+        if (!empty($url)) {
+            $request = $pdo->prepare("UPDATE jais.episodes SET url = ? WHERE id = ?");
+            $request->execute(array($url, $id));
+        }
+
+        // Get int duration from _
+        $duration = intval(htmlspecialchars(strip_tags($_['duration'])));
+
+        // If duration is not null and not empty, update it
+        if (!empty($duration)) {
+            $request = $pdo->prepare("UPDATE jais.episodes SET duration = ? WHERE id = ?");
+            $request->execute(array($duration, $id));
+        }
+
+        $pdo->commit();
+        return $response->withJson(array('success' => "Episode updated"));
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
+    }
+});
+
+// -----------------------------------
+// MEMBER PART
+// -----------------------------------
+
 $app->post('/member/exists/pseudo', function (Request $request, Response $response) {
     $_ = $request->getParsedBody();
 
@@ -267,6 +350,176 @@ $app->post('/member/confirm_password_reset', function(Request $request, Response
     }
 });
 
+$app->put('/member/notation/episode', function (Request $request, Response $response) {
+    $_ = $request->getParsedBody();
+
+    try {
+        $token = htmlspecialchars(strip_tags($_['token']));
+        $id = intval(htmlspecialchars(strip_tags($_['id'])));
+        $count = intval(htmlspecialchars(strip_tags($_['count'])));
+        $pdo = getPDO();
+
+        // If token not exists in database, return error
+        if (!MemberMapper::tokenExists($pdo, $token)) {
+            return $response->withStatus(401)->withJson(array('error' => "Token not found"));
+        }
+
+        // If id not exists in database, return error
+        if (!EpisodeMapper::exists($pdo, $id)) {
+            return $response->withStatus(404)->withJson(array('error' => "Episode not found"));
+        }
+
+        // If count is not 1 or -1, return error
+        if ($count != 1 && $count != -1) {
+            return $response->withStatus(400)->withJson(array('error' => "Count must be 1 or -1"));
+        }
+
+        // Get user with token
+        $user = MemberMapper::getPrivateMemberWithToken($pdo, $token);
+
+        // Check if id and user id in database
+        $query = $pdo->prepare("SELECT * FROM ziedelth.episodes_notations WHERE episode_id = :episode_id AND user_id = :user_id");
+        $query->execute(array('episode_id' => $id, 'user_id' => $user['id']));
+        $rowsCount = $query->rowCount();
+
+        // If count is 0, create notation
+        if ($rowsCount == 0) {
+            $query = $pdo->prepare("INSERT INTO ziedelth.episodes_notations (episode_id, user_id, count) VALUES (:episode_id, :user_id, :count)");
+            $query->execute(array('episode_id' => $id, 'user_id' => $user['id'], 'count' => $count));
+        } else {
+            // Fetch the first result
+            $row = $query->fetch(PDO::FETCH_ASSOC);
+
+            // If row count and count is same, delete notation
+            if ($row['count'] == $count) {
+                $query = $pdo->prepare("DELETE FROM ziedelth.episodes_notations WHERE episode_id = :episode_id AND user_id = :user_id");
+                $query->execute(array('episode_id' => $id, 'user_id' => $user['id']));
+            } else {
+                // Update count
+                $query = $pdo->prepare("UPDATE ziedelth.episodes_notations SET count = :count WHERE episode_id = :episode_id AND user_id = :user_id");
+                $query->execute(array('episode_id' => $id, 'user_id' => $user['id'], 'count' => $count));
+            }
+        }
+
+        return $response->withJson(array('success' => "Notation updated"));
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
+    }
+});
+
+$app->put('/member/notation/scan', function (Request $request, Response $response) {
+    $_ = $request->getParsedBody();
+
+    try {
+        $token = htmlspecialchars(strip_tags($_['token']));
+        $id = intval(htmlspecialchars(strip_tags($_['id'])));
+        $count = intval(htmlspecialchars(strip_tags($_['count'])));
+        $pdo = getPDO();
+
+        // If token not exists in database, return error
+        if (!MemberMapper::tokenExists($pdo, $token)) {
+            return $response->withStatus(401)->withJson(array('error' => "Token not found"));
+        }
+
+        // If id not exists in database, return error
+        if (!ScanMapper::exists($pdo, $id)) {
+            return $response->withStatus(404)->withJson(array('error' => "Scan not found"));
+        }
+
+        // If count is not 1 or -1, return error
+        if ($count != 1 && $count != -1) {
+            return $response->withStatus(400)->withJson(array('error' => "Count must be 1 or -1"));
+        }
+
+        // Get user with token
+        $user = MemberMapper::getPrivateMemberWithToken($pdo, $token);
+
+        // Check if id and user id in database
+        $query = $pdo->prepare("SELECT * FROM ziedelth.scans_notations WHERE scan_id = :scan_id AND user_id = :user_id");
+        $query->execute(array('scan_id' => $id, 'user_id' => $user['id']));
+        $rowsCount = $query->rowCount();
+
+        // If count is 0, create notation
+        if ($rowsCount == 0) {
+            $query = $pdo->prepare("INSERT INTO ziedelth.scans_notations (scan_id, user_id, count) VALUES (:scan_id, :user_id, :count)");
+            $query->execute(array('scan_id' => $id, 'user_id' => $user['id'], 'count' => $count));
+        } else {
+            // Fetch the first result
+            $row = $query->fetch(PDO::FETCH_ASSOC);
+
+            // If row count and count is same, delete notation
+            if ($row['count'] == $count) {
+                $query = $pdo->prepare("DELETE FROM ziedelth.scans_notations WHERE scan_id = :scan_id AND user_id = :user_id");
+                $query->execute(array('scan_id' => $id, 'user_id' => $user['id']));
+            } else {
+                // Update count
+                $query = $pdo->prepare("UPDATE ziedelth.scans_notations SET count = :count WHERE scan_id = :scan_id AND user_id = :user_id");
+                $query->execute(array('scan_id' => $id, 'user_id' => $user['id'], 'count' => $count));
+            }
+        }
+
+        return $response->withJson(array('success' => "Notation updated"));
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
+    }
+});
+
+$app->put('/member/notation/anime', function (Request $request, Response $response) {
+    $_ = $request->getParsedBody();
+
+    try {
+        $token = htmlspecialchars(strip_tags($_['token']));
+        $id = intval(htmlspecialchars(strip_tags($_['id'])));
+        $count = intval(htmlspecialchars(strip_tags($_['count'])));
+        $pdo = getPDO();
+
+        // If token not exists in database, return error
+        if (!MemberMapper::tokenExists($pdo, $token)) {
+            return $response->withStatus(401)->withJson(array('error' => "Token not found"));
+        }
+
+        // If id not exists in database, return error
+        if (!AnimeMapper::exists($pdo, $id)) {
+            return $response->withStatus(404)->withJson(array('error' => "Anime not found"));
+        }
+
+        // If count is not 1 or -1, return error
+        if ($count != 1 && $count != -1) {
+            return $response->withStatus(400)->withJson(array('error' => "Count must be 1 or -1"));
+        }
+
+        // Get user with token
+        $user = MemberMapper::getPrivateMemberWithToken($pdo, $token);
+
+        // Check if id and user id in database
+        $query = $pdo->prepare("SELECT * FROM ziedelth.animes_notations WHERE anime_id = :anime_id AND user_id = :user_id");
+        $query->execute(array('anime_id' => $id, 'user_id' => $user['id']));
+        $rowsCount = $query->rowCount();
+
+        // If count is 0, create notation
+        if ($rowsCount == 0) {
+            $query = $pdo->prepare("INSERT INTO ziedelth.animes_notations (anime_id, user_id, count) VALUES (:anime_id, :user_id, :count)");
+            $query->execute(array('anime_id' => $id, 'user_id' => $user['id'], 'count' => $count));
+        } else {
+            // Fetch the first result
+            $row = $query->fetch(PDO::FETCH_ASSOC);
+
+            // If row count and count is same, delete notation
+            if ($row['count'] == $count) {
+                $query = $pdo->prepare("DELETE FROM ziedelth.animes_notations WHERE anime_id = :anime_id AND user_id = :user_id");
+                $query->execute(array('anime_id' => $id, 'user_id' => $user['id']));
+            } else {
+                // Update count
+                $query = $pdo->prepare("UPDATE ziedelth.animes_notations SET count = :count WHERE anime_id = :anime_id AND user_id = :user_id");
+                $query->execute(array('anime_id' => $id, 'user_id' => $user['id'], 'count' => $count));
+            }
+        }
+
+        return $response->withJson(array('success' => "Notation updated"));
+    } catch (Exception $exception) {
+        return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
+    }
+});
 
 $app->get('/statistics/{days}', function (Request $request, Response $response, $args) {
     try {
@@ -298,80 +551,35 @@ $app->get('/statistics/{days}', function (Request $request, Response $response, 
     }
 });
 
-$app->put('/episode/update', function (Request $request, Response $response) {
-    $_ = $request->getParsedBody();
-
+$app->get('/statistics/member/{pseudo}', function (Request $request, Response $response, $args) {
     try {
-        $token = htmlspecialchars(strip_tags($_['token']));
-        $id = intval(htmlspecialchars(strip_tags($_['id'])));
+        $pseudo = htmlspecialchars(strip_tags($args['pseudo']));
         $pdo = getPDO();
 
-        if (!MemberMapper::isAdminToken($pdo, $token)) {
-            return $response->withStatus(403)->withJson(array('error' => "You are not allowed to do this"));
+        // If pseudo do not exist, return error
+        if (!MemberMapper::pseudoExists($pdo, $pseudo)) {
+            return $response->withStatus(404)->withJson(array('error' => "Pseudo not found"));
         }
 
-        if (!EpisodeMapper::isIDExists($pdo, $id)) {
-            return $response->withStatus(404)->withJson(array('error' => "Episode not found"));
-        }
+        // Get user
+        $user = MemberMapper::getMemberWithPseudo($pdo, $pseudo);
 
-        $pdo->beginTransaction();
+        // Get all episodes notation for user
+        $request = $pdo->prepare("SELECT episode_id, count FROM ziedelth.episodes_notations WHERE user_id = :user_id");
+        $request->execute(array('user_id' => $user['id']));
+        $episodes = $request->fetchAll(PDO::FETCH_ASSOC);
 
-        // Get release_date from _
-        $release_date = htmlspecialchars(strip_tags($_['release_date']));
+        // Get all scans for user
+        $request = $pdo->prepare("SELECT scan_id, count FROM ziedelth.scans_notations WHERE user_id = :user_id");
+        $request->execute(array('user_id' => $user['id']));
+        $scans = $request->fetchAll(PDO::FETCH_ASSOC);
 
-        // If release_date is not null and not empty, update it
-        if (!empty($release_date)) {
-            $request = $pdo->prepare("UPDATE jais.episodes SET release_date = ? WHERE id = ?");
-            $request->execute(array($release_date, $id));
-        }
+        // Get all animes for user
+        $request = $pdo->prepare("SELECT anime_id, count FROM ziedelth.animes_notations WHERE user_id = :user_id");
+        $request->execute(array('user_id' => $user['id']));
+        $animes = $request->fetchAll(PDO::FETCH_ASSOC);
 
-        // Get int season from _
-        $season = intval(htmlspecialchars(strip_tags($_['season'])));
-
-        // If season is not null and not empty, update it
-        if (!empty($season)) {
-            $request = $pdo->prepare("UPDATE jais.episodes SET season = ? WHERE id = ?");
-            $request->execute(array($season, $id));
-        }
-
-        // Get int number from _
-        $number = intval(htmlspecialchars(strip_tags($_['number'])));
-
-        // If number is not null and not empty, update it
-        if (!empty($number)) {
-            $request = $pdo->prepare("UPDATE jais.episodes SET number = ? WHERE id = ?");
-            $request->execute(array($number, $id));
-        }
-
-        // Get title from _
-        $title = htmlspecialchars(strip_tags($_['title']));
-
-        // If title is not null and not empty, update it
-        if (!empty($title)) {
-            $request = $pdo->prepare("UPDATE jais.episodes SET title = ? WHERE id = ?");
-            $request->execute(array($title, $id));
-        }
-
-        // Get URL from _
-        $url = htmlspecialchars(strip_tags($_['url']));
-
-        // If URL is not null and not empty, update it
-        if (!empty($url)) {
-            $request = $pdo->prepare("UPDATE jais.episodes SET url = ? WHERE id = ?");
-            $request->execute(array($url, $id));
-        }
-
-        // Get int duration from _
-        $duration = intval(htmlspecialchars(strip_tags($_['duration'])));
-
-        // If duration is not null and not empty, update it
-        if (!empty($duration)) {
-            $request = $pdo->prepare("UPDATE jais.episodes SET duration = ? WHERE id = ?");
-            $request->execute(array($duration, $id));
-        }
-
-        $pdo->commit();
-        return $response->withJson(array('success' => "Episode updated"));
+        return $response->withJson(array('episodes' => $episodes, 'scans' => $scans, 'animes' => $animes));
     } catch (Exception $exception) {
         return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }

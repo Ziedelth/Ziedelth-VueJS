@@ -29,7 +29,7 @@
 
         <div class="mb-3">
           <p class="text mt-0 muted fw-bold">Les derniers scans sortis</p>
-          <Scans :scans="scans"/>
+          <Scans :scans="scans" @refresh="getScans"/>
         </div>
       </div>
     </div>

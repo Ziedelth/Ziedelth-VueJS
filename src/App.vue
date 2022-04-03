@@ -55,12 +55,23 @@ export default {
     if (this.isLogin() || !this.$session.has('token'))
       return
 
-    await Utils.post(`api/v1/member/login/token`, JSON.stringify({token: this.$session.get('token')}), (success) => {
+    await Utils.post(`api/v1/member/login/token`, JSON.stringify({token: this.$session.get('token')}), async (success) => {
       if (!("token" in success))
         return
 
-      this.$store.dispatch('setToken', success.token)
-      this.$store.dispatch('setUser', success.user)
+      await this.$store.dispatch('setToken', success.token)
+      await this.$store.dispatch('setUser', success.user)
+
+      // If user is null and not have a pseudo, return
+      if (!this.user.pseudo)
+        return
+
+      await Utils.get(`api/v1/statistics/member/${this.user.pseudo}`, (success) => {
+        if ("error" in success)
+          return
+
+        this.$store.dispatch('setStatistics', success)
+      }, (failed) => null)
     }, (failed) => null)
   }
 }

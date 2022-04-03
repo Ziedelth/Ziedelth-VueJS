@@ -1,5 +1,5 @@
 <template>
-  <div class="border-color rounded p-3 bg-dark" @dblclick="showModal">
+  <div class="border-color rounded p-3 bg-dark">
     <div class="d-flex align-items-center align-content-center fw-bold">
       <PlatformComponent :url="episode.platform_url" :image="episode.platform_image" :name="episode.platform" />
     </div>
@@ -31,10 +31,10 @@
         Il y a {{ timeSince(episode.release_date) }}
       </div>
 
-      <div class="m-0 ms-auto justify-content-end">
-        <i class="bi bi-hand-thumbs-up-fill me-1"></i>
-        0
-        <i class="bi bi-hand-thumbs-down-fill ms-1"></i>
+      <div v-if="isLogin()" class="m-0 ms-auto justify-content-end">
+        <i class="bi bi-hand-thumbs-up-fill me-1" @click="notation(1)" :class="{'text-success': is(1)}" />
+        {{ episode.notation }}
+        <i class="bi bi-hand-thumbs-down-fill ms-1" @click="notation(-1)" :class="{'text-danger': is(-1)}" />
       </div>
     </div>
   </div>
@@ -42,7 +42,7 @@
 
 <script>
 import Utils from "@/utils";
-import {mapState} from "vuex";
+import {mapGetters, mapState} from "vuex";
 
 const PlatformComponent = () => import("@/components/PlatformComponent");
 
@@ -53,20 +53,28 @@ export default {
     episode: {},
   },
   computed: {
-    ...mapState(['user'])
+    ...mapState(['statistics']),
   },
   methods: {
+    ...mapGetters(['isLogin']),
+
+    is(count) {
+      // If statistics is not defined or empty, return false
+      if (!this.statistics || this.statistics.length <= 0) {
+        return false;
+      }
+
+      return this.statistics.episodes.find(stat => stat.episode_id === this.episode.id && stat.count === count) !== undefined;
+    },
+    notation(count) {
+      this.$emit('notation', {episode: this.episode, count: count});
+    },
     toHHMMSS(duration) {
       return Utils.toHHMMSS(duration.toString())
     },
     timeSince(releaseDate) {
       return Utils.timeSince(new Date(releaseDate).getTime())
     },
-    showModal() {
-      if (Utils.isNotNull(this.user) && this.user.role >= 100) {
-        console.log(this.episode.id)
-      }
-    }
   }
 }
 </script>

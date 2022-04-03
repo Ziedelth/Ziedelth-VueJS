@@ -11,6 +11,7 @@ export default new Vuex.Store({
 
         token: null,
         user: null,
+        statistics: null,
     },
     mutations: {
         SET_COUNTRIES(state, payload) {
@@ -19,13 +20,14 @@ export default new Vuex.Store({
         SET_CURRENT_COUNTRY(state, payload) {
             state.currentCountry = payload
         },
-
         SET_TOKEN(state, payload) {
             state.token = payload
         },
-
         SET_USER(state, payload) {
             state.user = payload
+        },
+        SET_STATISTICS(state, payload) {
+            state.statistics = payload
         }
     },
     actions: {
@@ -35,13 +37,15 @@ export default new Vuex.Store({
         setCurrentCountry({commit}, currentCountry) {
             commit('SET_CURRENT_COUNTRY', currentCountry)
         },
-
         setToken({commit}, token) {
             commit('SET_TOKEN', token)
         },
         setUser({commit}, user) {
             commit('SET_USER', user)
-        }
+        },
+        setStatistics({commit}, statistics) {
+            commit('SET_STATISTICS', statistics)
+        },
     },
     getters: {
         isLogin(state) {

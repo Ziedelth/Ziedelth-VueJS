@@ -30,10 +30,10 @@
         Il y a {{ timeSince(scan.release_date) }}
       </div>
 
-      <div class="m-0 ms-auto justify-content-end">
-        <i class="bi bi-hand-thumbs-up-fill me-1"></i>
-        0
-        <i class="bi bi-hand-thumbs-down-fill ms-1"></i>
+      <div v-if="isLogin()" class="m-0 ms-auto justify-content-end">
+        <i class="bi bi-hand-thumbs-up-fill me-1" @click="notation(1)" :class="{'text-success': is(1)}" />
+        {{ scan.notation }}
+        <i class="bi bi-hand-thumbs-down-fill ms-1" @click="notation(-1)" :class="{'text-danger': is(-1)}" />
       </div>
     </div>
   </div>
@@ -41,6 +41,7 @@
 
 <script>
 import Utils from "@/utils";
+import {mapGetters, mapState} from "vuex";
 
 const PlatformComponent = () => import("@/components/PlatformComponent");
 
@@ -50,13 +51,29 @@ export default {
   props: {
     scan: {},
   },
+  computed: {
+    ...mapState(['statistics']),
+  },
   methods: {
+    ...mapGetters(['isLogin']),
+
+    is(count) {
+      // If statistics is not defined or empty, return false
+      if (!this.statistics || this.statistics.length <= 0) {
+        return false;
+      }
+
+      return this.statistics.scans.find(stat => stat.scan_id === this.scan.id && stat.count === count) !== undefined;
+    },
     toHHMMSS(duration) {
       return Utils.toHHMMSS(duration.toString())
     },
     timeSince(releaseDate) {
       return Utils.timeSince(new Date(releaseDate).getTime())
     },
+  notation(count) {
+    this.$emit('notation', {scan: this.scan, count: count});
+  },
   }
 }
 </script>

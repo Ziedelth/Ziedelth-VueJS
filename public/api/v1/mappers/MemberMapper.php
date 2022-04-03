@@ -288,7 +288,7 @@ WHERE id = :id");
         if (!self::pseudoExists($pdo, $pseudo))
             return array('error' => "Pseudo does not exists");
 
-        $request = $pdo->prepare("SELECT timestamp, pseudo, role, image, about
+        $request = $pdo->prepare("SELECT id, timestamp, pseudo, role, image, about
 FROM ziedelth.users
 WHERE pseudo = :pseudo");
         $request->execute(array('pseudo' => $pseudo));
@@ -313,7 +313,7 @@ WHERE pseudo = :pseudo");
         if (!self::tokenExists($pdo, $token))
             return array('error' => "Token does not exists");
 
-        $request = $pdo->prepare("SELECT u.timestamp, u.pseudo, u.role, u.image, u.about
+        $request = $pdo->prepare("SELECT u.id, u.timestamp, u.pseudo, u.role, u.image, u.about
 FROM ziedelth.users u
          INNER JOIN ziedelth.tokens t ON t.user_id = u.id
 WHERE t.token = :token");

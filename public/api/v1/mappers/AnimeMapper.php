@@ -2,6 +2,15 @@
 
 class AnimeMapper
 {
+    // Check if id exists
+    public static function exists(PDO $pdo, $id): bool
+    {
+        $query = $pdo->prepare('SELECT COUNT(*) FROM jais.animes WHERE id = :id');
+        $query->execute(array('id' => $id));
+        $rows = $query->rowCount();
+        return $rows > 0;
+    }
+
     /**
      * Get all the animes from the database, ordered by name, from the country with the tag $country
      *
@@ -12,7 +21,12 @@ class AnimeMapper
      */
     static function getAllAnimes(PDO $pdo, string $country)
     {
-        $request = $pdo->prepare("SELECT animes.id AS id, animes.release_date, animes.name AS name, animes.description AS description, animes.image AS image
+        $request = $pdo->prepare("SELECT animes.id AS id, 
+       animes.release_date, 
+       animes.name AS name, 
+       animes.description AS description, 
+       animes.image AS image, 
+       (SELECT COALESCE(CAST(SUM(an.count) AS INT), 0) FROM ziedelth.animes_notations an WHERE an.anime_id = jais.animes.id AND an.count = 1) AS notation
 FROM jais.animes
          INNER JOIN jais.countries c on animes.country_id = c.id
 WHERE c.tag = :country
