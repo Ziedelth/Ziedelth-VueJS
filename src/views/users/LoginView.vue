@@ -133,19 +133,9 @@ export default {
         this.$session.set('token', success.token)
         await this.$store.dispatch('setToken', success.token)
         await this.$store.dispatch('setUser', success.user)
+        await this.$store.dispatch('setStatistics', success.user.statistics)
         await this.$router.push('/')
         this.$refs.submitButton.disabled = false
-
-        // If user is null and not have a pseudo, return
-        if (!this.user.pseudo)
-          return
-
-        await Utils.get(`api/v1/statistics/member/${this.user.pseudo}`, (success) => {
-          if ("error" in success)
-            return
-
-          this.$store.dispatch('setStatistics', success)
-        }, (failed) => null)
       }, (failed) => {
         this.$refs.submitButton.disabled = false
         this.error = `${failed}`

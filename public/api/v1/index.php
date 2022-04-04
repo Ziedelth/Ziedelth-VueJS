@@ -6,16 +6,14 @@ use Slim\Http\Response;
 
 include_once "./vendor/autoload.php";
 include_once "../configurations/config.php";
-
 include_once "./templates/EmailTemplate.php";
-
 include_once "./mappers/EpisodeMapper.php";
 include_once "./mappers/ScanMapper.php";
 include_once "./mappers/AnimeMapper.php";
 include_once "./mappers/CountryMapper.php";
-
 include_once "./mappers/EmailMapper.php";
 include_once "./mappers/MemberMapper.php";
+include_once "./mappers/StatisticsMapper.php";
 
 $app = new App([
     'settings' => [
@@ -521,65 +519,21 @@ $app->put('/member/notation/anime', function (Request $request, Response $respon
     }
 });
 
-$app->get('/statistics/{days}', function (Request $request, Response $response, $args) {
+$app->get('/statistics/{days}', function (Request $request, Response $response, $_) {
     try {
-        $days = intval(htmlspecialchars(strip_tags($args['days']))) - 1;
+        $days = intval(htmlspecialchars(strip_tags($_['days']))) - 1;
         $pdo = getPDO();
-        $dates = [];
-
-        for ($i = $days; $i >= 0; $i--) {
-            $date = date('Y-m-d', strtotime("-$i days"));
-
-            $request = $pdo->prepare("SELECT p.name, p.color, (SELECT COUNT(e.id) FROM jais.episodes e WHERE STR_TO_DATE(e.release_date,'%Y-%m-%d') = STR_TO_DATE('$date','%Y-%m-%dT%TZ') AND e.platform_id = p.id) as episodes, (SELECT COUNT(s.id) FROM jais.scans s WHERE STR_TO_DATE(s.release_date,'%Y-%m-%d') = STR_TO_DATE('$date','%Y-%m-%dT%TZ') AND s.platform_id = p.id) as scans FROM jais.platforms p");
-            $request->execute(array());
-            $platforms = $request->fetchAll(PDO::FETCH_ASSOC);
-
-            $request = $pdo->prepare("SELECT COUNT(id) AS count FROM jais.episodes WHERE STR_TO_DATE(release_date,'%Y-%m-%d') = STR_TO_DATE('$date','%Y-%m-%dT%TZ')");
-            $request->execute(array());
-            $episodes = $request->fetch(PDO::FETCH_ASSOC)['count'];
-
-            $request = $pdo->prepare("SELECT COUNT(id) AS count FROM jais.scans WHERE STR_TO_DATE(release_date,'%Y-%m-%d') = STR_TO_DATE('$date','%Y-%m-%dT%TZ')");
-            $request->execute(array());
-            $scans = $request->fetch(PDO::FETCH_ASSOC)['count'];
-
-            $dates[] = array('date' => $date, 'platforms' => $platforms, 'episodes' => $episodes, 'scans' => $scans);
-        }
-
-        return $response->withJson($dates);
+        return StatisticsMapper::getGlobalStatistics($response, $pdo, $days);
     } catch (Exception $exception) {
         return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }
 });
 
-$app->get('/statistics/member/{pseudo}', function (Request $request, Response $response, $args) {
+$app->get('/statistics/member/{pseudo}', function (Request $request, Response $response, $_) {
     try {
-        $pseudo = htmlspecialchars(strip_tags($args['pseudo']));
+        $pseudo = htmlspecialchars(strip_tags($_['pseudo']));
         $pdo = getPDO();
-
-        // If pseudo do not exist, return error
-        if (!MemberMapper::pseudoExists($pdo, $pseudo)) {
-            return $response->withStatus(404)->withJson(array('error' => "Pseudo not found"));
-        }
-
-        // Get user
-        $user = MemberMapper::getMemberWithPseudo($pdo, $pseudo);
-
-        // Get all episodes notation for user
-        $request = $pdo->prepare("SELECT episode_id, count FROM ziedelth.episodes_notations WHERE user_id = :user_id");
-        $request->execute(array('user_id' => $user['id']));
-        $episodes = $request->fetchAll(PDO::FETCH_ASSOC);
-
-        // Get all scans for user
-        $request = $pdo->prepare("SELECT scan_id, count FROM ziedelth.scans_notations WHERE user_id = :user_id");
-        $request->execute(array('user_id' => $user['id']));
-        $scans = $request->fetchAll(PDO::FETCH_ASSOC);
-
-        // Get all animes for user
-        $request = $pdo->prepare("SELECT anime_id, count FROM ziedelth.animes_notations WHERE user_id = :user_id");
-        $request->execute(array('user_id' => $user['id']));
-        $animes = $request->fetchAll(PDO::FETCH_ASSOC);
-
-        return $response->withJson(array('episodes' => $episodes, 'scans' => $scans, 'animes' => $animes));
+        return StatisticsMapper::getUserStatistics($response, $pdo, $pseudo);
     } catch (Exception $exception) {
         return $response->withStatus(500)->withJson(array('error' => "Something went wrong", 'exception' => $exception->getMessage()));
     }

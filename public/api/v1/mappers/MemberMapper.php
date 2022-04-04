@@ -4,14 +4,6 @@ use Slim\Http\UploadedFile;
 
 class MemberMapper
 {
-    /**
-     * Check if a pseudo exists in the database.
-     *
-     * @param PDO $pdo The PDO object that we created earlier.
-     * @param string|null $pseudo The pseudo of the user you want to check.
-     *
-     * @return bool A boolean value.
-     */
     static function pseudoExists(PDO $pdo, ?string $pseudo): bool
     {
         if ($pseudo == null && empty($pseudo))
@@ -24,15 +16,6 @@ WHERE pseudo = :pseudo");
         return $request->rowCount() >= 1;
     }
 
-    /**
-     * If the email is null or empty, return false. Otherwise, execute a prepared statement with the email as a parameter.
-     * If the prepared statement returns a row count of 1 or more, return true. Otherwise, return false
-     *
-     * @param PDO $pdo The PDO object that we created earlier.
-     * @param string|null $email The email address to check.
-     *
-     * @return bool A boolean value.
-     */
     static function emailExists(PDO $pdo, ?string $email): bool
     {
         if ($email == null && empty($email))
@@ -45,14 +28,6 @@ WHERE email = :email");
         return $request->rowCount() >= 1;
     }
 
-    /**
-     * Check if a token exists in the database.
-     *
-     * @param PDO $pdo The PDO object that we created earlier.
-     * @param string|null $token The token to check for.
-     *
-     * @return bool A boolean value.
-     */
     static function tokenExists(PDO $pdo, ?string $token): bool
     {
         if ($token == null && empty($token))
@@ -78,13 +53,6 @@ WHERE token = :token AND users.role = 100");
         return $request->rowCount() >= 1;
     }
 
-    /**
-     * Generate a random string of a given length
-     *
-     * @param int $length The length of the random string to generate.
-     *
-     * @return string A random string of length $length.
-     */
     static function generateRandomString(int $length): string
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -98,11 +66,6 @@ WHERE token = :token AND users.role = 100");
         return $randomString;
     }
 
-    /**
-     * Delete all actions that are older than 10 minutes
-     *
-     * @param PDO $pdo The PDO object that is used to connect to the database.
-     */
     static function deleteOldActions(PDO $pdo)
     {
         $request = $pdo->prepare("SELECT *
@@ -129,11 +92,6 @@ WHERE id = :id");
         }
     }
 
-    /**
-     * This function deletes all tokens that are older than 1 month
-     *
-     * @param PDO $pdo The PDO object that is used to connect to the database.
-     */
     static function deleteOldTokens(PDO $pdo)
     {
         $request = $pdo->prepare("DELETE
@@ -142,27 +100,12 @@ WHERE timestamp < NOW() - INTERVAL 1 MONTH");
         $request->execute(array());
     }
 
-    /**
-     * This function deletes old actions and tokens from the database
-     *
-     * @param PDO $pdo The PDO object that is used to connect to the database.
-     */
     static function deleteOld(PDO $pdo)
     {
         self::deleteOldActions($pdo);
         self::deleteOldTokens($pdo);
     }
 
-    /**
-     * Register a new user
-     *
-     * @param PDO $pdo The PDO object that will be used to connect to the database.
-     * @param string $pseudo The pseudo of the user.
-     * @param string $email The email address of the user.
-     * @param string $password The password to be hashed.
-     *
-     * @return array An array with a success or error key.
-     */
     static function register(PDO $pdo, string $pseudo, string $email, string $password): array
     {
         self::deleteOld($pdo);
@@ -196,14 +139,6 @@ VALUES (NULL, CURRENT_TIMESTAMP, :userId, :hash, :action)");
         return array('success' => "OK");
     }
 
-    /**
-     * This function validates an action by checking if the action is valid and then deleting it
-     *
-     * @param PDO $pdo The PDO object that is used to connect to the database.
-     * @param string $hash The hash of the action.
-     *
-     * @return string[] The action object and a success message.
-     */
     static function validateAction(PDO $pdo, string $hash): array
     {
         self::deleteOld($pdo);
@@ -270,19 +205,6 @@ WHERE id = :id");
         return array('object' => $object, 'success' => 'OK');
     }
 
-    /**
-     * Get the member with the given pseudo
-     *
-     * @param PDO $pdo The PDO object that will be used to execute the query.
-     * @param string $pseudo The pseudo of the user you want to get.
-     *
-     * @return array|false An associative array with the following keys:
-     *     timestamp: The timestamp of the last time the user was seen
-     *     pseudo: The pseudo of the user
-     *     role: The role of the user
-     *     image: The image of the user
-     *     about: The about of the user
-     */
     static function getMemberWithPseudo(PDO $pdo, string $pseudo)
     {
         if (!self::pseudoExists($pdo, $pseudo))
@@ -292,22 +214,11 @@ WHERE id = :id");
 FROM ziedelth.users
 WHERE pseudo = :pseudo");
         $request->execute(array('pseudo' => $pseudo));
-        return $request->fetch(PDO::FETCH_ASSOC);
+        $user = $request->fetch(PDO::FETCH_ASSOC);
+        $user['statistics'] = StatisticsMapper::getStatisticsForUser($pdo, $user);
+        return $user;
     }
 
-    /**
-     * Get the member with the given token
-     *
-     * @param PDO $pdo The PDO object that we created earlier.
-     * @param string $token The token to check.
-     *
-     * @return array|false An associative array with the following keys:
-     *     - timestamp: The date and time when the token was created.
-     *     - pseudo: The pseudo of the user.
-     *     - role: The role of the user.
-     *     - image: The image of the user.
-     *     - about: The about of the user.
-     */
     static function getMemberWithToken(PDO $pdo, string $token)
     {
         if (!self::tokenExists($pdo, $token))
@@ -318,17 +229,11 @@ FROM ziedelth.users u
          INNER JOIN ziedelth.tokens t ON t.user_id = u.id
 WHERE t.token = :token");
         $request->execute(array('token' => $token));
-        return $request->fetch(PDO::FETCH_ASSOC);
+        $user = $request->fetch(PDO::FETCH_ASSOC);
+        $user['statistics'] = StatisticsMapper::getStatisticsForUser($pdo, $user);
+        return $user;
     }
 
-    /**
-     * Get the private member of a user with a given token
-     *
-     * @param PDO $pdo The database connection we're using.
-     * @param string $token The token to check.
-     *
-     * @return array|false The user's data if the token is valid.
-     */
     static function getPrivateMemberWithToken(PDO $pdo, string $token)
     {
         if (!self::tokenExists($pdo, $token))
@@ -354,15 +259,6 @@ WHERE email = :email");
         return $request->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Generate a token for the user and return it
-     *
-     * @param PDO $pdo The PDO object that is used to connect to the database.
-     * @param string $email The email of the user.
-     * @param string $password The password that the user has entered.
-     *
-     * @return array|false An array with the token and the user.
-     */
     static function loginWithCredentials(PDO $pdo, string $email, string $password): array
     {
         self::deleteOld($pdo);
@@ -407,14 +303,6 @@ VALUES (NULL, CURRENT_TIMESTAMP, :userId, :token)");
         return array('token' => $token, 'user' => self::getMemberWithPseudo($pdo, $member['pseudo']));
     }
 
-    /**
-     * Given a token, return the user associated with it
-     *
-     * @param PDO $pdo The PDO object that is used to connect to the database.
-     * @param string $token The token that was passed in the request.
-     *
-     * @return array|false An array with the token and the user.
-     */
     static function loginWithToken(PDO $pdo, string $token): array
     {
         self::deleteOld($pdo);
@@ -435,15 +323,6 @@ WHERE t.token = :token");
         return array('token' => $token, 'user' => self::getMemberWithPseudo($pdo, $member['pseudo']));
     }
 
-    /**
-     * Update the about field of a member
-     *
-     * @param PDO $pdo The PDO object that is used to connect to the database.
-     * @param string $token The token of the member you want to update.
-     * @param string $about The new about text.
-     *
-     * @return array|false An array with the member's information.
-     */
     static function update(PDO $pdo, string $token, string $about): array
     {
         self::deleteOld($pdo);
@@ -463,16 +342,6 @@ WHERE t.token = :token");
         return self::getMemberWithToken($pdo, $token);
     }
 
-    /**
-     * Update the image of a member
-     *
-     * @param PDO $pdo The PDO object that is used to connect to the database.
-     * @param string $token The token of the member you want to update.
-     * @param string $directory the directory where the file is going to be saved.
-     * @param UploadedFile|null $file The uploaded file.
-     *
-     * @return array|false An array with the member's information.
-     */
     static function updateImage(PDO $pdo, string $token, string $directory, ?UploadedFile $file): array
     {
         self::deleteOld($pdo);
@@ -518,14 +387,6 @@ WHERE t.token = :token");
         return self::getMemberWithToken($pdo, $token);
     }
 
-    /**
-     * Email the user to confirm the deletion of his account
-     *
-     * @param PDO $pdo The PDO object that will be used to execute the query.
-     * @param string $token The token to delete the account.
-     *
-     * @return array|false An array with a success or error key.
-     */
     static function delete(PDO $pdo, string $token): array
     {
         self::deleteOld($pdo);

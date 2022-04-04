@@ -24,7 +24,16 @@
     </div>
 
     <div class="w-100 text-center mb-3">
-      <button class="btn btn-primary" @click="submitUser" ref="submitButton">Inscription</button>
+      <div class="d-flex justify-content-center">
+        <div class="form-check text-start">
+          <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" ref="flexCheckDefault">
+          <label class="form-check-label" for="flexCheckDefault">
+            En cochant cette case, vous confirmez que vous avez lu et accepté les <router-link to="/privacy" class="link-color">Conditions Générales d'Utilisation</router-link>.
+          </label>
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-3" @click="submitUser" ref="submitButton">Inscription</button>
 
       <br><br>
       <span>Vous avez déjà un compte ? <router-link to="/login" class="text-decoration-none link-color">Connectez-vous ici</router-link></span>
@@ -165,6 +174,11 @@ export default {
       const testConfirmationPassword = this.testConfirmationPassword(password, confirmPassword)
 
       if (!(testPseudo && testEmail && testPassword && testConfirmationPassword)) {
+        this.$refs.submitButton.disabled = false
+        return
+      }
+
+      if (!this.$refs.flexCheckDefault.checked) {
         this.$refs.submitButton.disabled = false
         return
       }

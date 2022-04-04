@@ -1,18 +1,28 @@
 <template>
   <div id="jais" class="text-center">
-    <figure v-lazyload class="m-0 p-0">
-      <img alt="Jaïs brand" class="img-fluid collapsed border-color rounded-circle shadow" data-url="images/jais.jpg" width="120" height="120"/>
-    </figure>
+    <div class="row g-3">
+      <div class="col-lg-4" />
 
-    <div class="container-fluid">
-      <h2 class="mt-2 mb-0 fw-bold">Jaïs</h2>
-      <p class="lead mt-0 mb-0 fw-bold">Un bot fana d'animés et de mangas</p>
+      <div class="col-lg-4">
+        <figure v-lazyload class="m-0 p-0">
+          <img alt="Jaïs brand" class="img-fluid collapsed border-color rounded-circle shadow" data-url="images/jais.jpg" width="120" height="120"/>
+        </figure>
 
-      <div class="d-inline w-100">
-        <a class="link-color" href="https://twitter.com/Jaiss___" target="_blank"><b-icon-twitter class="mx-2" /></a>
-        <a class="link-color" href="https://www.instagram.com/jais_zie/" target="_blank"><b-icon-instagram class="mx-2" /></a>
-        <a class="link-color" href="https://github.com/Ziedelth/Jais" target="_blank"><b-icon-github class="mx-2" /></a>
-        <a class="link-color" href="#"><b-icon-discord class="mx-2" /></a>
+        <div class="container-fluid">
+          <h2 class="mt-2 mb-0 fw-bold">Jaïs</h2>
+          <p class="lead mt-0 mb-0 fw-bold">Un bot fana d'animés et de mangas</p>
+
+          <div class="d-inline w-100">
+            <a class="link-color" href="https://twitter.com/Jaiss___" target="_blank"><b-icon-twitter class="mx-2" /></a>
+            <a class="link-color" href="https://www.instagram.com/jais_zie/" target="_blank"><b-icon-instagram class="mx-2" /></a>
+            <a class="link-color" href="https://github.com/Ziedelth/Jais" target="_blank"><b-icon-github class="mx-2" /></a>
+            <a class="link-color" href="#"><b-icon-discord class="mx-2" /></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 mt-0">
+        <a href='https://play.google.com/store/apps/details?id=fr.ziedelth.jais&gl=FR&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1' target="_blank"><img alt='Disponible sur Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/fr_badge_web_generic.png' style="width: 15rem" /></a>
       </div>
     </div>
 
