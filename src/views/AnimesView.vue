@@ -89,7 +89,7 @@ export default {
       }
 
       await Utils.put(`api/v1/member/notation/anime`, JSON.stringify({token: this.token, id: anime.id, count: count}), async (success) => {
-        if (!("success" in success))
+        if ("error" in success)
           return
 
         // Refresh episodes

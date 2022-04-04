@@ -33,7 +33,7 @@ export default {
       }
 
       await Utils.put(`api/v1/member/notation/scan`, JSON.stringify({token: this.token, id: scan.id, count: count}), async (success) => {
-        if (!("success" in success))
+        if ("error" in success)
           return
 
         // Refresh episodes
