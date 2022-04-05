@@ -26,7 +26,7 @@ FROM jais.episodes
          INNER JOIN jais.countries c on a.country_id = c.id
 WHERE c.tag = :country
 ORDER BY episodes.release_date DESC, episodes.anime_id DESC, episodes.season DESC, episodes.number DESC,
-         episodes.id_episode_type DESC, episodes.id_lang_type DESC");
+         episodes.episode_type_id DESC, episodes.lang_type_id DESC");
         $request->execute(array('country' => $country));
         return $request->fetchAll(PDO::FETCH_COLUMN);
     }
@@ -81,10 +81,10 @@ FROM jais.episodes
          INNER JOIN jais.platforms p on episodes.platform_id = p.id
          INNER JOIN jais.animes a on episodes.anime_id = a.id
          INNER JOIN jais.countries c on a.country_id = c.id
-         INNER JOIN jais.episode_types et on episodes.id_episode_type = et.id
-         INNER JOIN jais.lang_types lt on lt.id = episodes.id_lang_type
+         INNER JOIN jais.episode_types et on episodes.episode_type_id = et.id
+         INNER JOIN jais.lang_types lt on lt.id = episodes.lang_type_id
 WHERE episodes.id IN ($ids)
-ORDER BY episodes.release_date DESC, anime_id DESC, season DESC, number DESC, id_episode_type DESC, id_lang_type DESC");
+ORDER BY episodes.release_date DESC, anime_id DESC, season DESC, number DESC, episode_type_id DESC, lang_type_id DESC");
         $request->execute(array());
         return $request->fetchAll(PDO::FETCH_ASSOC);
     }
