@@ -19,40 +19,8 @@ export default new VueRouter({
             component: () => import("@/views/AnimeView")
         },
         {
-            path: '/login',
-            component: () => import("@/views/users/LoginView")
-        },
-        {
-            path: '/register',
-            component: () => import("@/views/users/RegisterView")
-        },
-        {
-            path: '/a/:hash',
-            component: () => import("@/views/users/ActionView")
-        },
-        {
-            path: '/password_reset',
-            component: () => import("@/views/users/PasswordResetView")
-        },
-        {
-            path: '/confirm/:hash',
-            component: () => import("@/views/users/ConfirmPasswordView")
-        },
-        {
-            path: '/member/:pseudo',
-            component: () => import("@/views/users/MemberView")
-        },
-        {
-            path: '/settings',
-            component: () => import("@/views/users/SettingsView")
-        },
-        {
             path: '/privacy',
             component: () => import("@/views/CGUView")
-        },
-        {
-            path: '/statistics',
-            component: () => import("@/views/StatisticsView")
         },
         {
             path: '/:catchAll(.*)',

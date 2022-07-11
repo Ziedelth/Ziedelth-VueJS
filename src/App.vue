@@ -1,69 +1,23 @@
 <template>
   <div class="bg-full-dark text-white" style="min-height: 100vh">
-    <div v-if="isLoading" class="vertical-center text-center w-100">
+    <Navbar/>
+
+    <main class="my-3 vertical-center text-center w-100">
       <div class="container-fluid">
-        <LoadingComponent is-loading />
+        <router-view :key="$route.fullPath"/>
       </div>
-    </div>
+    </main>
 
-    <div v-else>
-      <Navbar/>
-
-      <main class="my-3 vertical-center text-center w-100">
-        <div class="container-fluid">
-          <router-view :key="$route.fullPath"/>
-        </div>
-      </main>
-
-      <Footer/>
-    </div>
+    <Footer/>
   </div>
 </template>
 
 <script>
-import Utils from "@/utils";
-import {mapGetters, mapState} from "vuex";
-
-const LoadingComponent = () => import("@/components/LoadingComponent");
 const Navbar = () => import("@/components/NavbarComponent");
 const Footer = () => import("@/components/FooterComponent");
 
 export default {
-  components: {LoadingComponent, Footer, Navbar},
-  computed: {
-    ...mapState(['user'])
-  },
-  methods: {
-    ...mapGetters(['isLogin'])
-  },
-  data() {
-    return {
-      isLoading: true,
-    }
-  },
-  async mounted() {
-    this.isLoading = true
-
-    await Utils.get(`api/v1/countries`, (success) => {
-      this.$store.dispatch('setCountries', success)
-      this.$store.dispatch('setCurrentCountry', success[0])
-    }, (failed) => null)
-
-    this.isLoading = false
-    this.$session.start()
-
-    if (this.isLogin() || !this.$session.has('token'))
-      return
-
-    await Utils.post(`api/v1/member/login/token`, JSON.stringify({token: this.$session.get('token')}), async (success) => {
-      if (!("token" in success))
-        return
-
-      await this.$store.dispatch('setToken', success.token)
-      await this.$store.dispatch('setUser', success.user)
-      await this.$store.dispatch('setStatistics', success.user.statistics)
-    }, (failed) => null)
-  }
+  components: {Footer, Navbar},
 }
 </script>
 

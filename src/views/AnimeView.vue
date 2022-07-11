@@ -3,142 +3,87 @@
     <LoadingComponent :is-loading="isLoading"/>
 
     <div v-if="!isLoading">
-      <p v-if="error !== null" class="alert-danger text-danger">{{ error }}</p>
+      <div class="container-fluid">
+        <div class="container mb-3">
+          <div class="row g-3">
+            <div class="col-lg-3 text-end">
+              <img :src="getAttachment(anime.image)" alt="Anime image" class="rounded" style="width: auto; height: 20vh">
+            </div>
 
-      <div v-else class="container-fluid">
-        <div class="container">
-          <figure v-lazyload class="m-0 p-0">
-            <img :data-url="anime.image" alt="Anime image" class="w-10 rounded mb-3">
-          </figure>
-
-          <h3>{{ anime.name }}</h3>
-          <p>{{ anime.genres }}</p>
-          <hr>
-          <p class="text-muted">{{ getAnimeDescription() }}</p>
-        </div>
-
-        <div class="d-inline-flex mb-3">
-          <div v-if="anime.seasons.length > 0 && anime.scans.length > 0" class="form-check me-3">
-            <input id="flexRadioDefault1" v-model="showType" class="form-check-input" name="flexRadioDefault" type="radio" value="episodes">
-            <label class="form-check-label" for="flexRadioDefault1">Épisodes</label>
-          </div>
-          <div v-if="anime.seasons.length > 0 && anime.scans.length > 0" class="form-check">
-            <input id="flexRadioDefault2" v-model="showType" class="form-check-input" name="flexRadioDefault" type="radio" value="scans">
-            <label class="form-check-label" for="flexRadioDefault2">Scans</label>
+            <div class="col-lg-9 text-start">
+              <h3>{{ anime.name }}</h3>
+              <p>{{ joinGenres() }}</p>
+              <hr>
+              <p>{{ anime.description }}</p>
+            </div>
           </div>
         </div>
 
-        <div class="mb-3">
-          <b-icon-funnel-fill class="me-2" scale="1.5" />
-          <button :class="{'active': filter === 'desc_number'}" class="btn btn-outline-secondary mx-1" @click="filter = 'desc_number'"><b-icon-sort-numeric-up /></button>
-          <button :class="{'active': filter === 'asc_number'}" class="btn btn-outline-secondary mx-1" @click="filter = 'asc_number'"><b-icon-sort-numeric-down /></button>
-          <button :class="{'active': filter === 'asc_time'}" class="btn btn-outline-secondary mx-1" @click="filter = 'asc_time'"><b-icon-calendar-plus /></button>
-          <button :class="{'active': filter === 'desc_time'}" class="btn btn-outline-secondary mx-1" @click="filter = 'desc_time'"><b-icon-calendar-minus /></button>
-        </div>
-
-        <div v-if="anime.seasons.length > 0 && showType === 'episodes'">
-          <select v-if="anime.seasons.length > 1" v-model="selectedSeason" class="form-select-sm px-3 mb-3">
-            <option v-for="season in anime.seasons" :value="season.season">{{ anime.country_season }} {{ season.season }}</option>
-          </select>
-
-          <Episodes :episodes="episodes" @refresh="update"/>
-        </div>
-        <div v-if="anime.scans.length > 0 && showType === 'scans'">
-          <Scans :scans="scans" @refresh="update" />
-        </div>
+        <Episodes :episodes="episodes" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import Utils from "@/utils";
-import {mapState} from "vuex";
+import Const from "@/const";
+import MyBrotli from "@/libs/my_brotli";
 
 const LoadingComponent = () => import("@/components/LoadingComponent");
 const Episodes = () => import("@/components/Episodes");
-const Scans = () => import("@/components/Scans");
 
 export default {
-  components: {LoadingComponent, Episodes, Scans},
-  computed: {
-    ...mapState(['currentCountry']),
-
-    episodes() {
-      return this.getSelectedSeason().episodes.sort((a, b) => {
-        switch (this.filter) {
-          case "asc_number":
-            return a.number - b.number
-          case "desc_number":
-            return b.number - a.number
-          case "desc_time":
-            return new Date(a.release_date).getTime() - new Date(b.release_date).getTime()
-          case "asc_time":
-            return new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
-        }
-      })
-    },
-    scans() {
-      return this.anime.scans.sort((a, b) => {
-        switch (this.filter) {
-          case "asc_number":
-            return a.number - b.number
-          case "desc_number":
-            return b.number - a.number
-          case "desc_time":
-            return new Date(a.release_date).getTime() - new Date(b.release_date).getTime()
-          case "asc_time":
-            return new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
-        }
-      })
-    }
-  },
+  components: {LoadingComponent, Episodes},
   data() {
     return {
-      filter: 'desc_number',
-      showType: 'episodes',
-
-      error: null,
+      page: 1,
       isLoading: true,
-      anime: [],
-      selectedSeason: null,
+      anime: {},
+      episodes: []
     }
   },
   methods: {
-    async update() {
-      await Utils.get(`api/v1/country/${this.currentCountry.tag}/anime/${this.$route.params.id}`, (success) => {
-        this.anime = success
+    async loadEpisodes() {
+      try {
+        const response = await fetch(`${Const.API_URL}v2/animes/${this.$route.params.id}/episodes/page/${this.page}/limit/12`)
+        const data = await response.text()
+        this.episodes.push(...JSON.parse(MyBrotli(data)))
 
-        if (this.anime.seasons.length > 0) {
-          // If selected season is not null, update it
-          if (this.selectedSeason !== null) {
-            this.selectedSeason = this.anime.seasons.find(season => season.season === this.selectedSeason).season
-          } else {
-            // If selected season is null, set it to the first season
-            this.selectedSeason = this.anime.seasons[0].season
-          }
+        if (this.episodes.length > 0) {
+          this.anime = this.episodes[0].anime
         }
+      } catch (e) {
+        console.error(e)
+      }
+    },
+    getAttachment(src) {
+      if (src == null || src.startsWith("http")) {
+        return src;
+      }
 
-        this.showType = success.seasons.length > 0 ? 'episodes' : 'scans'
-      }, (failed) => {
-        this.error = failed
-      })
+      return Const.ATTACHMENTS_URL + src;
     },
-    getAnimeDescription() {
-      return Utils.isNullOrEmpty(this.anime.description) ? 'Aucune description pour le moment...' : this.anime.description
-    },
-    getSelectedSeason() {
-      for (const season of this.anime.seasons)
-        if (season.season === this.selectedSeason)
-          return season
+    joinGenres() {
+      if (this.anime.genres == null) {
+        return "";
+      }
 
-      return null
-    },
+      return this.anime.genres.map(genre => genre.fr).join(", ");
+    }
   },
-  async mounted() {
+  async created() {
     this.isLoading = true
-    await this.update()
+    await this.loadEpisodes()
     this.isLoading = false
+
+    window.onscroll = () => {
+      let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
+
+      if (bottomOfWindow) {
+        this.page++
+        this.loadEpisodes()
+      }
+    };
   }
 }
 </script>

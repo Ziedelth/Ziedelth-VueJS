@@ -1,81 +1,104 @@
 <template>
-  <div class="border-color rounded p-3 bg-dark">
+  <div class="border-color rounded px-3 py-2 bg-dark">
     <div class="d-flex align-items-center align-content-center fw-bold">
-      <PlatformComponent :url="episode.platform_url" :image="episode.platform_image" :name="episode.platform" />
+      <a :href="episode.platform.url" target="_blank" class="text-decoration-none text-white">
+        <img :src="episode.platform.image" alt="Platform image" class="platform-thumbnail me-2"/>
+      </a>
+
+      <router-link :to="`/anime/${episode.anime.url}`" class="fw-bold link-color text-truncate">{{
+          episode.anime.name
+        }}
+      </router-link>
     </div>
 
     <div class="text-start text-truncate">
-      <router-link :to="`/anime/${episode.anime_id}`" class="card-title fw-bold link-color">{{
-          episode.anime
-        }}
-      </router-link>
-
       <p class="card-text">
-        <span class="fw-bold">{{ episode.title === null ? "＞﹏＜" : episode.title }}</span>
+        <span class="fw-bold">{{ toTitle() }}</span>
         <br>
-        {{ episode.country_season }} {{ episode.season }} • {{ episode.episode_type }} {{ episode.number }} {{ episode.lang_type }}
+        {{ toDescription() }}
         <br>
         <i class="bi bi-camera-reels-fill"></i>
-        {{ toHHMMSS(episode.duration) }}
+        {{ toHHMMSS() }}
       </p>
     </div>
 
     <a :href="episode.url" target="_blank">
-      <figure v-lazyload class="m-0 p-0">
-        <img :data-url="episode.image" alt="Episode image" class="mb-2 rounded img-fluid w-100 mt-2" width="1920" height="1080">
-      </figure>
+      <img :src="getAttachment(episode.image)" alt="Episode image" class="m-0 p-0 mb-2 rounded img-fluid w-100 mt-2" width="1920" height="1080">
     </a>
 
     <div class="d-flex">
       <div class="m-0 me-auto justify-content-start">
-        Il y a {{ timeSince(episode.release_date) }}
-      </div>
-
-      <div v-if="isLogin()" class="m-0 ms-auto justify-content-end">
-        <i class="bi bi-hand-thumbs-up-fill me-1" @click="notation(1)" :class="{'text-success': is(1)}" />
-        {{ episode.notation }}
-        <i class="bi bi-hand-thumbs-down-fill ms-1" @click="notation(-1)" :class="{'text-danger': is(-1)}" />
+        Il y a {{ toTimeSince() }}
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import Utils from "@/utils";
-import {mapGetters, mapState} from "vuex";
-
-const PlatformComponent = () => import("@/components/PlatformComponent");
+import Const from "@/const";
 
 export default {
   name: 'EpisodeComponent',
-  components: {PlatformComponent},
   props: {
     episode: {},
   },
-  computed: {
-    ...mapState(['statistics']),
-  },
   methods: {
-    ...mapGetters(['isLogin']),
-
-    is(count) {
-      // If statistics is not defined or empty, return false
-      if (!this.statistics || this.statistics.length <= 0) {
-        return false;
+    getAttachment(src) {
+      if (src == null || src.startsWith("http")) {
+        return src;
       }
 
-      return this.statistics.episodes.find(stat => stat.episode_id === this.episode.id && stat.count === count) !== undefined;
+      return Const.ATTACHMENTS_URL + src;
     },
-    notation(count) {
-      this.$emit('notation', {episode: this.episode, count: count});
+    toTitle() {
+      const string = this.episode.title
+
+      if (string == null || string === "") {
+        return "＞﹏＜";
+      }
+
+      return string
     },
-    toHHMMSS(duration) {
-      return Utils.toHHMMSS(duration.toString())
+    toDescription() {
+      return this.episode.anime.country.season + " " + this.episode.season + " • " + this.episode.episodeType.fr + " " + this.episode.number + " " + this.episode.langType.fr
     },
-    timeSince(releaseDate) {
-      return Utils.timeSince(new Date(releaseDate).getTime())
+    toHHMMSS() {
+      const sec_num = parseInt(this.episode.duration, 10)
+
+      if (sec_num <= 0)
+        return '??:??'
+
+      let hours = Math.floor(sec_num / 3600)
+      let minutes = Math.floor((sec_num - (hours * 3600)) / 60)
+      let seconds = sec_num - (hours * 3600) - (minutes * 60)
+
+      const options = {minimumIntegerDigits: 2}
+      return (hours >= 1 ? hours.toLocaleString('fr-FR', options) + ':' : '') + minutes.toLocaleString('fr-FR', options) + ':' + seconds.toLocaleString('fr-FR', options)
     },
+    toTimeSince() {
+      const seconds = Math.floor((new Date().getTime() - new Date(this.episode.releaseDate).getTime()) / 1000)
+      let interval = seconds / 31536000
+      if (interval > 1) return Math.floor(interval) + " an" + (interval >= 2 ? "s" : "")
+      interval = seconds / 2592000
+      if (interval > 1) return Math.floor(interval) + " mois"
+      interval = seconds / 86400
+      if (interval > 1) return Math.floor(interval) + " jour" + (interval >= 2 ? "s" : "")
+      interval = seconds / 3600
+      if (interval > 1) return Math.floor(interval) + " heure" + (interval >= 2 ? "s" : "")
+      interval = seconds / 60
+      if (interval > 1) return Math.floor(interval) + " minute" + (interval >= 2 ? "s" : "")
+      return Math.floor(seconds) + " seconde" + (seconds >= 2 ? "s" : "")
+    }
   }
 }
 </script>
+
+<style>
+.platform-thumbnail {
+  width: 3vh;
+  height: 3vh;
+  border-radius: 50%;
+  margin: .25rem;
+}
+</style>
 

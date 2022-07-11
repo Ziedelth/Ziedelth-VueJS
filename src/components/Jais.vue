@@ -4,9 +4,7 @@
       <div class="col-lg-4" />
 
       <div class="col-lg-4">
-        <figure v-lazyload class="m-0 p-0">
-          <img alt="Jaïs brand" class="img-fluid collapsed border-color rounded-circle shadow" data-url="images/jais.jpg" width="120" height="120"/>
-        </figure>
+        <img alt="Jaïs brand" class="m-0 p-0 img-fluid collapsed border-color rounded-circle shadow" src="images/jais.jpg" width="120" height="120"/>
 
         <div class="container-fluid">
           <h2 class="mt-2 mb-0 fw-bold">Jaïs</h2>
@@ -23,79 +21,63 @@
 
       <div class="col-lg-4 mt-0">
         <a href='https://play.google.com/store/apps/details?id=fr.ziedelth.jais&gl=FR&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1' target="_blank"><img alt='Disponible sur Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/fr_badge_web_generic.png' style="width: 15rem" /></a>
+        <br>
+        <a href='https://ziedelth.fr/attachments/jais.apk' target="_blank"><img alt='Disponible sur Google Play' src='https://support.pix4d.com/hc/article_attachments/360012929392/apk-file-format-symbol.png' style="width: 13rem" /></a>
       </div>
     </div>
 
     <LoadingComponent :is-loading="isLoading" />
 
     <div v-if="!isLoading">
-      <p v-if="error !== null" class="alert-danger text-danger">{{ error }}</p>
-
-      <div v-else>
-        <div class="mb-3">
-          <p class="text mt-0 muted fw-bold">Les derniers épisodes sortis</p>
-          <Episodes :episodes="episodes" @refresh="getEpisodes"/>
-        </div>
-
-        <div class="mb-3">
-          <p class="text mt-0 muted fw-bold">Les derniers scans sortis</p>
-          <Scans :scans="scans" @refresh="getScans"/>
-        </div>
+      <div class="mb-3">
+        <p class="text mt-0 muted fw-bold">Les derniers épisodes sortis</p>
+        <Episodes :episodes="episodes" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import Utils from "@/utils";
-import {mapState} from "vuex";
+import Const from "@/const";
+import MyBrotli from "@/libs/my_brotli";
 
 const LoadingComponent = () => import("@/components/LoadingComponent");
 const Episodes = () => import("@/components/Episodes");
-const Scans = () => import("@/components/Scans");
 
 export default {
   name: "Jais",
-  components: {LoadingComponent, Episodes, Scans},
-  computed: {
-    ...mapState(['currentCountry'])
-  },
+  components: {LoadingComponent, Episodes},
   data() {
     return {
-      limit: 12,
-      pageEpisodes: 1,
-      pageScans: 1,
-
+      page: 1,
       isLoading: true,
       episodes: [],
-      scans: [],
-      error: null,
     }
   },
   methods: {
-    // Get episodes
-    async getEpisodes() {
-      await Utils.get(`api/v1/country/${this.currentCountry.tag}/page/${this.pageEpisodes}/limit/${this.limit}/episodes`, (success) => {
-        this.episodes = success
-      }, (failed) => {
-        this.error = failed
-      })
-    },
-
-    // Get scans
-    async getScans() {
-      await Utils.get(`api/v1/country/${this.currentCountry.tag}/page/${this.pageScans}/limit/${this.limit}/scans`, (success) => {
-        this.scans = success
-      }, (failed) => {
-        this.error = failed
-      })
+    async load() {
+      try {
+        const response = await fetch(`${Const.API_URL}v2/episodes/country/fr/page/${this.page}/limit/12`)
+        const data = await response.text()
+        this.episodes.push(...JSON.parse(MyBrotli(data)))
+      } catch (e) {
+        console.error(e)
+      }
     },
   },
-  async mounted() {
+  async created() {
     this.isLoading = true
-    await this.getEpisodes()
-    await this.getScans()
+    await this.load()
     this.isLoading = false
+
+    window.onscroll = () => {
+      let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
+
+      if (bottomOfWindow) {
+        this.page++
+        this.load()
+      }
+    };
   }
 }
 </script>
