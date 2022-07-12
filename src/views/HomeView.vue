@@ -4,7 +4,7 @@
   </div>
 </template>
 <script>
-const Jais = () => import("@/components/Jais");
+import Jais from "@/components/Jais";
 
 export default {
   components: {Jais},

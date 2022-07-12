@@ -1,6 +1,5 @@
 import {BrotliDecode} from "@/libs/brotli_decode";
-
-const utf8 = require('utf8');
+const decoder = new TextDecoder("utf-8");
 
 /**
  * @param {string} str
@@ -21,7 +20,7 @@ function bytesToString(bytes) {
 }
 
 function decode(str) {
-    return utf8.decode(bytesToString(BrotliDecode(stringToBytes(atob(str)))));
+    return decoder.decode(BrotliDecode(stringToBytes(atob(str))));
 }
 
 export default decode

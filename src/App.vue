@@ -4,7 +4,7 @@
 
     <main class="my-3 vertical-center text-center w-100">
       <div class="container-fluid">
-        <router-view :key="$route.fullPath"/>
+        <router-view />
       </div>
     </main>
 
@@ -13,8 +13,8 @@
 </template>
 
 <script>
-const Navbar = () => import("@/components/NavbarComponent");
-const Footer = () => import("@/components/FooterComponent");
+import Navbar from "@/components/NavbarComponent";
+import Footer from "@/components/FooterComponent";
 
 export default {
   components: {Footer, Navbar},

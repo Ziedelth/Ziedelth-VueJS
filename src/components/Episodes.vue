@@ -7,7 +7,7 @@
 </template>
 
 <script>
-const EpisodeComponent = () => import("@/components/EpisodeComponent");
+import EpisodeComponent from "@/components/EpisodeComponent";
 
 export default {
   name: 'Episodes',

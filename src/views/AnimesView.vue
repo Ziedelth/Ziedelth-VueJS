@@ -24,8 +24,8 @@
 import Const from "@/const";
 import MyBrotli from "@/libs/my_brotli";
 
-const LoadingComponent = () => import("@/components/LoadingComponent");
-const AnimeComponent = () => import("@/components/AnimeComponent");
+import LoadingComponent from "@/components/LoadingComponent";
+import AnimeComponent from "@/components/AnimeComponent";
 
 export default {
   components: {AnimeComponent, LoadingComponent},
