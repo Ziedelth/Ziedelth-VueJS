@@ -46,8 +46,11 @@ export default {
     },
     async changeSimulcast(simulcast) {
       this.currentSimulcast = simulcast
+      this.page = 1
       this.animes = []
+      this.isLoading = true
       await this.loadAnimes()
+      this.isLoading = false
     },
     async load() {
       try {
