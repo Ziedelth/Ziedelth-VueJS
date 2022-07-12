@@ -11,18 +11,18 @@
           <p class="lead mt-0 mb-0 fw-bold">Un bot fana d'animés et de mangas</p>
 
           <div class="d-inline w-100">
-            <a class="link-color" href="https://twitter.com/Jaiss___" target="_blank"><b-icon-twitter class="mx-2" /></a>
-            <a class="link-color" href="https://www.instagram.com/jais_zie/" target="_blank"><b-icon-instagram class="mx-2" /></a>
-            <a class="link-color" href="https://github.com/Ziedelth/Jais" target="_blank"><b-icon-github class="mx-2" /></a>
-            <a class="link-color" href="#"><b-icon-discord class="mx-2" /></a>
+            <a class="link-color" href="https://twitter.com/Jaiss___" target="_blank"><img alt="Twitter" height="20" src="../assets/svg/twitter.svg" class="mx-2" width="20"></a>
+            <a class="link-color" href="https://www.instagram.com/jais_zie/" target="_blank"><img alt="Instagram" height="20" src="../assets/svg/instagram.svg" class="mx-2" width="20"></a>
+            <a class="link-color" href="https://github.com/Ziedelth/Jais" target="_blank"><img alt="GitHub" height="20" src="../assets/svg/github.svg" class="mx-2" width="20"></a>
+            <a class="link-color" href="#"><img alt="Discord" height="20" src="../assets/svg/discord.svg" class="mx-2" width="20"></a>
           </div>
         </div>
       </div>
 
       <div class="col-lg-4 mt-0">
-        <a href='https://play.google.com/store/apps/details?id=fr.ziedelth.jais&gl=FR&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1' target="_blank"><img alt='Disponible sur Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/fr_badge_web_generic.png' style="width: 15rem" /></a>
+        <a href='https://play.google.com/store/apps/details?id=fr.ziedelth.jais&gl=FR&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1' target="_blank"><img alt='Disponible sur Google Play' src='images/google_play.png' style="width: 15rem" /></a>
         <br>
-        <a href='https://ziedelth.fr/attachments/jais.apk' target="_blank"><img alt='Disponible sur Google Play' src='https://support.pix4d.com/hc/article_attachments/360012929392/apk-file-format-symbol.png' style="width: 13rem" /></a>
+        <a href='https://ziedelth.fr/attachments/jais.apk' target="_blank"><img alt='Disponible sur Google Play' src='images/apk.png' style="width: 13rem" /></a>
       </div>
     </div>
 

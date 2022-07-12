@@ -41,9 +41,6 @@ export default {
 }
 
 .vertical-center {
-  min-height: 83.5vh;
-
-  display: flex;
-  align-items: center;
+  min-height: 85vh;
 }
 </style>

@@ -1,19 +1,25 @@
 <template>
-  <header>
-    <b-navbar toggleable="lg" type="dark" variant="dark">
-      <b-navbar-brand class="ms-3">
-        <img alt="" class="m-0 p-0 d-inline-block align-text-top me-2 rounded" src="images/favicon.jpg" width="30" height="30">
-        Ziedelth.fr
-      </b-navbar-brand>
+  <header class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <div class="navbar-brand d-flex">
+        <img alt="" class="bi me-2 rounded" src="images/favicon.jpg" width="30" height="30">
+        <h1 class="fs-4">Ziedelth.fr</h1>
+      </div>
 
-      <b-navbar-toggle target="nav-collapse" class="me-3" />
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-      <b-collapse id="nav-collapse" is-nav>
-        <b-navbar-nav class="ms-3">
-          <router-link class="nav-link" to="/">Accueil</router-link>
-          <router-link class="nav-link" to="/animes">Animes</router-link>
-        </b-navbar-nav>
-      </b-collapse>
-    </b-navbar>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <router-link class="nav-link" to="/">Accueil</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link class="nav-link" to="/animes">Animes</router-link>
+          </li>
+        </ul>
+      </div>
+    </div>
   </header>
 </template>

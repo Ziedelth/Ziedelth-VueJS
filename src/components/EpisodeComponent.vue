@@ -17,7 +17,10 @@
         <br>
         {{ toDescription() }}
         <br>
-        <i class="bi bi-camera-reels-fill"></i>
+        <img :alt="`Episode duration ${toHHMMSS()}`"
+             height="20"
+             src="../assets/svg/camera.svg"
+             width="20">
         {{ toHHMMSS() }}
       </p>
     </div>
@@ -95,8 +98,8 @@ export default {
 
 <style>
 .platform-thumbnail {
-  width: 3vh;
-  height: 3vh;
+  width: 2.5vh;
+  height: 2.5vh;
   border-radius: 50%;
   margin: .25rem;
 }
