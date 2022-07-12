@@ -4,7 +4,7 @@
       <div class="col-lg-4" />
 
       <div class="col-lg-4">
-        <img alt="Jaïs brand" class="m-0 p-0 img-fluid collapsed border-color rounded-circle shadow" src="images/jais.jpg" width="120" height="120"/>
+        <img alt="Jaïs brand" class="m-0 p-0 img-fluid collapsed border-color rounded-circle shadow" src="images/jais.webp" width="120" height="120"/>
 
         <div class="container-fluid">
           <h2 class="mt-2 mb-0 fw-bold">Jaïs</h2>
@@ -20,9 +20,9 @@
       </div>
 
       <div class="col-lg-4 mt-0">
-        <a href='https://play.google.com/store/apps/details?id=fr.ziedelth.jais&gl=FR&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1' target="_blank"><img alt='Disponible sur Google Play' src='images/google_play.png' style="width: 15rem" /></a>
+        <a href='https://play.google.com/store/apps/details?id=fr.ziedelth.jais&gl=FR&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1' target="_blank"><img alt='Disponible sur Google Play' src='images/google_play.webp' style="width: 15rem" /></a>
         <br>
-        <a href='https://ziedelth.fr/attachments/jais.apk' target="_blank"><img alt='Disponible sur Google Play' src='images/apk.png' style="width: 13rem" /></a>
+        <a href='https://ziedelth.fr/attachments/jais.apk' target="_blank"><img alt='Disponible sur Google Play' src='images/apk.webp' style="width: 13rem" /></a>
       </div>
     </div>
 

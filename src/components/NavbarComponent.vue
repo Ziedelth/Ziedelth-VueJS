@@ -2,11 +2,11 @@
   <header class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
       <div class="navbar-brand d-flex">
-        <img alt="" class="bi me-2 rounded" src="images/favicon.jpg" width="30" height="30">
+        <img alt="" class="bi me-2 rounded" src="images/favicon.webp" width="30" height="30">
         <h1 class="fs-4">Ziedelth.fr</h1>
       </div>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" @click="toggle()">
         <span class="navbar-toggler-icon"></span>
       </button>
 
@@ -23,3 +23,14 @@
     </div>
   </header>
 </template>
+
+<script>
+export default {
+  methods: {
+    toggle() {
+      const navbar = document.getElementById("navbarSupportedContent");
+      navbar.classList.toggle("show");
+    }
+  }
+}
+</script>
