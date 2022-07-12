@@ -23,7 +23,6 @@
 <script>
 import Const from "@/const";
 import MyBrotli from "@/libs/my_brotli";
-
 import LoadingComponent from "@/components/LoadingComponent";
 import AnimeComponent from "@/components/AnimeComponent";
 

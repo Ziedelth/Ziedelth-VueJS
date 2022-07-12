@@ -17,33 +17,13 @@
 </template>
 
 <script>
-import Const from "@/const";
+import Utils from "@/libs/Utils";
 
 export default {
   name: 'AnimeComponent',
+  extends: Utils,
   props: {
     anime: {},
-  },
-  methods: {
-    getAttachment(src) {
-      if (src == null || src.startsWith("http")) {
-        return src;
-      }
-
-      return Const.ATTACHMENTS_URL + src;
-    },
-    joinGenres() {
-      return this.anime.genres.map(genre => genre.fr).join(", ");
-    }
   }
 }
 </script>
-
-<style scoped>
-.anime-description {
-  display: -webkit-box;
-  -webkit-line-clamp: 5;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-</style>

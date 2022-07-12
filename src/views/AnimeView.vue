@@ -6,11 +6,11 @@
       <div class="container-fluid">
         <div class="container mb-3">
           <div class="row g-3">
-            <div class="col-lg-3 text-end">
+            <div class="col-lg-3 text-lg-end">
               <img :src="getAttachment(anime.image)" alt="Anime image" class="rounded" style="width: auto; height: 20vh">
             </div>
 
-            <div class="col-lg-9 text-start">
+            <div class="col-lg-9 text-lg-start">
               <h3>{{ anime.name }}</h3>
               <p>{{ joinGenres() }}</p>
               <hr>
@@ -27,13 +27,14 @@
 
 <script>
 import Const from "@/const";
+import Utils from "@/libs/Utils";
 import MyBrotli from "@/libs/my_brotli";
-
 import LoadingComponent from "@/components/LoadingComponent";
 import Episodes from "@/components/Episodes";
 
 export default {
   components: {LoadingComponent, Episodes},
+  extends: Utils,
   data() {
     return {
       page: 1,
@@ -55,20 +56,6 @@ export default {
       } catch (e) {
         console.error(e)
       }
-    },
-    getAttachment(src) {
-      if (src == null || src.startsWith("http")) {
-        return src;
-      }
-
-      return Const.ATTACHMENTS_URL + src;
-    },
-    joinGenres() {
-      if (this.anime.genres == null) {
-        return "";
-      }
-
-      return this.anime.genres.map(genre => genre.fr).join(", ");
     }
   },
   async created() {
@@ -87,9 +74,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.w-10 {
-  width: 10% !important
-}
-</style>

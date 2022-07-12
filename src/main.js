@@ -8,6 +8,7 @@ import AnimeView from '@/views/AnimeView'
 import CGUView from '@/views/CGUView'
 import NotFoundView from '@/views/NotFoundView'
 
+import '@/assets/global.css'
 import '@/assets/bootstrap.min.css'
 
 const app = createApp(App)

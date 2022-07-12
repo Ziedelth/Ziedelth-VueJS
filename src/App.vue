@@ -20,27 +20,3 @@ export default {
   components: {Footer, Navbar},
 }
 </script>
-
-<style>
-.bg-full-dark {
-  background-color: black;
-}
-
-.link-color {
-  text-decoration: none;
-  color: #f6a65f;
-  font-weight: 700;
-}
-
-.link-color:hover {
-  color: #f1a60b;
-}
-
-.border-color {
-  border: #f6a65f 1px solid;
-}
-
-.vertical-center {
-  min-height: 85vh;
-}
-</style>

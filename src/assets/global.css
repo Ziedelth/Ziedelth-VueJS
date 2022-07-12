@@ -1,0 +1,51 @@
+.anime-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.platform-thumbnail {
+  width: 2.5vh;
+  height: 2.5vh;
+  border-radius: 50%;
+  margin: .25rem;
+}
+
+.spinner {
+  animation-name: spin;
+  animation-duration: 2500ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.bg-full-dark {
+  background-color: black;
+}
+
+.link-color {
+  text-decoration: none;
+  color: #f6a65f;
+  font-weight: 700;
+}
+
+.link-color:hover {
+  color: #f1a60b;
+}
+
+.border-color {
+  border: #f6a65f 1px solid;
+}
+
+.vertical-center {
+  min-height: 85vh;
+}
